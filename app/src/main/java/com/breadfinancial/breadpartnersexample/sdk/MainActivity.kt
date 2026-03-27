@@ -286,11 +286,10 @@ class MainActivity : AppCompatActivity() {
 
                     val textView = binding.textView
                     val spannable = event.spannableText
-
-
+                    
                     // If you want to correctly style the text view with link functionality,
                     // you can call the actionPlacement function,
-                    actionPlacement(spannable, primaryColor)
+                    actionPlacement(spannable, primaryColor, textView, customFont)
 
                     // If you want to correctly style the text view without link functionality,
                     // you can call the noActionPlacement function,
@@ -533,12 +532,18 @@ class MainActivity : AppCompatActivity() {
         textView.highlightColor = Color.TRANSPARENT
     }
 
-    private fun actionPlacement(spannable: Spannable, primaryColor: String) {
+    private fun actionPlacement(
+        spannable: Spannable,
+        primaryColor: String,
+        textView: TextView,
+        customFont: Typeface?
+    ) {
         val clickableSpans =
             spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
         val normalTextEndIndex =
             clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
 
+        textView.typeface = customFont
 
         spannable.apply {
             setSpan(
