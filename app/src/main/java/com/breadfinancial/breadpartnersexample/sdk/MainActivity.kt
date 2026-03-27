@@ -21,11 +21,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
-import android.text.Spannable
 import android.text.method.LinkMovementMethod
-import android.text.style.AbsoluteSizeSpan
 import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -104,7 +101,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun generatePlacement() {
-        // For using TestData file do val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType1"] ?: emptyMap()
+//         For using TestData file do
+//        val placementRequestType =
+//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
         val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
@@ -290,37 +289,37 @@ class MainActivity : AppCompatActivity() {
                     val normalTextEndIndex =
                         clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
 
-                    spannable.apply {
-                        setSpan(
-                            ForegroundColorSpan(Color.BLACK),
-                            0,
-                            normalTextEndIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                        setSpan(
-                            AbsoluteSizeSpan(17, true),
-                            0,
-                            normalTextEndIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-
-                        setSpan(
-                            ForegroundColorSpan(Color.parseColor(primaryColor)),
-                            normalTextEndIndex,
-                            spannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-
-                        setSpan(
-                            AbsoluteSizeSpan(17, true),
-                            normalTextEndIndex,
-                            spannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
+//                    spannable.apply {
+//                        setSpan(
+//                            ForegroundColorSpan(Color.BLACK),
+//                            0,
+//                            normalTextEndIndex,
+//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                        setSpan(
+//                            AbsoluteSizeSpan(17, true),
+//                            0,
+//                            normalTextEndIndex,
+//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//
+//                        setSpan(
+//                            ForegroundColorSpan(Color.parseColor(primaryColor)),
+//                            normalTextEndIndex,
+//                            spannable.length,
+//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//
+//                        setSpan(
+//                            AbsoluteSizeSpan(17, true),
+//                            normalTextEndIndex,
+//                            spannable.length,
+//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
 
                     textView.text = spannable
-                    textView.typeface = customFont
+                    textView.highlightColor = Color.TRANSPARENT
                     textView.movementMethod = LinkMovementMethod.getInstance()
                 }
 
