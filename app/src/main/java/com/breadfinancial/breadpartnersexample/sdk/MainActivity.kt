@@ -29,6 +29,7 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -104,7 +105,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun generatePlacement() {
-        // For using TestData file do val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType1"] ?: emptyMap()
+//         For using TestData file do
+//        val placementRequestType =
+//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
         val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
@@ -282,45 +285,17 @@ class MainActivity : AppCompatActivity() {
                      */
 
                     val textView = binding.textView
-
                     val spannable = event.spannableText
+                    
+                    // If you want to correctly style the text view with link functionality,
+                    // you can call the actionPlacement function,
+                    actionPlacement(spannable, primaryColor, textView, customFont)
 
-                    val clickableSpans =
-                        spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
-                    val normalTextEndIndex =
-                        clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
-
-                    spannable.apply {
-                        setSpan(
-                            ForegroundColorSpan(Color.BLACK),
-                            0,
-                            normalTextEndIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                        setSpan(
-                            AbsoluteSizeSpan(17, true),
-                            0,
-                            normalTextEndIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-
-                        setSpan(
-                            ForegroundColorSpan(Color.parseColor(primaryColor)),
-                            normalTextEndIndex,
-                            spannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-
-                        setSpan(
-                            AbsoluteSizeSpan(17, true),
-                            normalTextEndIndex,
-                            spannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
+                    // If you want to correctly style the text view without link functionality,
+                    // you can call the noActionPlacement function,
+//                     noActionPlacement(textView)
 
                     textView.text = spannable
-                    textView.typeface = customFont
                     textView.movementMethod = LinkMovementMethod.getInstance()
                 }
 
@@ -552,5 +527,54 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun noActionPlacement(textView: TextView) {
+        textView.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+        textView.highlightColor = Color.TRANSPARENT
+    }
+
+    private fun actionPlacement(
+        spannable: Spannable,
+        primaryColor: String,
+        textView: TextView,
+        customFont: Typeface?
+    ) {
+        val clickableSpans =
+            spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
+        val normalTextEndIndex =
+            clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
+
+        textView.typeface = customFont
+
+        spannable.apply {
+            setSpan(
+                ForegroundColorSpan(Color.BLACK),
+                0,
+                normalTextEndIndex,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            setSpan(
+                AbsoluteSizeSpan(17, true),
+                0,
+                normalTextEndIndex,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            setSpan(
+                ForegroundColorSpan(Color.parseColor(primaryColor)),
+                normalTextEndIndex,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            setSpan(
+                AbsoluteSizeSpan(17, true),
+                normalTextEndIndex,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
 }
+
+
 
