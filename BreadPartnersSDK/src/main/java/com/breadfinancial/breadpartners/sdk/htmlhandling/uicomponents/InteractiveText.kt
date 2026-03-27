@@ -67,7 +67,7 @@ class InteractiveText @JvmOverloads constructor(
         val spannableContent: Spannable = if (actionType == PlacementActionType.NO_ACTION.value) {
             createSpannableNoActionText(htmlContent, clickableText)
         } else {
-            createSpannableText(normalText, clickableText)
+            createSpannableText("$normalText ", clickableText)
         }
 
         text = spannableContent
