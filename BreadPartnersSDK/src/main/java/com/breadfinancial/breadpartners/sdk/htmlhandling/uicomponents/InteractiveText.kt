@@ -65,7 +65,7 @@ class InteractiveText @JvmOverloads constructor(
         }
 
         val spannableContent: Spannable = if (actionType == PlacementActionType.NO_ACTION.value) {
-            createSpannableNoActionText(htmlContent, clickableText)
+            createSpannableNoActionText(htmlContent)
         } else {
             createSpannableText("$normalText ", clickableText)
         }
@@ -75,7 +75,7 @@ class InteractiveText @JvmOverloads constructor(
     }
 
     private fun createSpannableNoActionText(
-        htmlContent: String, clickableText: String
+        htmlContent: String
     ): Spannable {
         val htmlSpanned = HtmlCompat.fromHtml(
             htmlContent,
@@ -87,7 +87,7 @@ class InteractiveText @JvmOverloads constructor(
         spannableString.setSpan(
             object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    tapHandler?.invoke(clickableText)
+                    tapHandler?.invoke("")
                     widget.clearFocus()
                     widget.invalidate()
                 }

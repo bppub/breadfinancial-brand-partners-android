@@ -21,11 +21,15 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
+import android.text.Spannable
 import android.text.method.LinkMovementMethod
+import android.text.style.AbsoluteSizeSpan
 import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -281,45 +285,18 @@ class MainActivity : AppCompatActivity() {
                      */
 
                     val textView = binding.textView
-
                     val spannable = event.spannableText
 
-                    val clickableSpans =
-                        spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
-                    val normalTextEndIndex =
-                        clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
 
-//                    spannable.apply {
-//                        setSpan(
-//                            ForegroundColorSpan(Color.BLACK),
-//                            0,
-//                            normalTextEndIndex,
-//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                        )
-//                        setSpan(
-//                            AbsoluteSizeSpan(17, true),
-//                            0,
-//                            normalTextEndIndex,
-//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                        )
-//
-//                        setSpan(
-//                            ForegroundColorSpan(Color.parseColor(primaryColor)),
-//                            normalTextEndIndex,
-//                            spannable.length,
-//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                        )
-//
-//                        setSpan(
-//                            AbsoluteSizeSpan(17, true),
-//                            normalTextEndIndex,
-//                            spannable.length,
-//                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                        )
-//                    }
+                    // If you want to correctly style the text view with link functionality,
+                    // you can call the actionPlacement function,
+                    actionPlacement(spannable, primaryColor)
+
+                    // If you want to correctly style the text view without link functionality,
+                    // you can call the noActionPlacement function,
+//                     noActionPlacement(textView)
 
                     textView.text = spannable
-                    textView.highlightColor = Color.TRANSPARENT
                     textView.movementMethod = LinkMovementMethod.getInstance()
                 }
 
@@ -551,5 +528,48 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun noActionPlacement(textView: TextView) {
+        textView.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+        textView.highlightColor = Color.TRANSPARENT
+    }
+
+    private fun actionPlacement(spannable: Spannable, primaryColor: String) {
+        val clickableSpans =
+            spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
+        val normalTextEndIndex =
+            clickableSpans.firstOrNull()?.let { spannable.getSpanStart(it) } ?: 0
+
+
+        spannable.apply {
+            setSpan(
+                ForegroundColorSpan(Color.BLACK),
+                0,
+                normalTextEndIndex,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            setSpan(
+                AbsoluteSizeSpan(17, true),
+                0,
+                normalTextEndIndex,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            setSpan(
+                ForegroundColorSpan(Color.parseColor(primaryColor)),
+                normalTextEndIndex,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            setSpan(
+                AbsoluteSizeSpan(17, true),
+                normalTextEndIndex,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
 }
+
+
 
