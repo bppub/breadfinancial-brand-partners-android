@@ -47,6 +47,7 @@ class APIClient {
      *   - method: HTTP method (e.g., "GET", "POST").
      *   - body: Optional request body, can be a map (`Map<String, Any>`) or a model that implements `Serializable`.
      *   - headers: Optional headers body, can be a map (`Map<String, Any>`) or null.
+     *   - cookies: Optional cookies string to send with the request.
      *   - completion: A lambda to handle the result, returning success with response or failure with error.
      */
     fun request(
@@ -54,6 +55,7 @@ class APIClient {
         method: HTTPMethod,
         body: Any?,
         headers: Map<String, String>? = null,
+        cookies: String? = null,
         completion: (Result<Any>) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -70,13 +72,21 @@ class APIClient {
                 )
                 val updatedHeaders = (headers ?: emptyMap()) + genericHeader
 
-                updatedHeaders.forEach { (key, value) ->
+                // Add cookies if provided
+                val finalHeaders = if (!cookies.isNullOrEmpty()) {
+                    Logger.printLog("Adding cookies to request: ${cookies.take(100)}...")
+                    updatedHeaders + ("Cookie" to cookies)
+                } else {
+                    updatedHeaders
+                }
+
+                finalHeaders.forEach { (key, value) ->
                     connection.setRequestProperty(key, value)
                 }
 
                 Logger.logRequestDetails(urlString,
                     method.value,
-                    updatedHeaders,
+                    finalHeaders,
                     body?.let { Gson().toJson(it).toByteArray() })
 
                 body?.let {

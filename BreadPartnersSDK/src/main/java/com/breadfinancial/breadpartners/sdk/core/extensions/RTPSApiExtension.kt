@@ -85,6 +85,7 @@ internal fun BreadPartnersSDK.rtpsCall(
     placementsConfiguration: PlacementsConfiguration,
     viewContext: Context,
     callback: (BreadPartnerEvent) -> Unit,
+    cookies: String? = null,
 ) {
     // Check for Batch Prescreen Flow when prescreen id has to be entered by user.
     if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
@@ -156,15 +157,25 @@ internal fun BreadPartnersSDK.rtpsCall(
             reCaptchaToken = reCaptchaToken
         )
         val rtpsRequest = rtpsRequestBuilder.build()
-        val headers = mapOf(
-            Constants.headerClientKey to integrationKey,
-            Constants.headerRequestedWithKey to Constants.headerRequestedWithValue
-        )
+        val headers = buildMap {
+            put(Constants.headerClientKey, integrationKey)
+            put(Constants.headerRequestedWithKey, Constants.headerRequestedWithValue)
+            put("X-Bread-Testing", "captcha")
+        }
+
+        // Log cookies if present
+        if (!cookies.isNullOrEmpty()) {
+            Logger.printLog("Making RTPS API call with captured cookies: ${cookies.take(100)}...")
+        } else {
+            Logger.printLog("Making RTPS API call without cookies")
+        }
+
         APIClient().request(
             urlString = apiUrl,
             method = HTTPMethod.POST,
             body = rtpsRequest,
-            headers = headers
+            headers = headers,
+            cookies = cookies
         ) { result ->
             when (result) {
                 is Result.Success -> {
@@ -226,13 +237,14 @@ internal fun BreadPartnersSDK.rtpsCall(
                         val challengeDialog = ChallengeDialog(
                             htmlContent = htmlContent,
                             baseUrl = apiUrl.substringBefore("/api"),
-                            onComplete = {
-                                // Retry the API call after challenge completion
+                            onComplete = { capturedCookies ->
+                                // Retry the API call after challenge completion with captured cookies
                                 rtpsCall(
                                     merchantConfiguration,
                                     placementsConfiguration,
                                     viewContext,
                                     callback,
+                                    capturedCookies,
                                 )
                             }
                         )
