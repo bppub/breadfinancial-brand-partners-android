@@ -86,21 +86,21 @@ internal fun BreadPartnersSDK.rtpsCall(
     viewContext: Context,
     callback: (BreadPartnerEvent) -> Unit,
 ) {
-    // Check for Batch Prescreen Flow when prescreen id has to be entered by user.
-    if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
-        return fetchRTPSData(
-            merchantConfiguration = merchantConfiguration,
-            placementsConfiguration = placementsConfiguration,
-            viewContext = viewContext,
-            callback = callback,
-        )
-    }
+//    // Check for Batch Prescreen Flow when prescreen id has to be entered by user.
+//    if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
+//        return fetchRTPSData(
+//            merchantConfiguration = merchantConfiguration,
+//            placementsConfiguration = placementsConfiguration,
+//            viewContext = viewContext,
+//            callback = callback,
+//        )
+//    }
 
     // Check if it is a regular RTPS flow or Batch Prescreen (prescreenId is known).
     val isPrescreen = placementsConfiguration.rtpsData?.prescreenId == null
 
     // Validate required fields for prescreen requests
-    if (isPrescreen) {
+//    if (isPrescreen) {
         val buyer = merchantConfiguration.buyer
         val billingAddress = buyer?.billingAddress
 
@@ -128,12 +128,13 @@ internal fun BreadPartnersSDK.rtpsCall(
                 )
             )
 
-        }
+//        }
     }
 
     // Only obtain reCaptcha token for prescreen requests
     GlobalScope.launch {
-        val reCaptchaToken = if (isPrescreen) {
+        val reCaptchaToken =
+//            if (isPrescreen) {
             try {
                 executeSecurityCheck(merchantConfiguration = merchantConfiguration)
             } catch (e: Exception) {
@@ -142,9 +143,9 @@ internal fun BreadPartnersSDK.rtpsCall(
                 )
                 return@launch
             }
-        } else {
-            ""
-        }
+//        } else {
+//            ""
+//        }
 
 
         val apiUrl = APIUrl(
@@ -264,19 +265,20 @@ fun BreadPartnersSDK.fetchRTPSData(
 ) {
     val apiUrl = APIUrl(urlType = APIUrlType.GeneratePlacements).url
 
-    val webUrl: String? = if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
-        CommonUtils().buildBpsWebURL(
-            integrationKey = integrationKey,
-            merchantConfiguration = merchantConfiguration,
-            placementsConfiguration,
-        )?.toString()
-    } else {
+    val webUrl: String? =
+//        if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
+//        CommonUtils().buildBpsWebURL(
+//            integrationKey = integrationKey,
+//            merchantConfiguration = merchantConfiguration,
+//            placementsConfiguration,
+//        )?.toString()
+//    } else {
         CommonUtils().buildRTPSWebURL(
             integrationKey = integrationKey,
             merchantConfiguration = merchantConfiguration,
             rtpsConfig = placementsConfiguration.rtpsData!!,
         )?.toString()
-    }
+//    }
 
     val placementRequest = PlacementRequest(
         placements = listOf(
