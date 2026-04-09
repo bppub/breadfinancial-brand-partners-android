@@ -90,13 +90,9 @@ class ChallengeDialog(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
-                Logger.printLog("shouldOverrideUrlLoading - url: ${request?.url}")
-
                 // After initial page load, prevent all navigation attempts
                 // This happens when captcha completes and tries to navigate
                 if (initialPageLoaded && !challengeCompleted) {
-                    Logger.printLog("Navigation attempt detected after initial load - checking for completion")
-
                     // Check if this navigation is due to captcha completion
                     handler.postDelayed({
                         checkForCompletionNow()
@@ -110,7 +106,6 @@ class ChallengeDialog(
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                Logger.printLog("Challenge onPageFinished - url: $url")
 
                 // On first load, capture initial cookies and start monitoring
                 if (!challengeCompleted && !initialPageLoaded) {
@@ -118,8 +113,6 @@ class ChallengeDialog(
                     pageLoadTime = System.currentTimeMillis()
                     val cookieManager = CookieManager.getInstance()
                     initialCookies = cookieManager.getCookie(baseUrl) ?: ""
-                    Logger.printLog("Initial cookies captured: ${initialCookies.take(100)}...")
-                    Logger.printLog("Page loaded at: $pageLoadTime")
 
                     // Start monitoring for cookie changes (indicates captcha completion)
                     startCookieMonitoring(view)
@@ -138,8 +131,6 @@ class ChallengeDialog(
     }
 
     private fun startCookieMonitoring(webView: WebView?) {
-        Logger.printLog("Starting cookie monitoring for captcha completion...")
-
         cookieCheckRunnable = object : Runnable {
             override fun run() {
                 if (challengeCompleted) {
@@ -164,10 +155,6 @@ class ChallengeDialog(
                     !extractSessionCookie(initialCookies).equals(extractSessionCookie(currentCookies))
 
                 if (currentCookies != initialCookies && currentCookies.isNotEmpty() && sessionCookieChanged) {
-                    Logger.printLog("Cookie change detected - captcha likely completed!")
-                    Logger.printLog("Elapsed time: ${elapsedTime}ms")
-                    Logger.printLog("New cookies: ${currentCookies.take(100)}...")
-
                     challengeCompleted = true
                     handler.removeCallbacks(this)
 
@@ -199,15 +186,9 @@ class ChallengeDialog(
         val currentCookies = cookieManager.getCookie(baseUrl) ?: ""
         val elapsedTime = System.currentTimeMillis() - pageLoadTime
 
-        Logger.printLog("Checking for completion immediately due to navigation attempt")
-        Logger.printLog("Elapsed time: ${elapsedTime}ms")
-
         // If navigation happens after minimum wait time, treat it as completion
         // The navigation itself is the signal that captcha was completed
         if (elapsedTime >= minimumWaitTimeMs && currentCookies.isNotEmpty()) {
-            Logger.printLog("Navigation after minimum wait time - captcha completed!")
-            Logger.printLog("Current cookies: ${currentCookies.take(100)}...")
-
             challengeCompleted = true
             cookieCheckRunnable?.let { handler.removeCallbacks(it) }
 

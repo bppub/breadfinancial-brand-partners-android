@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         binding.openExperienceBtn.setTextColor(Color.parseColor(primaryColor))
 
         BreadPartnersSDK.getInstance().setup(
-            environment = env ?: BreadPartnersEnvironment.UAT,
+            environment = env ?: BreadPartnersEnvironment.STAGE,
             enableLog = true,
             integrationKey = brandId ?: "",
             application = application

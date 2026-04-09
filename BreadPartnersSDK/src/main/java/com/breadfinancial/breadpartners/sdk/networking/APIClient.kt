@@ -74,7 +74,6 @@ class APIClient {
 
                 // Add cookies if provided
                 val finalHeaders = if (!cookies.isNullOrEmpty()) {
-                    Logger.printLog("Adding cookies to request: ${cookies.take(100)}...")
                     updatedHeaders + ("Cookie" to cookies)
                 } else {
                     updatedHeaders

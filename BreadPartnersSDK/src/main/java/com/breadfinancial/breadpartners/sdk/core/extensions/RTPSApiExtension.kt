@@ -163,13 +163,6 @@ internal fun BreadPartnersSDK.rtpsCall(
             put("X-Bread-Testing", "captcha")
         }
 
-        // Log cookies if present
-        if (!cookies.isNullOrEmpty()) {
-            Logger.printLog("Making RTPS API call with captured cookies: ${cookies.take(100)}...")
-        } else {
-            Logger.printLog("Making RTPS API call without cookies")
-        }
-
         APIClient().request(
             urlString = apiUrl,
             method = HTTPMethod.POST,
