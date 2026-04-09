@@ -41,7 +41,7 @@ class ChallengeDialog(
     private var pageLoadTime: Long = 0L
     private val handler = Handler(Looper.getMainLooper())
     private var cookieCheckRunnable: Runnable? = null
-    private val minimumWaitTimeMs = 3000L // Wait at least 3 seconds after page load before considering completion
+    private val minimumWaitTimeMs = 2000L // Wait at least 2 seconds after page load before considering completion
 
     override fun onStart() {
         super.onStart()
