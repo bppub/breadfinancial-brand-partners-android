@@ -24,7 +24,7 @@ sealed class APIUrlType {
     data object ClickPlacement : APIUrlType()
     data object PreScreen : APIUrlType()
     data object VirtualLookup : APIUrlType()
-    data object BatchPreScreen : APIUrlType()
+//    data object BatchPreScreen : APIUrlType()
 }
 
 // A centralized class for constructing and managing API URLs
@@ -72,6 +72,6 @@ class APIUrl(private val urlType: APIUrlType) {
             APIUrlType.ClickPlacement -> "$baseURL/ep/v1/click-placement"
             APIUrlType.PreScreen -> "$rtpsBaseURL/api/prescreen"
             APIUrlType.VirtualLookup -> "$rtpsBaseURL/api/virtual_lookup"
-            APIUrlType.BatchPreScreen -> "$rtpsBaseURL/batch-prescreen/start"
+//            APIUrlType.BatchPreScreen -> "$rtpsBaseURL/batch-prescreen/start"
         }
 }
