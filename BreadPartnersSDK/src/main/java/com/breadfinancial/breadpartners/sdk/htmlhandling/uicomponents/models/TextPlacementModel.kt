@@ -22,7 +22,7 @@ data class TextPlacementModel(
     val contentText: String?,
     val actionLink: String?,
     val actionContentId: String?,
-    val htmlContent: String?
+//    val htmlContent: String?
 )
 
 /**

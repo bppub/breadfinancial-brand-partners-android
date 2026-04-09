@@ -45,7 +45,7 @@ class HTMLContentParser {
         val paymentDetails =
             document.select(".ep-text-placement").text().replace(actionLink.orEmpty(), "")
                 .replace(paymentDetailsSup, "").trim()
-        val htmlContentWithFormatting = document.select(".ep-text-placement").html()
+//        val htmlContentWithFormatting = document.select(".ep-text-placement").html()
 
         val finalContentText = when {
             contentText == paymentDetails -> contentText
@@ -60,7 +60,7 @@ class HTMLContentParser {
             contentText = finalContentText,
             actionLink = actionLink,
             actionContentId = actionContentId,
-            htmlContent = htmlContentWithFormatting
+//            htmlContent = htmlContentWithFormatting
         )
     }
 
