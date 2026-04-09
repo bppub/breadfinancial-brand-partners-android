@@ -70,8 +70,9 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         // like placement ID, SDK transaction ID, environment, price, and brand ID.
         // This allows testing of various placement setups by fetching specific configurations
         // based on the placement type key.
-        val placementRequestType = mapOf<String, Any>()
-        // If using TestData file do: val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType200"] ?: emptyMap()
+//        val placementRequestType = mapOf<String, Any>()
+        // If using TestData file do:
+         val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType100"] ?: emptyMap()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val loyaltyId = placementRequestType["loyaltyId"] as? String?

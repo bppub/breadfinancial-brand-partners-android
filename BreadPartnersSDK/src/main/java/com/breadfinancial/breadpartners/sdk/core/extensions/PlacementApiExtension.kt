@@ -52,8 +52,10 @@ fun BreadPartnersSDK.fetchPlacementData(
     )
     val placementRequest = builder.build()
 
+    val headers = mapOf("X-Bread-Testing" to "captcha")
+
     APIClient().request(
-        urlString = apiUrl, method = HTTPMethod.POST, body = placementRequest
+        urlString = apiUrl, method = HTTPMethod.POST, body = placementRequest, headers = headers
     ) { result ->
         when (result) {
             is Result.Success -> {
