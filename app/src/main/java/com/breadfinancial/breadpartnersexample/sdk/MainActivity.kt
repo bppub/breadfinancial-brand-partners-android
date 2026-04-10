@@ -40,7 +40,6 @@ import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersBuyer
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersFinancingType
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersLocationType
-import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersMockOptions
 import com.breadfinancial.breadpartners.sdk.core.models.CurrencyValue
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.Name
@@ -51,7 +50,6 @@ import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
 import com.breadfinancial.breadpartners.sdk.core.models.PopupActionButtonStyle
 import com.breadfinancial.breadpartners.sdk.core.models.PopupTextStyle
-import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.replaceButton
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.replaceTextView
 import com.breadfinancial.breadpartnersexample.sdk.databinding.ActivityMainBinding

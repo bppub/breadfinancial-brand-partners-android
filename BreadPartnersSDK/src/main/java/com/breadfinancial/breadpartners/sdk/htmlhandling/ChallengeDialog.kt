@@ -16,23 +16,26 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import androidx.fragment.app.DialogFragment
 import com.breadfinancial.breadpartners.sdk.R
+import com.breadfinancial.breadpartners.sdk.utilities.Logger
 
 class ChallengeDialog(
     private val htmlContent: String,
     private val baseUrl: String,
-    private val onComplete: () -> Unit
+    private val onComplete: (cookies: String) -> Unit
 ) : DialogFragment() {
-
-    private var challengeCompleted: Boolean = false
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onStart() {
         super.onStart()
@@ -63,9 +66,15 @@ class ChallengeDialog(
             dismiss()
         }
 
+        // Enable cookie handling
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+        cookieManager.setAcceptThirdPartyCookies(webView, true)
+
         webView.settings.apply {
             javaScriptEnabled = true
             loadWithOverviewMode = true
+            domStorageEnabled = true
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -73,17 +82,13 @@ class ChallengeDialog(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
-                return false
-            }
+                // After initial page load, prevent all navigation attempts
+                // Check if this navigation is due to captcha completion
+                    handler.postDelayed({
+                        checkForCompletionNow()
+                    }, 500)
 
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (!challengeCompleted) {
-                    challengeCompleted = true
-                } else {
-                    dismiss()
-                    onComplete()
-                }
+                    return true // Block navigation
             }
         }
 
@@ -95,6 +100,32 @@ class ChallengeDialog(
             "UTF-8",
             null
         )
+    }
+
+    private fun checkForCompletionNow() {
+        val cookieManager = CookieManager.getInstance()
+        val currentCookies = cookieManager.getCookie(baseUrl) ?: ""
+
+        if (currentCookies.isNotEmpty()) {
+
+            // Give a small delay for any final cookies to settle
+            handler.postDelayed({
+                completeCaptcha()
+            }, 500)
+        }
+        else {
+            Logger.printLog("No cookies available - cannot complete")
+        }
+    }
+
+    private fun completeCaptcha() {
+        if (isAdded) {
+            val cookieManager = CookieManager.getInstance()
+            val cookies = cookieManager.getCookie(baseUrl) ?: ""
+            Logger.printLog("Completing captcha with cookies: ${cookies.take(100)}...")
+            dismiss()
+            onComplete(cookies)
+        }
     }
 
     override fun onDestroyView() {

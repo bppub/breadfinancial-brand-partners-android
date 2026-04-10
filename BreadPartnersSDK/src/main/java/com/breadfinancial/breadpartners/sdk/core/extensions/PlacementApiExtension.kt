@@ -17,6 +17,7 @@ import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
+import com.breadfinancial.breadpartners.sdk.htmlhandling.ChallengeDialog
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentRenderer
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
@@ -40,7 +41,8 @@ fun BreadPartnersSDK.fetchPlacementData(
     context: Context,
     splitTextAndAction: Boolean = false,
     openPlacementExperience: Boolean = false,
-    callback: (BreadPartnerEvent) -> Unit
+    callback: (BreadPartnerEvent) -> Unit,
+    cookies: String? = null,
 ) {
     val apiUrl = APIUrl(
         urlType = APIUrlType.GeneratePlacements
@@ -53,7 +55,10 @@ fun BreadPartnersSDK.fetchPlacementData(
     val placementRequest = builder.build()
 
     APIClient().request(
-        urlString = apiUrl, method = HTTPMethod.POST, body = placementRequest
+        urlString = apiUrl,
+        method = HTTPMethod.POST,
+        body = placementRequest,
+        cookies = cookies
     ) { result ->
         when (result) {
             is Result.Success -> {
@@ -119,11 +124,41 @@ fun BreadPartnersSDK.fetchPlacementData(
             }
 
             is Result.Failure -> {
-                callback(
-                    BreadPartnerEvent.SdkError(
-                        error = Exception(result.error)
+                // Check if this is an security challenge
+                val errorMessage = result.error.message ?: ""
+                if (errorMessage.startsWith(
+                        "Security challenge detected:",
+                        ignoreCase = true
                     )
-                )
+                ) {
+                    val htmlContent =
+                        errorMessage.removePrefix("Security challenge detected:").trim()
+
+                    val challengeDialog = ChallengeDialog(
+                        htmlContent = htmlContent,
+                        baseUrl = apiUrl.substringBefore("/api"),
+                        onComplete = { capturedCookies ->
+                            // Retry the API call after challenge completion with captured cookies
+                            fetchPlacementData(
+                                merchantConfiguration,
+                                placementsConfiguration,
+                                context,
+                                splitTextAndAction,
+                                openPlacementExperience,
+                                callback,
+                                capturedCookies,
+                            )
+                        }
+                    )
+
+                    callback(BreadPartnerEvent.RenderPopupView(dialogFragment = challengeDialog))
+                } else {
+                    callback(
+                        BreadPartnerEvent.SdkError(
+                            error = Exception(errorMessage)
+                        )
+                    )
+                }
             }
         }
     }
