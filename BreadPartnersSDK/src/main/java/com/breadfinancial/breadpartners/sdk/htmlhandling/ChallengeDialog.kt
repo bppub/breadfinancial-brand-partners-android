@@ -35,13 +35,7 @@ class ChallengeDialog(
     private val baseUrl: String,
     private val onComplete: (cookies: String) -> Unit
 ) : DialogFragment() {
-
-    private var challengeCompleted: Boolean = false
-    private var initialCookies: String = ""
-    private var pageLoadTime: Long = 0L
     private val handler = Handler(Looper.getMainLooper())
-    private var cookieCheckRunnable: Runnable? = null
-    private val minimumWaitTimeMs = 2000L // Wait at least 2 seconds after page load before considering completion
 
     override fun onStart() {
         super.onStart()
@@ -84,39 +78,17 @@ class ChallengeDialog(
         }
 
         webView.webViewClient = object : WebViewClient() {
-            private var initialPageLoaded = false
-
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
                 // After initial page load, prevent all navigation attempts
-                // This happens when captcha completes and tries to navigate
-                if (initialPageLoaded && !challengeCompleted) {
-                    // Check if this navigation is due to captcha completion
+                // Check if this navigation is due to captcha completion
                     handler.postDelayed({
                         checkForCompletionNow()
                     }, 500)
 
                     return true // Block navigation
-                }
-
-                return false // Allow initial load
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-
-                // On first load, capture initial cookies and start monitoring
-                if (!challengeCompleted && !initialPageLoaded) {
-                    initialPageLoaded = true
-                    pageLoadTime = System.currentTimeMillis()
-                    val cookieManager = CookieManager.getInstance()
-                    initialCookies = cookieManager.getCookie(baseUrl) ?: ""
-
-                    // Start monitoring for cookie changes (indicates captcha completion)
-                    startCookieMonitoring(view)
-                }
             }
         }
 
@@ -130,75 +102,18 @@ class ChallengeDialog(
         )
     }
 
-    private fun startCookieMonitoring(webView: WebView?) {
-        cookieCheckRunnable = object : Runnable {
-            override fun run() {
-                if (challengeCompleted) {
-                    return
-                }
-
-                val cookieManager = CookieManager.getInstance()
-                val currentCookies = cookieManager.getCookie(baseUrl) ?: ""
-                val elapsedTime = System.currentTimeMillis() - pageLoadTime
-
-                // Only check for completion after minimum wait time to avoid false positives during page load
-                if (elapsedTime < minimumWaitTimeMs) {
-                    Logger.printLog("Still in initial load period (${elapsedTime}ms elapsed), waiting...")
-                    handler.postDelayed(this, 500)
-                    return
-                }
-
-                // Check if cookies have changed meaningfully
-                // Look for session cookie changes which indicate captcha completion
-                val hasSessionCookie = currentCookies.contains("incap_ses_")
-                val sessionCookieChanged = hasSessionCookie &&
-                    !extractSessionCookie(initialCookies).equals(extractSessionCookie(currentCookies))
-
-                if (currentCookies != initialCookies && currentCookies.isNotEmpty() && sessionCookieChanged) {
-                    challengeCompleted = true
-                    handler.removeCallbacks(this)
-
-                    // Give a small delay for cookies to fully settle
-                    handler.postDelayed({
-                        completeCaptcha()
-                    }, 500)
-                } else {
-                    // Continue checking every 500ms
-                    handler.postDelayed(this, 500)
-                }
-            }
-        }
-
-        // Start checking after initial delay
-        handler.postDelayed(cookieCheckRunnable!!, 1000)
-    }
-
-    private fun extractSessionCookie(cookies: String): String {
-        // Extract the incap_ses cookie value for comparison
-        val regex = Regex("incap_ses_\\d+_\\d+=[^;]+")
-        return regex.find(cookies)?.value ?: ""
-    }
-
     private fun checkForCompletionNow() {
-        if (challengeCompleted) return
-
         val cookieManager = CookieManager.getInstance()
         val currentCookies = cookieManager.getCookie(baseUrl) ?: ""
-        val elapsedTime = System.currentTimeMillis() - pageLoadTime
 
-        // If navigation happens after minimum wait time, treat it as completion
-        // The navigation itself is the signal that captcha was completed
-        if (elapsedTime >= minimumWaitTimeMs && currentCookies.isNotEmpty()) {
-            challengeCompleted = true
-            cookieCheckRunnable?.let { handler.removeCallbacks(it) }
+        if (currentCookies.isNotEmpty()) {
 
             // Give a small delay for any final cookies to settle
             handler.postDelayed({
                 completeCaptcha()
             }, 500)
-        } else if (elapsedTime < minimumWaitTimeMs) {
-            Logger.printLog("Navigation too soon (${elapsedTime}ms < ${minimumWaitTimeMs}ms) - likely false positive")
-        } else {
+        }
+        else {
             Logger.printLog("No cookies available - cannot complete")
         }
     }
@@ -208,16 +123,12 @@ class ChallengeDialog(
             val cookieManager = CookieManager.getInstance()
             val cookies = cookieManager.getCookie(baseUrl) ?: ""
             Logger.printLog("Completing captcha with cookies: ${cookies.take(100)}...")
-
             dismiss()
             onComplete(cookies)
         }
     }
 
     override fun onDestroyView() {
-        // Stop cookie monitoring when dialog is destroyed
-        cookieCheckRunnable?.let { handler.removeCallbacks(it) }
-
         val webView = view?.findViewById<WebView>(R.id.challengeWebView)
         webView?.destroy()
         super.onDestroyView()
