@@ -158,12 +158,10 @@ internal fun BreadPartnersSDK.rtpsCall(
             reCaptchaToken = reCaptchaToken
         )
         val rtpsRequest = rtpsRequestBuilder.build()
-        val headers = buildMap {
-            put(Constants.headerClientKey, integrationKey)
-            put(Constants.headerRequestedWithKey, Constants.headerRequestedWithValue)
-            put("X-Bread-Testing", "captcha")
-        }
-
+        val headers = mapOf(
+            Constants.headerClientKey to integrationKey,
+            Constants.headerRequestedWithKey to Constants.headerRequestedWithValue
+        )
         APIClient().request(
             urlString = apiUrl,
             method = HTTPMethod.POST,

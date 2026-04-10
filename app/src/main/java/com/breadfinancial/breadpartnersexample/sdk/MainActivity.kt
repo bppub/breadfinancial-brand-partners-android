@@ -104,9 +104,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun generatePlacement() {
 //         For using TestData file do
-        val placementRequestType =
-            TestData.shared.placementConfigurations["textPlacementRequestType100"] ?: emptyMap()
-//        val placementRequestType = emptyMap<String, Any>()
+//        val placementRequestType =
+//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
+        val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val loyaltyId = placementRequestType["loyaltyId"] as? String?
