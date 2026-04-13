@@ -176,6 +176,26 @@ internal class BreadFinancialWebViewInterstitial(
                         }
                     }
 
+                    "UNIFIED_OFFERS_RECEIVED" -> {
+                        action.optJSONObject("payload")?.let { payload ->
+                            Logger.logApplicationResultDetails(payload)
+                            callback(BreadPartnerEvent.WebViewSuccess(result = payload))
+                            callback(BreadPartnerEvent.UnifiedOffersReceived(result = payload))
+                        }
+                    }
+
+                    "RECEIVE_PREQUAL_APPLICATION_RESULT" -> {
+                        action.optJSONObject("payload")?.let { payload ->
+                            Logger.logApplicationResultDetails(payload)
+                            callback(BreadPartnerEvent.WebViewSuccess(result = payload))
+                            callback(BreadPartnerEvent.ReceivePrequalApplicationResult(result = payload))
+                        }
+                    }
+
+                    "SUBMIT_PREQUAL_APPLICATION" -> {
+                        callback(BreadPartnerEvent.SubmitPrequalApplication)
+                    }
+
                     "APPLICATION_COMPLETED" -> {
                         callback(BreadPartnerEvent.ScreenName(name = "application-completed"))
                         callback(BreadPartnerEvent.PopupClosed)
