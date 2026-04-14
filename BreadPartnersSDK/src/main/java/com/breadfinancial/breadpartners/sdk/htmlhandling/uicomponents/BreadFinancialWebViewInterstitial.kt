@@ -192,6 +192,14 @@ internal class BreadFinancialWebViewInterstitial(
                         }
                     }
 
+                    "RECEIVE_UNIFIED_CHECKOUT_APPLICATION_RESULT" -> {
+                        action.optJSONObject("payload")?.let { payload ->
+                            Logger.logApplicationResultDetails(payload)
+                            callback(BreadPartnerEvent.WebViewSuccess(result = payload))
+                            callback(BreadPartnerEvent.ReceiveUnifiedCheckoutApplicationResult(result = payload))
+                        }
+                    }
+
                     "SUBMIT_PREQUAL_APPLICATION" -> {
                         callback(BreadPartnerEvent.SubmitPrequalApplication)
                     }

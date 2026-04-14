@@ -64,6 +64,10 @@ sealed class BreadPartnerEvent {
     /// - Parameter result: The result object returned.
     data class ReceivePrequalApplicationResult(val result: Any) : BreadPartnerEvent()
 
+    /// Provides a result from the UPQ flow after applying for installment product.
+    /// - Parameter result: The result object returned.
+    data class ReceiveUnifiedCheckoutApplicationResult(val result: Any) : BreadPartnerEvent()
+
     /// Detects when application for credit card was submitted from UPQ flow.
     object SubmitPrequalApplication : BreadPartnerEvent()
 
