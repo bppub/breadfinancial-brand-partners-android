@@ -367,10 +367,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun noActionPlacement(textView: TextView) {
-//        textView.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
-//        textView.highlightColor = Color.TRANSPARENT
-//    }
+    private fun noActionPlacement(textView: TextView) {
+        textView.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+        textView.highlightColor = Color.TRANSPARENT
+    }
 
     private fun actionPlacement(
         spannable: Spannable,
