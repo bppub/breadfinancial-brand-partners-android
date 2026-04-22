@@ -39,13 +39,37 @@ class HTMLContentParser {
         val actionContentId =
             document.select("[data-action-content-id]").attr("data-action-content-id")
                 .takeIf { it.isNotEmpty() }
-        val contentText = document.select(".epjs-body").first()?.ownText().orEmpty().trim()
-        val actionLink = document.select(".epjs-body-action a").text().takeIf { it.isNotEmpty() }
-        val paymentDetailsSup = document.select("sup").text()
-        val paymentDetails =
-            document.select(".ep-text-placement").text().replace(actionLink.orEmpty(), "")
-                .replace(paymentDetailsSup, "").trim()
-        val htmlContentWithFormatting = document.select(".ep-text-placement").html()
+
+        // Check if this is a button placement
+        val isButtonPlacement = document.select(".ep-button-placement").isNotEmpty()
+
+        val contentText: String
+        val actionLink: String?
+        val paymentDetailsSup: String
+        val paymentDetails: String
+        val htmlContentWithFormatting: String
+        val imageUrl: String?
+
+        if (isButtonPlacement) {
+            // Handle button placement - extract image and text
+            contentText = document.select(".epjs-button-title").text().trim()
+            actionLink = contentText.takeIf { it.isNotEmpty() }
+            paymentDetailsSup = ""
+            paymentDetails = contentText
+            htmlContentWithFormatting = document.select(".ep-button-placement").html()
+            // Extract image URL from the button
+            imageUrl = document.select(".epjs-button-image").attr("src").takeIf { it.isNotEmpty() }
+        } else {
+            // Handle text placement (existing logic)
+            contentText = document.select(".epjs-body").first()?.ownText().orEmpty().trim()
+            actionLink = document.select(".epjs-body-action a").text().takeIf { it.isNotEmpty() }
+            paymentDetailsSup = document.select("sup").text()
+            paymentDetails =
+                document.select(".ep-text-placement").text().replace(actionLink.orEmpty(), "")
+                    .replace(paymentDetailsSup, "").trim()
+            htmlContentWithFormatting = document.select(".ep-text-placement").html()
+            imageUrl = null
+        }
 
         val finalContentText = when {
             contentText == paymentDetails -> contentText
@@ -60,7 +84,8 @@ class HTMLContentParser {
             contentText = finalContentText,
             actionLink = actionLink,
             actionContentId = actionContentId,
-            htmlContent = htmlContentWithFormatting
+            htmlContent = htmlContentWithFormatting,
+            imageUrl = imageUrl
         )
     }
 

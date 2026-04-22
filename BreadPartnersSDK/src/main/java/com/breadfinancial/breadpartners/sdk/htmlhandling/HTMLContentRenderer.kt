@@ -17,6 +17,7 @@ import com.breadfinancial.breadpartners.sdk.analytics.AnalyticsManager
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
+import com.breadfinancial.breadpartners.sdk.htmlhandling.extensions.renderImageButton
 import com.breadfinancial.breadpartners.sdk.htmlhandling.extensions.renderTextAndButton
 import com.breadfinancial.breadpartners.sdk.htmlhandling.extensions.renderTextViewWithLink
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementOverlayType
@@ -60,7 +61,11 @@ class HTMLContentRenderer(
 
         Logger.logTextPlacementModelDetails(textPlacementModel!!)
         AnalyticsManager().sendViewPlacement(responseModel)
-        if (splitTextAndAction) {
+
+        // Check if this is an image-based placement
+        if (!textPlacementModel?.imageUrl.isNullOrEmpty()) {
+            renderImageButton()
+        } else if (splitTextAndAction) {
             renderTextAndButton()
         } else {
             renderTextViewWithLink()

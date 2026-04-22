@@ -33,6 +33,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import com.bumptech.glide.Glide
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersAddress
@@ -104,9 +105,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun generatePlacement() {
 //         For using TestData file do
-//        val placementRequestType =
-//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
-        val placementRequestType = emptyMap<String, Any>()
+        val placementRequestType =
+            TestData.shared.placementConfigurations["academyUPQImage"] ?: emptyMap()
+//        val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val loyaltyId = placementRequestType["loyaltyId"] as? String?
@@ -273,6 +274,163 @@ class MainActivity : AppCompatActivity() {
             splitTextAndAction = false
         ) { event ->
             when (event) {
+                is BreadPartnerEvent.RenderImageButton -> {
+                    /**
+                     * Handles rendering of an image with a button overlay on top.
+                     *
+                     * - Creates the image (WebView for SVG or ImageView for other formats).
+                     * - Creates a styled button with text that overlays the image.
+                     * - Stacks them in a FrameLayout with button on top.
+                     */
+                    val container = event.containerView as android.widget.FrameLayout
+
+                    val imageUrl = event.imageUrl
+                    Log.d("BreadPartnerSDK::", "Loading image from URL: $imageUrl")
+
+                    // First, add the IMAGE (background layer)
+                    if (imageUrl.endsWith(".svg", ignoreCase = true)) {
+                        // Use WebView to display SVG
+                        val webView = android.webkit.WebView(this).apply {
+                            val imageWidth = (180 * resources.displayMetrics.density).toInt()
+                            val imageHeight = (100 * resources.displayMetrics.density).toInt()
+                            layoutParams = android.widget.FrameLayout.LayoutParams(
+                                imageWidth,
+                                imageHeight,
+                                android.view.Gravity.CENTER
+                            )
+                            settings.javaScriptEnabled = false
+                            settings.loadWithOverviewMode = false
+                            settings.useWideViewPort = false
+                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                            contentDescription = event.buttonText ?: "Bread Financial"
+
+                            // Load SVG with proper HTML wrapper - no cropping
+                            val htmlContent = """
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <style>
+                                        * { margin: 0; padding: 0; }
+                                        html, body { 
+                                            width: 100%; 
+                                            height: 100%; 
+                                            overflow: hidden;
+                                        }
+                                        body { 
+                                            display: flex; 
+                                            justify-content: center; 
+                                            align-items: center;
+                                        }
+                                        img { 
+                                            max-width: 100%; 
+                                            max-height: 100%;
+                                            width: auto;
+                                            height: auto;
+                                            object-fit: contain;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <img src="$imageUrl" alt="${event.buttonText ?: "Bread Financial"}" />
+                                </body>
+                                </html>
+                            """.trimIndent()
+                            loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+                        }
+                        container.addView(webView)
+                    } else {
+                        // Use ImageView for regular images (PNG, JPG, etc.)
+                        val imageView = android.widget.ImageView(this).apply {
+                            val imageWidth = (180 * resources.displayMetrics.density).toInt()
+                            val imageHeight = (100 * resources.displayMetrics.density).toInt()
+                            layoutParams = android.widget.FrameLayout.LayoutParams(
+                                imageWidth,
+                                imageHeight,
+                                android.view.Gravity.CENTER
+                            )
+                            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                            adjustViewBounds = true
+                            contentDescription = event.buttonText ?: "Bread Financial"
+                        }
+
+                        Glide.with(this)
+                            .load(imageUrl)
+                            .placeholder(android.R.drawable.ic_menu_gallery)
+                            .error(android.R.drawable.ic_menu_close_clear_cancel)
+                            .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
+                                override fun onLoadFailed(
+                                    e: com.bumptech.glide.load.engine.GlideException?,
+                                    model: Any?,
+                                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    Log.e("BreadPartnerSDK::", "Failed to load image: ${e?.message}", e)
+                                    return false
+                                }
+
+                                override fun onResourceReady(
+                                    resource: android.graphics.drawable.Drawable,
+                                    model: Any,
+                                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>?,
+                                    dataSource: com.bumptech.glide.load.DataSource,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    Log.d("BreadPartnerSDK::", "Image loaded successfully")
+                                    return false
+                                }
+                            })
+                            .into(imageView)
+
+                        container.addView(imageView)
+                    }
+
+                    // Second, add the BUTTON on top (foreground layer)
+                    event.buttonText?.let { text ->
+                        val button = android.widget.Button(this).apply {
+                            this.text = text
+                            setTextColor(Color.WHITE)
+                            textSize = 14f
+                            typeface = customFont
+
+                            // Create rounded background
+                            val drawable = GradientDrawable().apply {
+                                shape = GradientDrawable.RECTANGLE
+                                setColor(Color.parseColor("#FF6B00")) // Orange/brand color
+                                cornerRadius = 8 * resources.displayMetrics.density // 8dp corners
+                            }
+                            background = drawable
+
+                            // Position button at top of container
+                            layoutParams = android.widget.FrameLayout.LayoutParams(
+                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                                android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
+                            ).apply {
+                                setMargins(0, (16 * resources.displayMetrics.density).toInt(), 0, 0)
+                            }
+
+                            setPadding(
+                                (24 * resources.displayMetrics.density).toInt(), // left
+                                (12 * resources.displayMetrics.density).toInt(), // top
+                                (24 * resources.displayMetrics.density).toInt(), // right
+                                (12 * resources.displayMetrics.density).toInt()  // bottom
+                            )
+
+                            elevation = 4 * resources.displayMetrics.density // Slight shadow
+                        }
+                        container.addView(button)
+                    }
+
+                    // Add the container to the layout
+                    val parent = binding.textView.parent as ViewGroup
+                    val layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    parent.addView(container, layoutParams)
+                }
+
                 is BreadPartnerEvent.RenderTextViewWithLink -> {
 
                     /**
@@ -358,7 +516,13 @@ class MainActivity : AppCompatActivity() {
                     view.show(this.supportFragmentManager, "PopupDialog")
                 }
 
-                is BreadPartnerEvent.OnSDKEventLog -> {}
+                is BreadPartnerEvent.OnSDKEventLog -> {
+                    Log.d("BreadPartnerSDK::", "SDK Log: ${event.log}")
+                }
+
+                is BreadPartnerEvent.SdkError -> {
+                    Log.e("BreadPartnerSDK::", "SDK Error: ${event.error.message}", event.error)
+                }
 
                 else -> {
                     Log.i("BreadPartnerSDK::", "Event:$event")
