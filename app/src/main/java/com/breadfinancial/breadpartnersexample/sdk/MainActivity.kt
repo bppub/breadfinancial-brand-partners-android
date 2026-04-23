@@ -274,59 +274,36 @@ class MainActivity : AppCompatActivity() {
             splitTextAndAction = false
         ) { event ->
             when (event) {
-                is BreadPartnerEvent.RenderImageButton -> {
+                is BreadPartnerEvent.RenderSeparateTextAndButton -> {
                     /**
-                     * Handles rendering of an image with text button.
+                     * Handles rendering of separate text and button.
                      *
-                     * - Creates the image (WebView for SVG or ImageView for other formats).
-                     * - Adds optional text alongside the image.
-                     * - Supports customizable layout and styling via configuration.
-                     * - The whole button is clickable with light blue background.
+                     * If button.tag contains an image URL, renders as a custom image+text button.
+                     * Otherwise, renders as a standard text+button layout.
                      */
-                    val container = event.containerView as android.widget.FrameLayout
 
-                    // Override configuration with custom settings for the example app
-                    val config = com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementButtonConfiguration(
-                        imagePosition = com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.LEFT,
-                        backgroundColor = Color.parseColor("#ADD8E6"), // Light blue
-                        buttonWidthDp = 280,
-                        buttonHeightDp = 80,
-                        imageWidthDp = 100,  // Smaller image
-                        imageHeightDp = 60   // Smaller image
-                    )
+                    val imageUrl = event.button.tag as? String
 
-                    val imageUrl = event.imageUrl
-                    Log.d("BreadPartnerSDK::", "Loading image from URL: $imageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        // Custom image+text button rendering
+                        Log.d("BreadPartnerSDK::", "Rendering button with image URL: $imageUrl")
 
-                    // Determine layout orientation based on configuration
-                    val useVerticalLayout = config.imagePosition == com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.TOP ||
-                            config.imagePosition == com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.BOTTOM
-
-                    val useHorizontalLayout = config.imagePosition == com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.LEFT ||
-                            config.imagePosition == com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.RIGHT
-
-                    // Create a LinearLayout if we need horizontal or vertical stacking
-                    val layoutContainer = if (useVerticalLayout || useHorizontalLayout) {
-                        android.widget.LinearLayout(this).apply {
-                            orientation = if (useVerticalLayout) android.widget.LinearLayout.VERTICAL else android.widget.LinearLayout.HORIZONTAL
+                        // Create custom button container with light blue background
+                        val buttonContainer = android.widget.LinearLayout(this).apply {
+                            orientation = android.widget.LinearLayout.HORIZONTAL
                             gravity = android.view.Gravity.CENTER
-                            layoutParams = android.widget.FrameLayout.LayoutParams(
-                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                                android.view.Gravity.CENTER
-                            )
                             isClickable = true
                             isFocusable = true
 
-                            // Create rounded background with light blue color
+                            // Rounded background with light blue color
                             val drawable = android.graphics.drawable.GradientDrawable().apply {
                                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                                setColor(config.backgroundColor)
-                                cornerRadius = 12 * resources.displayMetrics.density // 12dp rounded corners
+                                setColor(Color.parseColor("#ADD8E6")) // Light blue
+                                cornerRadius = 12 * resources.displayMetrics.density
                             }
                             background = drawable
 
-                            // Add padding to make it look like a proper button
+                            // Padding
                             setPadding(
                                 (16 * resources.displayMetrics.density).toInt(),
                                 (12 * resources.displayMetrics.density).toInt(),
@@ -334,230 +311,174 @@ class MainActivity : AppCompatActivity() {
                                 (12 * resources.displayMetrics.density).toInt()
                             )
 
-                            elevation = 4 * resources.displayMetrics.density // Add shadow
+                            elevation = 4 * resources.displayMetrics.density
 
+                            // Set click listener from the button
                             setOnClickListener {
-                                Log.d("BreadPartnerSDK::", "LinearLayout clicked!")
-                                event.onClick()
-                            }
-                        }
-                    } else {
-                        container
-                    }
-
-                    // First, add the IMAGE
-                    val imageView: android.view.View = if (imageUrl.endsWith(".svg", ignoreCase = true)) {
-                        // Use WebView to display SVG - wrapped in a FrameLayout with transparent overlay for clicks
-                        val webViewContainer = android.widget.FrameLayout(this).apply {
-                            val imageWidth = (config.imageWidthDp * resources.displayMetrics.density).toInt()
-                            val imageHeight = (config.imageHeightDp * resources.displayMetrics.density).toInt()
-                            layoutParams = if (useVerticalLayout || useHorizontalLayout) {
-                                android.widget.LinearLayout.LayoutParams(imageWidth, imageHeight)
-                            } else {
-                                android.widget.FrameLayout.LayoutParams(imageWidth, imageHeight, android.view.Gravity.CENTER)
+                                Log.d("BreadPartnerSDK::", "Button container clicked!")
+                                event.button.performClick()
                             }
                         }
 
-                        val webView = android.webkit.WebView(this).apply {
-                            layoutParams = android.widget.FrameLayout.LayoutParams(
-                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
-                            )
-                            settings.javaScriptEnabled = false
-                            settings.loadWithOverviewMode = false
-                            settings.useWideViewPort = false
-                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                            contentDescription = event.buttonText ?: "Bread Financial"
-
-                            // Disable all touch handling on WebView
-                            isClickable = false
-                            isFocusable = false
-
-                            // Load SVG with proper HTML wrapper
-                            val htmlContent = """
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                    <style>
-                                        * { margin: 0; padding: 0; }
-                                        html, body { 
-                                            width: 100%; 
-                                            height: 100%; 
-                                            overflow: hidden;
-                                        }
-                                        body { 
-                                            display: flex; 
-                                            justify-content: center; 
-                                            align-items: center;
-                                        }
-                                        img { 
-                                            max-width: 100%; 
-                                            max-height: 100%;
-                                            width: auto;
-                                            height: auto;
-                                            object-fit: contain;
-                                            pointer-events: none;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <img src="$imageUrl" alt="${event.buttonText ?: "Bread Financial"}" />
-                                </body>
-                                </html>
-                            """.trimIndent()
-                            loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-                        }
-
-                        // Create transparent overlay to capture clicks
-                        val clickOverlay = android.view.View(this).apply {
-                            layoutParams = android.widget.FrameLayout.LayoutParams(
-                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
-                            )
-                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                            isClickable = true
-                            isFocusable = false
-                            setOnClickListener {
-                                Log.d("BreadPartnerSDK::", "Image overlay clicked!")
-                                event.onClick()
+                        // Add IMAGE
+                        val imageView: android.view.View = if (imageUrl.endsWith(".svg", ignoreCase = true)) {
+                            // WebView with transparent overlay for SVG
+                            val webViewContainer = android.widget.FrameLayout(this).apply {
+                                val imageWidth = (100 * resources.displayMetrics.density).toInt()
+                                val imageHeight = (60 * resources.displayMetrics.density).toInt()
+                                layoutParams = android.widget.LinearLayout.LayoutParams(imageWidth, imageHeight)
                             }
-                        }
 
-                        webViewContainer.addView(webView)
-                        webViewContainer.addView(clickOverlay)
-                        webViewContainer
-                    } else {
-                        // Use ImageView for regular images (PNG, JPG, etc.)
-                        val imgView = android.widget.ImageView(this).apply {
-                            val imageWidth = (config.imageWidthDp * resources.displayMetrics.density).toInt()
-                            val imageHeight = (config.imageHeightDp * resources.displayMetrics.density).toInt()
-                            layoutParams = if (useVerticalLayout || useHorizontalLayout) {
-                                android.widget.LinearLayout.LayoutParams(imageWidth, imageHeight)
-                            } else {
-                                android.widget.FrameLayout.LayoutParams(imageWidth, imageHeight, android.view.Gravity.CENTER)
+                            val webView = android.webkit.WebView(this).apply {
+                                layoutParams = android.widget.FrameLayout.LayoutParams(
+                                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                                )
+                                settings.javaScriptEnabled = false
+                                settings.loadWithOverviewMode = false
+                                settings.useWideViewPort = false
+                                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                                contentDescription = event.button.text.toString()
+                                isClickable = false
+                                isFocusable = false
+
+                                val htmlContent = """
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                        <style>
+                                            * { margin: 0; padding: 0; }
+                                            html, body { width: 100%; height: 100%; overflow: hidden; }
+                                            body { display: flex; justify-content: center; align-items: center; }
+                                            img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; pointer-events: none; }
+                                        </style>
+                                    </head>
+                                    <body><img src="$imageUrl" alt="${event.button.text}" /></body>
+                                    </html>
+                                """.trimIndent()
+                                loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
                             }
-                            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-                            adjustViewBounds = true
-                            contentDescription = event.buttonText ?: "Bread Financial"
 
-                            // Make the ImageView itself clickable
-                            isClickable = true
-                            isFocusable = false
-                            setOnClickListener {
-                                Log.d("BreadPartnerSDK::", "ImageView clicked!")
-                                event.onClick()
-                            }
-                        }
-
-                        Glide.with(this)
-                            .load(imageUrl)
-                            .placeholder(android.R.drawable.ic_menu_gallery)
-                            .error(android.R.drawable.ic_menu_close_clear_cancel)
-                            .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
-                                override fun onLoadFailed(
-                                    e: com.bumptech.glide.load.engine.GlideException?,
-                                    model: Any?,
-                                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    Log.e("BreadPartnerSDK::", "Failed to load image: ${e?.message}", e)
-                                    return false
+                            // Transparent overlay to capture clicks
+                            val clickOverlay = android.view.View(this).apply {
+                                layoutParams = android.widget.FrameLayout.LayoutParams(
+                                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                                )
+                                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                                isClickable = true
+                                setOnClickListener {
+                                    Log.d("BreadPartnerSDK::", "Image overlay clicked!")
+                                    event.button.performClick()
                                 }
+                            }
 
-                                override fun onResourceReady(
-                                    resource: android.graphics.drawable.Drawable,
-                                    model: Any,
-                                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>?,
-                                    dataSource: com.bumptech.glide.load.DataSource,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    Log.d("BreadPartnerSDK::", "Image loaded successfully")
-                                    return false
+                            webViewContainer.addView(webView)
+                            webViewContainer.addView(clickOverlay)
+                            webViewContainer
+                        } else {
+                            // ImageView for PNG/JPG
+                            val imgView = android.widget.ImageView(this).apply {
+                                val imageWidth = (100 * resources.displayMetrics.density).toInt()
+                                val imageHeight = (60 * resources.displayMetrics.density).toInt()
+                                layoutParams = android.widget.LinearLayout.LayoutParams(imageWidth, imageHeight)
+                                scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                                adjustViewBounds = true
+                                contentDescription = event.button.text.toString()
+                                isClickable = true
+                                setOnClickListener {
+                                    Log.d("BreadPartnerSDK::", "ImageView clicked!")
+                                    event.button.performClick()
                                 }
-                            })
-                            .into(imgView)
+                            }
 
-                        imgView
-                    }
+                            Glide.with(this)
+                                .load(imageUrl)
+                                .placeholder(android.R.drawable.ic_menu_gallery)
+                                .error(android.R.drawable.ic_menu_close_clear_cancel)
+                                .into(imgView)
 
-                    // Second, add the TEXT (if provided)
-                    val textView: android.widget.TextView? = event.buttonText?.let { text ->
-                        android.widget.TextView(this).apply {
-                            this.text = text
+                            imgView
+                        }
+
+                        // Add TEXT
+                        val textView = android.widget.TextView(this).apply {
+                            text = event.button.text
                             setTextColor(Color.BLACK)
                             textSize = 14f
                             typeface = customFont
                             gravity = android.view.Gravity.CENTER
-
-                            layoutParams = if (useVerticalLayout || useHorizontalLayout) {
-                                android.widget.LinearLayout.LayoutParams(
-                                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                                ).apply {
-                                    val margin = (8 * resources.displayMetrics.density).toInt()
-                                    setMargins(margin, margin, margin, margin)
-                                }
-                            } else {
-                                android.widget.FrameLayout.LayoutParams(
-                                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
-                                ).apply {
-                                    setMargins(0, 0, 0, (16 * resources.displayMetrics.density).toInt())
-                                }
+                            layoutParams = android.widget.LinearLayout.LayoutParams(
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                val margin = (8 * resources.displayMetrics.density).toInt()
+                                setMargins(margin, margin, margin, margin)
                             }
-
                             setPadding(
                                 (16 * resources.displayMetrics.density).toInt(),
                                 (8 * resources.displayMetrics.density).toInt(),
                                 (16 * resources.displayMetrics.density).toInt(),
                                 (8 * resources.displayMetrics.density).toInt()
                             )
-
-                            // Make the TextView clickable too
                             isClickable = true
-                            isFocusable = false
                             setOnClickListener {
                                 Log.d("BreadPartnerSDK::", "Text clicked!")
-                                event.onClick()
+                                event.button.performClick()
                             }
                         }
-                    }
 
-                    // Add views in the correct order based on configuration
-                    if (useVerticalLayout || useHorizontalLayout) {
-                        val linearLayout = layoutContainer as android.widget.LinearLayout
-                        when (config.imagePosition) {
-                            com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.TOP,
-                            com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.LEFT -> {
-                                linearLayout.addView(imageView)
-                                textView?.let { linearLayout.addView(it) }
-                            }
-                            com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.BOTTOM,
-                            com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.ImagePosition.RIGHT -> {
-                                textView?.let { linearLayout.addView(it) }
-                                linearLayout.addView(imageView)
-                            }
-                        }
-                        container.addView(linearLayout)
+                        // Add views to container
+                        buttonContainer.addView(imageView)
+                        buttonContainer.addView(textView)
+
+                        // Add to layout
+                        val parent = binding.textView.parent as ViewGroup
+                        val layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                        parent.addView(buttonContainer, layoutParams)
                     } else {
-                        container.addView(imageView)
-                        textView?.let { container.addView(it) }
-                    }
+                        // Standard text+button rendering (existing logic)
+                        event.textView.apply {
+                            setTextColor(Color.BLACK)
+                            textSize = 24f
+                            typeface = customFont
+                        }
 
-                    // Set click listener on the entire container
-                    container.setOnClickListener {
-                        Log.d("BreadPartnerSDK::", "Container (FrameLayout) clicked!")
-                        event.onClick()
+                        event.button.apply {
+                            setTextColor(Color.WHITE)
+                            textSize = 24f
+                            typeface = customFont
+                            setPadding(50, 0, 50, 0)
+
+                            val drawable = GradientDrawable().apply {
+                                shape = GradientDrawable.RECTANGLE
+                                cornerRadius = 55.0f
+                                setColor(Color.parseColor(primaryColor))
+                            }
+
+                            val pressedDrawable = GradientDrawable().apply {
+                                shape = GradientDrawable.RECTANGLE
+                                cornerRadius = 55.0f
+                                setColor(Color.parseColor(primaryColor))
+                            }
+
+                            val states = StateListDrawable().apply {
+                                addState(intArrayOf(android.R.attr.state_pressed), pressedDrawable)
+                                addState(intArrayOf(), drawable)
+                            }
+
+                            background = states
+                        }
+
+                        binding.actionButton.visibility = View.VISIBLE
+                        val parent = binding.textView.parent as ViewGroup
+                        parent.replaceTextView(binding.textView, event.textView)
+                        parent.replaceButton(binding.actionButton, event.button)
                     }
-                    // Add the container to the layout
-                    val parent = binding.textView.parent as ViewGroup
-                    val layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                    parent.addView(container, layoutParams)
                 }
 
                 is BreadPartnerEvent.RenderTextViewWithLink -> {
@@ -571,7 +492,7 @@ class MainActivity : AppCompatActivity() {
 
                     val textView = binding.textView
                     val spannable = event.spannableText
-                    
+
                     // If you want to correctly style the text view with link functionality,
                     // you can call the actionPlacement function,
                     actionPlacement(spannable, primaryColor, textView, customFont)
@@ -582,54 +503,6 @@ class MainActivity : AppCompatActivity() {
 
                     textView.text = spannable
                     textView.movementMethod = LinkMovementMethod.getInstance()
-                }
-
-
-                is BreadPartnerEvent.RenderSeparateTextAndButton -> {
-
-                    /**
-                     * Handles rendering of a popup view.
-                     *
-                     * - Modifies the font, text color for the text view, and the button's title color, font, and background.
-                     * - Adds the text view and button to the main view and sets up their layout constraints.
-                     */
-                    event.textView.apply {
-                        setTextColor(Color.BLACK)
-                        textSize = 24f
-                        typeface = customFont
-                    }
-
-                    event.button.apply {
-                        setTextColor(Color.WHITE)
-                        textSize = 24f
-                        typeface = customFont
-                        setPadding(50, 0, 50, 0)
-
-                        val drawable = GradientDrawable().apply {
-                            shape = GradientDrawable.RECTANGLE
-                            cornerRadius = 55.0f
-                            setColor(Color.parseColor(primaryColor))
-                        }
-
-                        val pressedDrawable = GradientDrawable().apply {
-                            shape = GradientDrawable.RECTANGLE
-                            cornerRadius = 55.0f
-                            setColor(Color.parseColor(primaryColor))
-                        }
-
-                        val states = StateListDrawable().apply {
-                            addState(intArrayOf(android.R.attr.state_pressed), pressedDrawable)
-                            addState(intArrayOf(), drawable)
-                        }
-
-                        background = states
-                    }
-
-                    binding.actionButton.visibility = View.VISIBLE
-                    val parent = binding.textView.parent as ViewGroup
-                    parent.replaceTextView(binding.textView, event.textView)
-                    parent.replaceButton(binding.actionButton, event.button)
-
                 }
 
                 is BreadPartnerEvent.RenderPopupView -> {

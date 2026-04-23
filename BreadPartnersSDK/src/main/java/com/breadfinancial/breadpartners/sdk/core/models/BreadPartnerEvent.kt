@@ -13,11 +13,9 @@
 package com.breadfinancial.breadpartners.sdk.core.models
 
 import android.text.Spannable
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementButtonConfiguration
 
 /// Enum representing different events supported by BreadPartnerSDK.
 sealed class BreadPartnerEvent {
@@ -35,23 +33,9 @@ sealed class BreadPartnerEvent {
     /// Renders text and a button separately on the screen.
     /// - Parameters:
     ///   - textView: A TextView for displaying text.
-    ///   - button: A Button for user interactions.
+    ///   - button: A Button for user interactions. The button's tag property contains the image URL if available.
     data class RenderSeparateTextAndButton(val textView: TextView, val button: Button) : BreadPartnerEvent()
 
-    /// Renders an image button that can be clicked to trigger an action.
-    /// - Parameters:
-    ///   - containerView: A ViewGroup containing the image and optional text.
-    ///   - imageUrl: URL of the image to load.
-    ///   - buttonText: Text to display with the button (optional).
-    ///   - configuration: Configuration for button appearance and layout.
-    ///   - onClick: Callback to be invoked when the button is clicked.
-    data class RenderImageButton(
-        val containerView: ViewGroup,
-        val imageUrl: String,
-        val buttonText: String?,
-        val configuration: PlacementButtonConfiguration = PlacementButtonConfiguration(),
-        val onClick: () -> Unit
-    ) : BreadPartnerEvent()
 
     /// Displays a popup interface on the screen.
     /// - Parameter dialogFragment: A DialogFragment that presents the popup.

@@ -12,11 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk.htmlhandling.extensions
 
-import android.view.Gravity
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
@@ -47,28 +43,31 @@ fun HTMLContentRenderer.renderTextViewWithLink() {
 }
 
 /**
- * Renders a composite view with button overlaying the image.
- * Button is stacked on top of the image.
+ * Renders a composite view with image and text as a button.
+ * Uses RenderSeparateTextAndButton event with image URL stored in button tag.
  */
 fun HTMLContentRenderer.renderImageButton() {
     val context = thisContext!!
 
-    // Create a FrameLayout container for stacking (image below, button on top)
-    val container = FrameLayout(context).apply {
-        isClickable = true
-        isFocusable = true
-        setPadding(16, 16, 16, 16)
+    // Create a TextView for any additional text (optional, can be null)
+    val textView = TextView(context).apply {
+        text = "" // Empty for now, merchant can use this if needed
+        visibility = android.view.View.GONE
     }
 
-    val imageUrl = textPlacementModel?.imageUrl ?: ""
-    val buttonText = textPlacementModel?.contentText
+    // Create a Button that will display both image and text
+    val button = Button(context).apply {
+        text = textPlacementModel?.contentText ?: "Pay Over Time"
+        contentDescription = textPlacementModel?.contentText ?: "Bread Financial Button"
 
-    callback(BreadPartnerEvent.RenderImageButton(
-        containerView = container,
-        imageUrl = imageUrl,
-        buttonText = buttonText,
-        onClick = { handleLinkInteraction() }
-    ))
+        // Store image URL in tag so merchant app can load it
+        tag = textPlacementModel?.imageUrl ?: ""
+
+        // Set click handler
+        setOnClickListener { handleLinkInteraction() }
+    }
+
+    callback(BreadPartnerEvent.RenderSeparateTextAndButton(textView, button))
 }
 
 /**
