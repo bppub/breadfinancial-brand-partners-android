@@ -60,18 +60,14 @@ fun HTMLContentRenderer.renderImageButton() {
         setPadding(16, 16, 16, 16)
     }
 
-    // Set click listener to handle the action
-    container.setOnClickListener {
-        handleLinkInteraction()
-    }
-
     val imageUrl = textPlacementModel?.imageUrl ?: ""
     val buttonText = textPlacementModel?.contentText
 
     callback(BreadPartnerEvent.RenderImageButton(
         containerView = container,
         imageUrl = imageUrl,
-        buttonText = buttonText
+        buttonText = buttonText,
+        onClick = { handleLinkInteraction() }
     ))
 }
 
@@ -103,31 +99,4 @@ fun HTMLContentRenderer.handleLinkInteraction() {
     }
 }
 
-/**
- * Handles tap events on buttons rendered.
- */
-fun HTMLContentRenderer.handleButtonTap(sender: Button) {
-    sender.contentDescription ?: return
-    handleLinkInteraction()
-}
-
-/**
- * Handles user interactions with links rendered.
- */
-fun HTMLContentRenderer.handleLinkInteraction() {
-    val actionType = textPlacementModel?.actionType?.let { HTMLContentParser().handleActionType(it) }
-    when (actionType) {
-        PlacementActionType.SHOW_OVERLAY -> {
-            handlePopupPlacement(textPlacementModel!!, responseModel!!)
-        }
-
-        PlacementActionType.NO_ACTION -> {
-            callback(BreadPartnerEvent.TextClicked)
-        }
-
-        else -> {
-            showAlert(Constants.nativeSDKAlertTitle(), Constants.missingTextPlacementError)
-        }
-    }
-}
 

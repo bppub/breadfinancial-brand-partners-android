@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementButtonConfiguration
 
 /// Enum representing different events supported by BreadPartnerSDK.
 sealed class BreadPartnerEvent {
@@ -42,7 +43,15 @@ sealed class BreadPartnerEvent {
     ///   - containerView: A ViewGroup containing the image and optional text.
     ///   - imageUrl: URL of the image to load.
     ///   - buttonText: Text to display with the button (optional).
-    data class RenderImageButton(val containerView: ViewGroup, val imageUrl: String, val buttonText: String?) : BreadPartnerEvent()
+    ///   - configuration: Configuration for button appearance and layout.
+    ///   - onClick: Callback to be invoked when the button is clicked.
+    data class RenderImageButton(
+        val containerView: ViewGroup,
+        val imageUrl: String,
+        val buttonText: String?,
+        val configuration: PlacementButtonConfiguration = PlacementButtonConfiguration(),
+        val onClick: () -> Unit
+    ) : BreadPartnerEvent()
 
     /// Displays a popup interface on the screen.
     /// - Parameter dialogFragment: A DialogFragment that presents the popup.
