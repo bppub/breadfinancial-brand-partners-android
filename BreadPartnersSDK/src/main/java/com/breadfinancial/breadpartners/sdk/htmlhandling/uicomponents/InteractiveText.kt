@@ -19,6 +19,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
@@ -27,6 +28,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementActionType
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.TextPlacementModel
 
 @SuppressLint("AppCompatCustomView")
@@ -38,7 +41,7 @@ class InteractiveText @JvmOverloads constructor(
     private var normalText = ""
     private var clickableText = ""
     private var actionType = ""
-//    private var htmlContent = ""
+    private var htmlContent = ""
 
     init {
         isClickable = true
@@ -54,53 +57,52 @@ class InteractiveText @JvmOverloads constructor(
 
         normalText = textPlacementModel.contentText ?: ""
         clickableText = textPlacementModel.actionLink ?: ""
-//        htmlContent = textPlacementModel.htmlContent ?: ""
+        htmlContent = textPlacementModel.htmlContent ?: ""
 
         if (clickableText.isEmpty()) {
             clickableText = normalText
             normalText = ""
         }
 
-        val spannableContent: Spannable =
-//        if (actionType == PlacementActionType.NO_ACTION.value) {
-//            createSpannableNoActionText(htmlContent)
-//        } else {
+        val spannableContent: Spannable = if (actionType == PlacementActionType.NO_ACTION.value) {
+            createSpannableNoActionText(htmlContent)
+        } else {
             createSpannableText("$normalText ", clickableText)
-//        }
+        }
 
         text = spannableContent
         return spannableContent
     }
 
-//    private fun createSpannableNoActionText(
-//        htmlContent: String
-//    ): Spannable {
-//        val htmlSpanned = HtmlCompat.fromHtml(
-//            htmlContent,
-//            HtmlCompat.FROM_HTML_MODE_COMPACT,
-//        )
-//
-//        val spannableString = SpannableString(htmlSpanned)
-//
-//        spannableString.setSpan(
-//            object : ClickableSpan() {
-//                override fun onClick(widget: View) {
-//                    tapHandler?.invoke("")
-//                    widget.clearFocus()
-//                    widget.invalidate()
-//                }
-//
-//                override fun updateDrawState(ds: TextPaint) {
-//                    ds.isUnderlineText = false
-//                }
-//            },
-//            0,
-//            spannableString.length,
-//            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//        )
-//
-//        return spannableString
-//    }
+    private fun createSpannableNoActionText(
+        htmlContent: String
+    ): Spannable {
+        val htmlSpanned = HtmlCompat.fromHtml(
+            htmlContent,
+            HtmlCompat.FROM_HTML_MODE_COMPACT,
+        )
+
+        val spannableString = SpannableString(htmlSpanned)
+
+        spannableString.setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    tapHandler?.invoke("")
+                    widget.clearFocus()
+                    widget.invalidate()
+                }
+
+                override fun updateDrawState(ds: TextPaint) {
+                    ds.isUnderlineText = false
+                }
+            },
+            0,
+            spannableString.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        return spannableString
+    }
 
     private fun createSpannableText(
         normalText: String, clickableText: String
