@@ -206,6 +206,7 @@ internal class BreadFinancialWebViewInterstitial(
 
                     "APPLICATION_COMPLETED" -> {
                         callback(BreadPartnerEvent.ScreenName(name = "application-completed"))
+                        callback(BreadPartnerEvent.ApplicationCompleted)
                         callback(BreadPartnerEvent.PopupClosed)
                     }
 
@@ -213,6 +214,13 @@ internal class BreadFinancialWebViewInterstitial(
                         val payload = action.optString("payload")
                         if (payload == "NO" || payload == "NOT_ME") {
                             callback(BreadPartnerEvent.PopupClosed)
+                        }
+                    }
+
+                    "RECEIVE_ACCOUNT_EXISTS" -> {
+                        action.optJSONObject("payload")?.let { payload ->
+                            Logger.logApplicationResultDetails(payload)
+                            callback(BreadPartnerEvent.ReceiveAccountExists(result = payload))
                         }
                     }
 
