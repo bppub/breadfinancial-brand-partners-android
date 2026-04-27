@@ -109,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
+        val allowCheckout = placementRequestType["allowCheckout"] as? Boolean ?: false
         val loyaltyId = placementRequestType["loyaltyId"] as? String?
         val brandId = placementRequestType["brandId"] as? String
         val channel = placementRequestType["channel"] as? String?
@@ -214,9 +215,9 @@ class MainActivity : AppCompatActivity() {
             financingType = breadPartnersFinancingType,
             locationType = location,
             placementId = placementID,
-            domID = "123",
+            allowCheckout = allowCheckout,
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = 0.0),
+                subTotal = CurrencyValue(currency = "USD", value = price?.toDouble()),
                 totalDiscounts = CurrencyValue(currency = "USD", value = 0.0),
                 totalPrice = CurrencyValue(currency = "USD", value = price?.toDouble()),
                 totalShipping = CurrencyValue(currency = "USD", value = 0.0),

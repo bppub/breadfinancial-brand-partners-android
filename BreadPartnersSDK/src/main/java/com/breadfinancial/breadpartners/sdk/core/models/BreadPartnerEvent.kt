@@ -74,4 +74,9 @@ sealed class BreadPartnerEvent {
     /// Logs requests, responses, errors, and successes.
     data class OnSDKEventLog(val log: Any) : BreadPartnerEvent()
 
+    /// Provides account information in account lookup call (ECO).
+    data class ReceiveAccountExists(val result: Any) : BreadPartnerEvent()
+
+    /// Fires when application have been submitted in different flows.
+    object ApplicationCompleted : BreadPartnerEvent()
 }
