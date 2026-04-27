@@ -56,6 +56,21 @@ sealed class BreadPartnerEvent {
     /// - Parameter result: The result object returned on success.
     data class WebViewSuccess(val result: Any) : BreadPartnerEvent()
 
+    /// Provides a result with offers from the UPQ flow.
+    /// - Parameter result: The result object returned.
+    data class UnifiedOffersReceived(val result: Any) : BreadPartnerEvent()
+
+    /// Provides a result from the UPQ flow after applying for credit card.
+    /// - Parameter result: The result object returned.
+    data class ReceivePrequalApplicationResult(val result: Any) : BreadPartnerEvent()
+
+    /// Provides a result from the UPQ flow after applying for installment product.
+    /// - Parameter result: The result object returned.
+    data class ReceiveUnifiedCheckoutApplicationResult(val result: Any) : BreadPartnerEvent()
+
+    /// Detects when application for credit card was submitted from UPQ flow.
+    object SubmitPrequalApplication : BreadPartnerEvent()
+
     /// Provides an error result from the web view, such as a failure response.
     /// - Parameter error: The error object detailing the issue.
     data class WebViewFailure(val error: Throwable) : BreadPartnerEvent()
