@@ -170,7 +170,8 @@ internal fun BreadPartnersSDK.rtpsCall(
         ) { result ->
             when (result) {
                 is Result.Success -> {
-                    CommonUtils().decodeJSON(result.data.toString(),
+                    CommonUtils().decodeJSON(
+                        result.data.toString(),
                         RTPSResponse::class.java,
                         onSuccess = { rtpsResponse ->
                             val returnResultType = rtpsResponse.returnCode
@@ -196,14 +197,14 @@ internal fun BreadPartnersSDK.rtpsCall(
                                         )
                                     )
                                 )
+                            } else {
+                                fetchRTPSData(
+                                    rtpsResponse.updateMerchantConfiguration(merchantConfiguration),
+                                    placementsConfiguration,
+                                    viewContext,
+                                    callback,
+                                )
                             }
-
-                            fetchRTPSData(
-                                rtpsResponse.updateMerchantConfiguration(merchantConfiguration),
-                                placementsConfiguration,
-                                viewContext,
-                                callback,
-                            )
                         },
                         onError = { error ->
                             callback(
@@ -342,7 +343,8 @@ fun BreadPartnersSDK.handleRTPSResponse(
     callback: (BreadPartnerEvent) -> Unit,
     response: Any
 ) {
-    CommonUtils().decodeJSON(response.toString(),
+    CommonUtils().decodeJSON(
+        response.toString(),
         PlacementsResponse::class.java,
         onSuccess = { placementsResponse ->
             val htmlContent = placementsResponse.placementContent
