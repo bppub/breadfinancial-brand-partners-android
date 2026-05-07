@@ -28,6 +28,7 @@ data class MerchantConfiguration(
     var channel: String? = null,
     var subchannel: String? = null,
     var clerkId: String? = null,
+    var cardChoiceCode: String? = null,
     var overrideKey: String? = null,
     var clientVariable1: String? = null,
     var clientVariable2: String? = null,

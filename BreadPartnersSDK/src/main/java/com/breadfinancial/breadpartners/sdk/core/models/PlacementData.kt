@@ -81,7 +81,8 @@ data class Order(
     var discountCode: String? = null,
     var pickupInformation: PickupInformation? = null,
     var fulfillmentType: String? = null,
-    var items: List<Item>? = null
+    var items: List<Item>? = null,
+    var bnplEligible: Boolean? = null
 )
 
 /**

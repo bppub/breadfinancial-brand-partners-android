@@ -12,12 +12,16 @@
 
 package com.breadfinancial.breadpartners.sdk.networking.requestbuilders
 
+import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersBuyer
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
+import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration.PaymentMode
+import com.breadfinancial.breadpartners.sdk.core.models.Order
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementData
 import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
+import com.google.gson.Gson
 
 /**
  * Builder class to create a PlacementRequest for fetching placements.
@@ -25,7 +29,8 @@ import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.ta
 class PlacementRequestBuilder(
     integrationKey: String,
     merchantConfiguration: MerchantConfiguration?,
-    placementData: PlacementData?
+    placementData: PlacementData?,
+    inputContext: ContextRequestBody? = null
 ) {
     private var placements: MutableList<PlacementRequestBody> = mutableListOf()
     private var brandId: String = integrationKey
@@ -35,9 +40,10 @@ class PlacementRequestBuilder(
     }
 
     private fun createPlacementRequestBody(
-        merchantConfiguration: MerchantConfiguration?, placementData: PlacementData?
+        merchantConfiguration: MerchantConfiguration?,
+        placementData: PlacementData?
     ) {
-        val context = ContextRequestBody(
+        var context = ContextRequestBody(
             ENV = merchantConfiguration?.env?.value.takeIfNotEmpty(),
             PRICE = placementData?.order?.totalPrice?.value?.toLong(),
             CARDHOLDER_TIER = merchantConfiguration?.cardholderTier.takeIfNotEmpty(),
@@ -49,16 +55,42 @@ class PlacementRequestBuilder(
             CLIENT_VAR_3 = merchantConfiguration?.clientVariable3.takeIfNotEmpty(),
             CLIENT_VAR_4 = merchantConfiguration?.clientVariable4.takeIfNotEmpty(),
             DEPARTMENT_ID = merchantConfiguration?.departmentId.takeIfNotEmpty(),
-            channel = merchantConfiguration?.channel ?:
-                placementData?.locationType?.getChannelCode() ?: "X",
+            channel = merchantConfiguration?.channel
+                ?: placementData?.locationType?.getChannelCode() ?: "X",
             subchannel = merchantConfiguration?.subchannel ?: "X",
             CMP = merchantConfiguration?.campaignID.takeIfNotEmpty(),
             ALLOW_CHECKOUT = placementData?.allowCheckout ?: false,
             LOCATION = placementData?.locationType?.value.takeIfNotEmpty(),
         )
 
+        context = if (placementData?.allowCheckout == true) {
+            val upqCheckoutData = mapUnifiedPlacementContextToFmcUpqCheckout(
+                placementData = placementData,
+                merchantConfiguration = merchantConfiguration
+            )
+
+            val upqPathData = pathForUnifiedPrequalCheckout(
+                initialData = upqCheckoutData,
+                clientKey = brandId
+            ).queryString
+
+            context.copy(UPQ_CHECKOUT_PARAMS = upqPathData)
+        } else {
+            val upqData = mapUnifiedPlacementContextToFmcCommonData(
+                placementData = placementData,
+                merchantConfiguration = merchantConfiguration
+            )
+            val upqPathData = pathForUnifiedPrequal(
+                initialData = upqData,
+                clientKey = brandId
+            ).queryString
+
+            context.copy(UPQ_PARAMS = upqPathData)
+        }
+
         val placement = PlacementRequestBody(
-            id = placementData?.placementId.takeIfNotEmpty(), context = context
+            context = context,
+            id = placementData?.placementId.takeIfNotEmpty()
         )
 
         placements.add(placement)
@@ -66,7 +98,443 @@ class PlacementRequestBuilder(
 
     fun build(): PlacementRequest {
         return PlacementRequest(
-            placements = placements, brandId = brandId
+            brandId = brandId,
+            placements = placements,
         )
+    }
+}
+
+/**
+ * Maps unified placement context to FMC common data.
+ * Transforms all fields from placementConfig and setupConfig to CommonData format.
+ *
+ * @param placementConfig Unified placement configuration (optional)
+ * @param setupConfig Unified setup configuration (optional)
+ * @param sessionId Session tracking identifier (optional)
+ * @param userTrackingId User tracking identifier (optional)
+ * @return CommonData with mapped fields from both configs
+ */
+fun mapUnifiedPlacementContextToFmcCommonData(
+    placementData: PlacementData? = null,
+    merchantConfiguration: MerchantConfiguration? = null,
+    sessionId: String? = null,
+    userTrackingId: String? = null
+): MutableMap<String, Any?> {
+    return assignDefined(
+        mutableMapOf<String, Any?>(),
+        mapOf(
+            "firstName" to merchantConfiguration?.buyer?.givenName,
+            "lastName" to merchantConfiguration?.buyer?.familyName,
+            "address1" to merchantConfiguration?.buyer?.billingAddress?.address1,
+            "address2" to merchantConfiguration?.buyer?.billingAddress?.address2,
+            "city" to merchantConfiguration?.buyer?.billingAddress?.locality,
+            "state" to merchantConfiguration?.buyer?.billingAddress?.region,
+            "zip" to merchantConfiguration?.buyer?.billingAddress?.postalCode,
+            "emailAddress" to merchantConfiguration?.buyer?.email,
+            "mobilePhone" to merchantConfiguration?.buyer?.phone,
+            "alternativePhone" to merchantConfiguration?.buyer?.alternativePhone,
+            "storeNumber" to merchantConfiguration?.storeNumber,
+            "loyaltyNumber" to merchantConfiguration?.loyaltyID,
+            "departmentId" to merchantConfiguration?.departmentId,
+            "checkoutAmount" to placementData?.order?.totalPrice?.value?.toLong(),
+            "location" to placementData?.locationType,
+            "epId" to userTrackingId,
+            "epPlacementId" to placementData?.placementId,
+            "epSessionId" to sessionId,
+            "channel" to merchantConfiguration?.channel,
+            "subchannel" to merchantConfiguration?.subchannel,
+            "clientVariable1" to merchantConfiguration?.clientVariable1,
+            "clientVariable2" to merchantConfiguration?.clientVariable2,
+            "clientVariable3" to merchantConfiguration?.clientVariable3,
+            "clientVariable4" to merchantConfiguration?.clientVariable4,
+            "selectedCardKey" to placementData?.selectedCardKey,
+            "defaultSelectedCardKey" to placementData?.defaultSelectedCardKey,
+            "overrideKey" to merchantConfiguration?.overrideKey,
+            "cardChoiceCode" to merchantConfiguration?.cardChoiceCode,
+            "associateId" to merchantConfiguration?.clerkId,
+            "splitPayment" to if (merchantConfiguration?.paymentMode == PaymentMode.SPLIT) true else null
+        )
+    )
+}
+
+
+/**
+ * Merges source maps into target map, only including defined and non-empty values.
+ * Supports multiple source maps passed as varargs.
+ */
+fun assignDefined(
+    target: MutableMap<String, Any?>,
+    vararg sources: Map<String, Any?>
+): MutableMap<String, Any?> {
+    for (source in sources) {
+        if (source.isEmpty()) continue
+
+        for ((key, value) in source) {
+            if (value != null && value != "") {
+                target[key] = value
+            }
+        }
+    }
+    return target
+}
+
+
+/**
+ * Generates path and query string for unified prequalification.
+ * Used for standard prequalification flow (not checkout).
+ *
+ * @param initialData Initial unified prequalification data
+ * @param clientKey Client key for the request
+ * @param mockOptions Mock options for testing (optional)
+ * @return UnifiedPrequalPathResult containing path, query string, and parameters
+ */
+fun pathForUnifiedPrequal(
+    initialData: MutableMap<String, Any?>,
+    clientKey: String,
+    mockOptions: Any? = false
+): UnifiedPrequalPathResult {
+    val queryParams = mutableMapOf<String, Any?>(
+        "embedded" to true,
+        "clientKey" to clientKey
+    )
+
+    // Merge mock options if provided
+    when (mockOptions) {
+        is Boolean -> {
+            if (mockOptions) {
+                queryParams.putAll(mapUnifiedPrequalOptions(mockOptions))
+            }
+        }
+
+        is Map<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            queryParams.putAll(mockOptions as Map<String, Any?>)
+        }
+    }
+
+    // Merge initial data
+    queryParams.putAll(initialData)
+
+    return UnifiedPrequalPathResult(
+        path = "/unified/offer-intro",
+        queryString = queryParams.toQueryString() + "&epSessionId=f65890bb-95ed-4eef-98fe-40494f8d573b",
+        queryParams = queryParams
+    )
+}
+
+
+/**
+ * Maps unified prequalification mock options.
+ * This function should handle both boolean and UnifiedPrequalMockOptions.
+ *
+ * @param mockOptions Mock options configuration
+ * @return Map of mock parameters
+ */
+fun mapUnifiedPrequalOptions(mockOptions: Any?): Map<String, Any?> {
+    return when (mockOptions) {
+        is Boolean -> if (mockOptions) mapOf("mock" to true) else emptyMap()
+        is Map<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            (mockOptions as? Map<String, Any?>) ?: emptyMap()
+        }
+
+        else -> emptyMap()
+    }
+}
+
+/**
+ * Extension function to convert map to query string with proper URL encoding.
+ * (Already exists in your UnifiedPlacementModels.kt)
+ */
+fun Map<String, Any?>.toQueryString(): String {
+    return this.filter { it.value != null }
+        .map { (key, value) ->
+            val encodedKey = java.net.URLEncoder.encode(key, "UTF-8")
+            val encodedValue = when (value) {
+                is String -> java.net.URLEncoder.encode(value, "UTF-8")
+                else -> java.net.URLEncoder.encode(value.toString(), "UTF-8")
+            }
+            "$encodedKey=$encodedValue"
+        }
+        .joinToString("&")
+}
+
+/**
+ * Maps unified placement context to FMC prequalification checkout data.
+ * Includes all common data fields plus checkout-specific fields.
+ *
+ * @param placementConfig Unified placement configuration (optional)
+ * @param setupConfig Unified setup configuration (optional)
+ * @param sessionTrackingId Session tracking identifier (optional)
+ * @param userTrackingId User tracking identifier (optional)
+ * @param prequalLimit Prequalification credit limit (optional)
+ * @param prequalId Prequalification ID (optional)
+ * @param financingBuyerId Financing buyer ID (optional)
+ * @param financingLocationId Financing location ID (optional)
+ * @param callCenter Call center identifier (optional)
+ * @param inSessionToken In-session token (optional)
+ * @return MutableMap with all mapped checkout data
+ */
+fun mapUnifiedPlacementContextToFmcUpqCheckout(
+    placementData: PlacementData? = null,
+    merchantConfiguration: MerchantConfiguration? = null,
+    sessionTrackingId: String? = null,
+    userTrackingId: String? = null,
+    prequalLimit: String? = null,
+    prequalId: String? = null,
+    financingBuyerId: String? = null,
+    financingLocationId: String? = null,
+    callCenter: String? = null,
+    inSessionToken: String? = null
+): MutableMap<String, Any?> {
+    // Map common data from placement and setup configs
+    val commonData = mapUnifiedPlacementContextToFmcCommonData(
+        placementData = placementData,
+        merchantConfiguration = merchantConfiguration,
+        sessionId = sessionTrackingId,
+        userTrackingId = userTrackingId
+    )
+
+    // Map order and check BNPL eligibility
+    val newOrder = mapUnifiedPlacementOrderToFmcOrder(placementData?.order)
+//    checkBnplEligibility(newOrder)
+
+    // Map shipping address
+    val shippingAddress = mapUnifiedPlacementContextToFmcAddress(merchantConfiguration?.buyer)
+
+    // Merge all data using assignDefined
+    return assignDefined(
+        mutableMapOf<String, Any?>(),
+        commonData,
+        mapOf(
+            "order" to newOrder,
+            "shippingAddress" to shippingAddress,
+            "prequalCreditLimit" to prequalLimit,
+            "prequalificationId" to prequalId,
+            "financingBuyerId" to financingBuyerId,
+            "financingLocationId" to financingLocationId,
+            "callCenter" to callCenter,
+            "inSessionToken" to inSessionToken
+        )
+    )
+}
+
+/**
+ * Checks BNPL eligibility based on item categories.
+ * Sets bnplEligible to false if any item has an ineligible category.
+ *
+ * @param order FmcOrder object to check
+ */
+fun checkBnplEligibility(order: Order?) {
+    if (order == null) return
+    order.items?.forEach { item ->
+        val itemCategory = item.category?.lowercase()
+        if (itemCategory in INELIGIBLE_ITEM_CATEGORIES) {
+            order.bnplEligible = false
+        }
+    }
+}
+
+/**
+ * Set of ineligible item categories for BNPL
+ */
+val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
+
+
+/**
+ * Maps buyer billing address to FMC address.
+ *
+ * @param buyer Buyer object containing billing address
+ * @return FmcAddress with mapped fields, or null if address is not available
+ */
+fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): FmcAddress? {
+    if (buyer?.billingAddress == null) return null
+    return FmcAddress(
+        address1 = buyer.billingAddress?.address1,
+        address2 = buyer.billingAddress?.address2,
+        city = buyer.billingAddress?.locality,
+        state = buyer.billingAddress?.region,
+        zip = buyer.billingAddress?.postalCode
+    )
+}
+
+/**
+ * Data class representing FMC order
+ */
+data class FmcOrder(
+    val items: List<FmcOrderItem>? = null,
+    var bnplEligible: Boolean? = null
+)
+
+/**
+ * Data class representing FMC order item
+ */
+data class FmcOrderItem(
+    val category: String? = null
+)
+
+/**
+ * Data class representing FMC address
+ */
+data class FmcAddress(
+    val address1: String? = null,
+    val address2: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val zip: String? = null
+)
+
+/**
+ * Maps unified placement order to FMC order.
+ *
+ * @param order Order object from placement config
+ * @return FmcOrder with mapped fields, or null if order is null
+ */
+fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> {
+    return assignDefined(
+        mutableMapOf<String, Any?>(),
+        mapOf(
+            "bnplEligible" to order?.bnplEligible,
+            "items" to order?.items?.map { item ->
+                mapOf(
+                    "name" to item.name,
+                    "category" to item.category,
+                    "quantity" to item.quantity,
+                    "unitPriceValue" to item.unitPrice?.value?.toLong(),
+                    "unitTaxValue" to item.unitTax?.value?.toLong(),
+                    "sku" to item.sku,
+                    // itemUrl: not captured
+                    // imageUrl: not captured
+                    // description: not captured
+                    "shippingCostValue" to item.shippingCost?.value?.toLong(),
+                    // fulfillmentType: not captured
+                )
+            },
+            "subTotalValue" to order?.subTotal?.value?.toLong(),
+            "totalDiscountsValue" to order?.totalDiscounts?.value?.toLong(),
+            "totalPriceValue" to order?.totalPrice?.value?.toLong(),
+            "totalShippingValue" to order?.totalShipping?.value?.toLong(),
+            "totalTaxValue" to order?.totalTax?.value?.toLong(),
+            // discountCode: not captured
+            // shippingProvider: not captured
+            // shippingDescription: not captured
+            // shippingTrackingNumber: not captured
+            // shippingTrackingUrl: not captured
+            // fulfillmentType: not captured
+            // pickupInformation: not captured
+        )
+    )
+}
+
+
+data class UnifiedPrequalPathResult(
+    val path: String,
+    val queryString: String,
+    val queryParams: Map<String, Any?>
+)
+
+/**
+ * Generates path and query string for unified prequalification checkout.
+ * Used for checkout flow with order information.
+ *
+ * @param initialData Initial unified prequalification checkout data
+ * @param clientKey Client key for the request
+ * @param mockOptions Mock options for testing (optional)
+ * @return UnifiedPrequalPathResult containing path, query string, and parameters
+ */
+fun pathForUnifiedPrequalCheckout(
+    initialData: MutableMap<String, Any?>,
+    clientKey: String,
+    mockOptions: Any? = false
+): UnifiedPrequalPathResult {
+    val queryParams = mutableMapOf<String, Any?>(
+        "embedded" to true,
+        "clientKey" to clientKey
+    )
+
+    // Merge mock options if provided
+    when (mockOptions) {
+        is Boolean -> {
+            if (mockOptions) {
+                queryParams.putAll(mapUnifiedPrequalCheckoutOptions(mockOptions))
+            }
+        }
+
+        is Map<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            queryParams.putAll(mockOptions as Map<String, Any?>)
+        }
+    }
+
+    // Merge initial data
+    queryParams.putAll(initialData)
+
+    // Create final params with stringified order and shippingAddress
+    val finalParams = queryParams.toMutableMap()
+
+    // Stringify order object if present
+    queryParams["order"]?.let { order ->
+        finalParams["order"] = Gson().toJson(order)
+    }
+//
+//    // Stringify shippingAddress object if present
+    queryParams["shippingAddress"]?.let { shippingAddress ->
+        finalParams["shippingAddress"] = Gson().toJson(shippingAddress)
+    }
+
+
+    return UnifiedPrequalPathResult(
+        path = "/unified/checkout",
+        queryString = finalParams.toQueryString(),
+        queryParams = queryParams
+    )
+}
+
+/**
+ * Maps unified prequalification checkout mock options.
+ * This function should handle both boolean and UnifiedPrequalCheckoutMockOptions.
+ *
+ * @param mockOptions Mock options configuration
+ * @return Map of mock parameters
+ */
+fun mapUnifiedPrequalCheckoutOptions(mockOptions: Any?): Map<String, Any?> {
+    return when (mockOptions) {
+        is Boolean -> if (mockOptions) mapOf("mock" to true) else emptyMap()
+        is Map<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            (mockOptions as? Map<String, Any?>) ?: emptyMap()
+        }
+
+        else -> emptyMap()
+    }
+}
+
+/**
+ * Serializes object to JSON string.
+ * Handles FmcOrder and FmcAddress specially, falls back to Gson for other types.
+ *
+ * @param obj Object to serialize
+ * @return JSON string representation
+ */
+fun serializeToJson(obj: Any?): String {
+    return when (obj) {
+        is FmcOrder -> {
+            val items = obj.items?.joinToString(",", "[", "]") { item ->
+                "{\"category\":\"${item.category}\"}"
+            } ?: "[]"
+            "{\"items\":$items,\"bnplEligible\":${obj.bnplEligible}}"
+        }
+
+        is FmcAddress -> {
+            "{\"address1\":\"${obj.address1}\",\"address2\":\"${obj.address2}\",\"city\":\"${obj.city}\",\"state\":\"${obj.state}\",\"zip\":\"${obj.zip}\"}"
+        }
+
+        else -> {
+            try {
+                com.google.gson.Gson().toJson(obj)
+            } catch (e: Exception) {
+                "{}"
+            }
+        }
     }
 }
