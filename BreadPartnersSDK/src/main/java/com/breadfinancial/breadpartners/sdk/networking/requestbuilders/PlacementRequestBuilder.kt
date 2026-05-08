@@ -136,7 +136,7 @@ fun mapUnifiedPlacementContextToFmcCommonData(
             "storeNumber" to merchantConfiguration?.storeNumber,
             "loyaltyNumber" to merchantConfiguration?.loyaltyID,
             "departmentId" to merchantConfiguration?.departmentId,
-            "checkoutAmount" to placementData?.order?.totalPrice?.value?.toLong(),
+            "checkoutAmount" to placementData?.order?.totalPrice?.value?.toInt(),
             "location" to placementData?.locationType,
             "epId" to userTrackingId,
             "epPlacementId" to placementData?.placementId,
@@ -155,6 +155,16 @@ fun mapUnifiedPlacementContextToFmcCommonData(
             "splitPayment" to if (merchantConfiguration?.paymentMode == PaymentMode.SPLIT) true else null
         )
     )
+}
+
+/**
+ * Converts Money value to dollars (divides by 100).
+ *
+ * @param moneyValue Double value in cents
+ * @return Double value in dollars, or null if input is null
+ */
+fun fromMoneyToDollars(moneyValue: Double?): Double? {
+    return if (moneyValue != null) moneyValue / 100 else null
 }
 
 
