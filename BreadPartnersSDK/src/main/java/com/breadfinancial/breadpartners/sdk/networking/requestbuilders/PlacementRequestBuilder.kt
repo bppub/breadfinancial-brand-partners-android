@@ -348,13 +348,13 @@ val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
  * @return FmcAddress with mapped fields, or null if address is not available
  */
 fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): FmcAddress? {
-    if (buyer?.billingAddress == null) return null
+    if (buyer?.shippingAddress == null) return null
     return FmcAddress(
-        address1 = buyer.billingAddress?.address1,
-        address2 = buyer.billingAddress?.address2,
-        city = buyer.billingAddress?.locality,
-        state = buyer.billingAddress?.region,
-        zip = buyer.billingAddress?.postalCode
+        address1 = buyer.shippingAddress?.address1,
+        address2 = buyer.shippingAddress?.address2,
+        city = buyer.shippingAddress?.locality,
+        state = buyer.shippingAddress?.region,
+        zip = buyer.shippingAddress?.postalCode
     )
 }
 
@@ -396,36 +396,66 @@ fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> 
         mapOf(
             "bnplEligible" to order?.bnplEligible,
             "items" to order?.items?.map { item ->
-                mapOf(
-                    "name" to item.name,
-                    "category" to item.category,
-                    "quantity" to item.quantity,
-                    "unitPriceValue" to item.unitPrice?.value?.toLong(),
-                    "unitTaxValue" to item.unitTax?.value?.toLong(),
-                    "sku" to item.sku,
-                    // itemUrl: not captured
-                    // imageUrl: not captured
-                    // description: not captured
-                    "shippingCostValue" to item.shippingCost?.value?.toLong(),
-                    // fulfillmentType: not captured
+                assignDefined(
+                    mutableMapOf<String, Any?>(),
+                    mapOf(
+                        "name" to item.name,
+                        "category" to item.category,
+                        "quantity" to item.quantity,
+                        "unitPriceValue" to item.unitPrice?.value?.toInt(),
+                        "unitTaxValue" to item.unitTax?.value?.toInt(),
+                        "sku" to item.sku,
+                        // itemUrl: not captured
+                        // imageUrl: not captured
+                        // description: not captured
+                        "shippingCostValue" to item.shippingCost?.value?.toInt(),
+                        "fulfillmentType" to item.fulfillmentType
+                    )
                 )
             },
-            "subTotalValue" to order?.subTotal?.value?.toLong(),
-            "totalDiscountsValue" to order?.totalDiscounts?.value?.toLong(),
-            "totalPriceValue" to order?.totalPrice?.value?.toLong(),
-            "totalShippingValue" to order?.totalShipping?.value?.toLong(),
-            "totalTaxValue" to order?.totalTax?.value?.toLong(),
+            "subTotalValue" to order?.subTotal?.value?.toInt(),
+            "totalDiscountsValue" to order?.totalDiscounts?.value?.toInt(),
+            "totalPriceValue" to order?.totalPrice?.value?.toInt(),
+            "totalShippingValue" to order?.totalShipping?.value?.toInt(),
+            "totalTaxValue" to order?.totalTax?.value?.toInt(),
             // discountCode: not captured
             // shippingProvider: not captured
             // shippingDescription: not captured
             // shippingTrackingNumber: not captured
             // shippingTrackingUrl: not captured
-            // fulfillmentType: not captured
-            // pickupInformation: not captured
+            "fulfillmentType" to order?.fulfillmentType,
+            "pickupInformation" to if (order?.pickupInformation != null) {
+                assignDefined(
+                    mutableMapOf<String, Any?>(),
+                    mapOf(
+                        "name" to assignDefined(
+                            mutableMapOf<String, Any?>(),
+                            mapOf(
+                                "firstName" to order.pickupInformation?.name?.givenName,
+                                "lastName" to order.pickupInformation?.name?.familyName,
+                                "additionalName" to order.pickupInformation?.name?.additionalName
+                            )
+                        ),
+                        "address" to assignDefined(
+                            mutableMapOf<String, Any?>(),
+                            mapOf(
+                                "address1" to order.pickupInformation?.address?.address1,
+                                "address2" to order.pickupInformation?.address?.address2,
+                                "city" to order.pickupInformation?.address?.locality,
+                                "state" to order.pickupInformation?.address?.region,
+                                "zip" to order.pickupInformation?.address?.postalCode
+                            )
+                        ),
+                        "mobilePhone" to order.pickupInformation?.phone,
+                        "emailAddress" to order.pickupInformation?.email
+                    )
+                )
+            } else {
+                null
+            }
         )
     )
 }
-
 
 data class UnifiedPrequalPathResult(
     val path: String,
