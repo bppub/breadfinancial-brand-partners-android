@@ -336,21 +336,6 @@ fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): FmcAddre
 }
 
 /**
- * Data class representing FMC order
- */
-data class FmcOrder(
-    val items: List<FmcOrderItem>? = null,
-    var bnplEligible: Boolean? = null
-)
-
-/**
- * Data class representing FMC order item
- */
-data class FmcOrderItem(
-    val category: String? = null
-)
-
-/**
  * Data class representing FMC address
  */
 data class FmcAddress(
