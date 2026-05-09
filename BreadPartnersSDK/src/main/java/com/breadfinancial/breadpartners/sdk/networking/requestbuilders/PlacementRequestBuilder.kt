@@ -30,7 +30,6 @@ class PlacementRequestBuilder(
     integrationKey: String,
     merchantConfiguration: MerchantConfiguration?,
     placementData: PlacementData?,
-    inputContext: ContextRequestBody? = null
 ) {
     private var placements: MutableList<PlacementRequestBody> = mutableListOf()
     private var brandId: String = integrationKey
@@ -41,7 +40,8 @@ class PlacementRequestBuilder(
 
     private fun createPlacementRequestBody(
         merchantConfiguration: MerchantConfiguration?,
-        placementData: PlacementData?
+        placementData: PlacementData?,
+        inputContext: ContextRequestBody? = null
     ) {
         var context = ContextRequestBody(
             ENV = merchantConfiguration?.env?.value.takeIfNotEmpty(),
@@ -66,7 +66,8 @@ class PlacementRequestBuilder(
         context = if (placementData?.allowCheckout == true) {
             val upqCheckoutData = mapUnifiedPlacementContextToFmcUpqCheckout(
                 placementData = placementData,
-                merchantConfiguration = merchantConfiguration
+                merchantConfiguration = merchantConfiguration,
+                inputContext = inputContext,
             )
 
             val upqPathData = pathForUnifiedPrequalCheckout(
@@ -165,27 +166,6 @@ fun mapUnifiedPlacementContextToFmcCommonData(
  */
 fun fromMoneyToDollars(moneyValue: Double?): Double? {
     return if (moneyValue != null) moneyValue / 100 else null
-}
-
-
-/**
- * Merges source maps into target map, only including defined and non-empty values.
- * Supports multiple source maps passed as varargs.
- */
-fun assignDefined(
-    target: MutableMap<String, Any?>,
-    vararg sources: Map<String, Any?>
-): MutableMap<String, Any?> {
-    for (source in sources) {
-        if (source.isEmpty()) continue
-
-        for ((key, value) in source) {
-            if (value != null && value != "") {
-                target[key] = value
-            }
-        }
-    }
-    return target
 }
 
 
@@ -290,12 +270,9 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
     merchantConfiguration: MerchantConfiguration? = null,
     sessionTrackingId: String? = null,
     userTrackingId: String? = null,
-    prequalLimit: String? = null,
-    prequalId: String? = null,
-    financingBuyerId: String? = null,
+    inputContext: ContextRequestBody? = null,
     financingLocationId: String? = null,
     callCenter: String? = null,
-    inSessionToken: String? = null
 ): MutableMap<String, Any?> {
     // Map common data from placement and setup configs
     val commonData = mapUnifiedPlacementContextToFmcCommonData(
@@ -319,14 +296,40 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
         mapOf(
             "order" to newOrder,
             "shippingAddress" to shippingAddress,
-            "prequalCreditLimit" to prequalLimit,
-            "prequalificationId" to prequalId,
-            "financingBuyerId" to financingBuyerId,
+            "prequalCreditLimit" to inputContext?.PREQUAL_CREDIT_LIMIT,
+            "prequalificationId" to inputContext?.PREQUAL_ID,
+            "financingBuyerId" to inputContext?.BUYER_ID,
             "financingLocationId" to financingLocationId,
             "callCenter" to callCenter,
-            "inSessionToken" to inSessionToken
+            "inSessionToken" to inputContext?.UPQ_IN_SESSION_TOKEN
         )
     )
+}
+
+/**
+ * Merges source maps into target map, only including defined and non-empty values.
+ * Supports multiple source maps passed as varargs.
+ * Returns the same type as the target parameter.
+ *
+ * @param T The type of map to work with
+ * @param target The target map to merge into
+ * @param sources One or more source maps to merge from
+ * @return The target map with merged values (same type as input)
+ */
+fun <T : MutableMap<String, Any?>> assignDefined(
+    target: T,
+    vararg sources: Map<String, Any?>
+): T {
+    for (source in sources) {
+        if (source.isEmpty()) continue
+
+        for ((key, value) in source) {
+            if (value != null && value != "") {
+                target[key] = value
+            }
+        }
+    }
+    return target
 }
 
 /**
@@ -546,35 +549,5 @@ fun mapUnifiedPrequalCheckoutOptions(mockOptions: Any?): Map<String, Any?> {
         }
 
         else -> emptyMap()
-    }
-}
-
-/**
- * Serializes object to JSON string.
- * Handles FmcOrder and FmcAddress specially, falls back to Gson for other types.
- *
- * @param obj Object to serialize
- * @return JSON string representation
- */
-fun serializeToJson(obj: Any?): String {
-    return when (obj) {
-        is FmcOrder -> {
-            val items = obj.items?.joinToString(",", "[", "]") { item ->
-                "{\"category\":\"${item.category}\"}"
-            } ?: "[]"
-            "{\"items\":$items,\"bnplEligible\":${obj.bnplEligible}}"
-        }
-
-        is FmcAddress -> {
-            "{\"address1\":\"${obj.address1}\",\"address2\":\"${obj.address2}\",\"city\":\"${obj.city}\",\"state\":\"${obj.state}\",\"zip\":\"${obj.zip}\"}"
-        }
-
-        else -> {
-            try {
-                com.google.gson.Gson().toJson(obj)
-            } catch (e: Exception) {
-                "{}"
-            }
-        }
     }
 }

@@ -35,6 +35,7 @@ data class PlacementRequestBody(
 data class ContextRequestBody(
     val ALLOW_CHECKOUT: Boolean? = null,
     val BNPL_ELIGIBLE: Boolean? = null,
+    val BUYER_ID: String? = null,
     val CARD_CHOICE_CODE: String? = null,
     val CARDHOLDER_TIER: String? = null,
     val CLIENT_VAR_1: String? = null,
