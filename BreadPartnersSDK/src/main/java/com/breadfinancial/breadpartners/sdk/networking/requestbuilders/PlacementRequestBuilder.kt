@@ -175,32 +175,16 @@ fun fromMoneyToDollars(moneyValue: Double?): Double? {
  *
  * @param initialData Initial unified prequalification data
  * @param clientKey Client key for the request
- * @param mockOptions Mock options for testing (optional)
  * @return UnifiedPrequalPathResult containing path, query string, and parameters
  */
 fun pathForUnifiedPrequal(
     initialData: MutableMap<String, Any?>,
     clientKey: String,
-    mockOptions: Any? = false
 ): UnifiedPrequalPathResult {
     val queryParams = mutableMapOf<String, Any?>(
         "embedded" to true,
         "clientKey" to clientKey
     )
-
-    // Merge mock options if provided
-    when (mockOptions) {
-        is Boolean -> {
-            if (mockOptions) {
-                queryParams.putAll(mapUnifiedPrequalOptions(mockOptions))
-            }
-        }
-
-        is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            queryParams.putAll(mockOptions as Map<String, Any?>)
-        }
-    }
 
     // Merge initial data
     queryParams.putAll(initialData)
@@ -210,26 +194,6 @@ fun pathForUnifiedPrequal(
         queryString = queryParams.toQueryString(),
         queryParams = queryParams
     )
-}
-
-
-/**
- * Maps unified prequalification mock options.
- * This function should handle both boolean and UnifiedPrequalMockOptions.
- *
- * @param mockOptions Mock options configuration
- * @return Map of mock parameters
- */
-fun mapUnifiedPrequalOptions(mockOptions: Any?): Map<String, Any?> {
-    return when (mockOptions) {
-        is Boolean -> if (mockOptions) mapOf("mock" to true) else emptyMap()
-        is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            (mockOptions as? Map<String, Any?>) ?: emptyMap()
-        }
-
-        else -> emptyMap()
-    }
 }
 
 /**
@@ -488,27 +452,11 @@ data class UnifiedPrequalPathResult(
 fun pathForUnifiedPrequalCheckout(
     initialData: MutableMap<String, Any?>,
     clientKey: String,
-    mockOptions: Any? = false
 ): UnifiedPrequalPathResult {
     val queryParams = mutableMapOf<String, Any?>(
         "embedded" to true,
         "clientKey" to clientKey
     )
-
-    // Merge mock options if provided
-    when (mockOptions) {
-        is Boolean -> {
-            if (mockOptions) {
-                queryParams.putAll(mapUnifiedPrequalCheckoutOptions(mockOptions))
-            }
-        }
-
-        is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            queryParams.putAll(mockOptions as Map<String, Any?>)
-        }
-    }
-
     // Merge initial data
     queryParams.putAll(initialData)
 
@@ -519,8 +467,8 @@ fun pathForUnifiedPrequalCheckout(
     queryParams["order"]?.let { order ->
         finalParams["order"] = Gson().toJson(order)
     }
-//
-//    // Stringify shippingAddress object if present
+
+    // Stringify shippingAddress object if present
     queryParams["shippingAddress"]?.let { shippingAddress ->
         finalParams["shippingAddress"] = Gson().toJson(shippingAddress)
     }
@@ -531,23 +479,4 @@ fun pathForUnifiedPrequalCheckout(
         queryString = finalParams.toQueryString(),
         queryParams = queryParams
     )
-}
-
-/**
- * Maps unified prequalification checkout mock options.
- * This function should handle both boolean and UnifiedPrequalCheckoutMockOptions.
- *
- * @param mockOptions Mock options configuration
- * @return Map of mock parameters
- */
-fun mapUnifiedPrequalCheckoutOptions(mockOptions: Any?): Map<String, Any?> {
-    return when (mockOptions) {
-        is Boolean -> if (mockOptions) mapOf("mock" to true) else emptyMap()
-        is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            (mockOptions as? Map<String, Any?>) ?: emptyMap()
-        }
-
-        else -> emptyMap()
-    }
 }
