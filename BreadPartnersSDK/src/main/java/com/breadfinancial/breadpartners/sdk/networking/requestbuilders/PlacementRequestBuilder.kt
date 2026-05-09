@@ -207,7 +207,7 @@ fun pathForUnifiedPrequal(
 
     return UnifiedPrequalPathResult(
         path = "/unified/offer-intro",
-        queryString = queryParams.toQueryString() + "&epSessionId=f65890bb-95ed-4eef-98fe-40494f8d573b",
+        queryString = queryParams.toQueryString(),
         queryParams = queryParams
     )
 }
