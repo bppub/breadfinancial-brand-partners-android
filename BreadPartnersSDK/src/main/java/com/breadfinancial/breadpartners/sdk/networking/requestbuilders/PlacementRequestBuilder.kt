@@ -41,7 +41,6 @@ class PlacementRequestBuilder(
     private fun createPlacementRequestBody(
         merchantConfiguration: MerchantConfiguration?,
         placementData: PlacementData?,
-        inputContext: ContextRequestBody? = null
     ) {
         var context = ContextRequestBody(
             ENV = merchantConfiguration?.env?.value.takeIfNotEmpty(),
@@ -67,7 +66,10 @@ class PlacementRequestBuilder(
             val upqCheckoutData = mapUnifiedPlacementContextToFmcUpqCheckout(
                 placementData = placementData,
                 merchantConfiguration = merchantConfiguration,
-                inputContext = inputContext,
+                upqInSessionToken = placementData.upqInSessionToken,
+                financingBuyerId = placementData.financingBuyerId,
+                prequalificationId = placementData.prequalificationId,
+                prequalCreditLimit = placementData.prequalCreditLimit,
             )
 
             val upqPathData = pathForUnifiedPrequalCheckout(
@@ -234,9 +236,12 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
     merchantConfiguration: MerchantConfiguration? = null,
     sessionTrackingId: String? = null,
     userTrackingId: String? = null,
-    inputContext: ContextRequestBody? = null,
     financingLocationId: String? = null,
     callCenter: String? = null,
+    upqInSessionToken: String? = null,
+    financingBuyerId: String? = null,
+    prequalificationId: String? = null,
+    prequalCreditLimit: String? = null,
 ): MutableMap<String, Any?> {
     // Map common data from placement and setup configs
     val commonData = mapUnifiedPlacementContextToFmcCommonData(
@@ -260,12 +265,12 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
         mapOf(
             "order" to newOrder,
             "shippingAddress" to shippingAddress,
-            "prequalCreditLimit" to inputContext?.PREQUAL_CREDIT_LIMIT,
-            "prequalificationId" to inputContext?.PREQUAL_ID,
-            "financingBuyerId" to inputContext?.BUYER_ID,
+            "prequalCreditLimit" to prequalCreditLimit,
+            "prequalificationId" to prequalificationId,
+            "financingBuyerId" to financingBuyerId,
             "financingLocationId" to financingLocationId,
             "callCenter" to callCenter,
-            "inSessionToken" to inputContext?.UPQ_IN_SESSION_TOKEN
+            "inSessionToken" to upqInSessionToken
         )
     )
 }

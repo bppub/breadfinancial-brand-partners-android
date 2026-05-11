@@ -23,7 +23,11 @@ data class PlacementData(
     var allowCheckout: Boolean? = null,
     var order: Order? = null,
     var defaultSelectedCardKey: String? = null,
-    var selectedCardKey: String? = null
+    var selectedCardKey: String? = null,
+    val upqInSessionToken: String? = null,
+    val financingBuyerId: String? = null,
+    val prequalificationId: String? = null,
+    val prequalCreditLimit: String? = null
 )
 
 /**
