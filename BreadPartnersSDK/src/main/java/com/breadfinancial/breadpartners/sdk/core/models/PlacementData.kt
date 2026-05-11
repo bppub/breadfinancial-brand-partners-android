@@ -136,3 +136,4 @@ data class Item(
     var shippingTrackingUrl: String? = null,
     var fulfillmentType: String? = null
 )
+

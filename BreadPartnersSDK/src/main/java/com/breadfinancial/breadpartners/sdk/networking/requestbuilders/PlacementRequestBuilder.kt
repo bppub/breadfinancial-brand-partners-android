@@ -18,6 +18,7 @@ import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration.Pa
 import com.breadfinancial.breadpartners.sdk.core.models.Order
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementData
 import com.breadfinancial.breadpartners.sdk.core.models.UPQAddressRequest
+import com.breadfinancial.breadpartners.sdk.core.models.UnifiedPrequalPathResult
 import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
@@ -65,7 +66,7 @@ class PlacementRequestBuilder(
         )
 
         context = if (placementData?.allowCheckout == true) {
-            val upqCheckoutData = mapUnifiedPlacementContextToFmcUpqCheckout(
+            val upqCheckoutData = mapUnifiedPlacementContextToUpqCheckout(
                 placementData = placementData,
                 merchantConfiguration = merchantConfiguration,
             )
@@ -77,7 +78,7 @@ class PlacementRequestBuilder(
 
             context.copy(UPQ_CHECKOUT_PARAMS = upqPathData)
         } else {
-            val upqData = mapUnifiedPlacementContextToFmcCommonData(
+            val upqData = mapUnifiedPlacementContextToUPQCommonData(
                 placementData = placementData,
                 merchantConfiguration = merchantConfiguration
             )
@@ -106,7 +107,7 @@ class PlacementRequestBuilder(
 }
 
 /**
- * Maps unified placement context to FMC common data.
+ * Maps unified placement context to UPQ common data.
  * Transforms all fields from placementConfig and setupConfig to CommonData format.
  *
  * @param placementConfig Unified placement configuration (optional)
@@ -115,13 +116,13 @@ class PlacementRequestBuilder(
  * @param userTrackingId User tracking identifier (optional)
  * @return CommonData with mapped fields from both configs
  */
-fun mapUnifiedPlacementContextToFmcCommonData(
+fun mapUnifiedPlacementContextToUPQCommonData(
     placementData: PlacementData? = null,
     merchantConfiguration: MerchantConfiguration? = null,
     sessionId: String? = null,
     userTrackingId: String? = null
 ): MutableMap<String, Any?> {
-    return assignDefined(
+    return CommonUtils().assignDefined(
         mutableMapOf<String, Any?>(),
         mapOf(
             "firstName" to merchantConfiguration?.buyer?.givenName,
@@ -204,7 +205,7 @@ fun Map<String, Any?>.toQueryString(): String {
 }
 
 /**
- * Maps unified placement context to FMC prequalification checkout data.
+ * Maps unified placement context to UPQ prequalification checkout data.
  * Includes all common data fields plus checkout-specific fields.
  *
  * @param placementConfig Unified placement configuration (optional)
@@ -219,7 +220,7 @@ fun Map<String, Any?>.toQueryString(): String {
  * @param inSessionToken In-session token (optional)
  * @return MutableMap with all mapped checkout data
  */
-fun mapUnifiedPlacementContextToFmcUpqCheckout(
+fun mapUnifiedPlacementContextToUpqCheckout(
     placementData: PlacementData? = null,
     merchantConfiguration: MerchantConfiguration? = null,
     sessionTrackingId: String? = null,
@@ -229,7 +230,7 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
 
     ): MutableMap<String, Any?> {
     // Map common data from placement and setup configs
-    val commonData = mapUnifiedPlacementContextToFmcCommonData(
+    val commonData = mapUnifiedPlacementContextToUPQCommonData(
         placementData = placementData,
         merchantConfiguration = merchantConfiguration,
         sessionId = sessionTrackingId,
@@ -237,14 +238,15 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
     )
 
     // Map order and check BNPL eligibility
-    val newOrder = mapUnifiedPlacementOrderToFmcOrder(placementData?.order)
+    val newOrder = mapUnifiedPlacementOrderToOrder(placementData?.order)
 //    checkBnplEligibility(newOrder)
 
     // Map shipping address
-    val shippingAddress = mapUnifiedPlacementContextToFmcAddress(merchantConfiguration?.buyer)
+    val shippingAddress =
+        mapUnifiedPlacementContextToUPQAddressRequest(merchantConfiguration?.buyer)
 
     // Merge all data using assignDefined
-    return assignDefined(
+    return CommonUtils().assignDefined(
         mutableMapOf<String, Any?>(),
         commonData,
         mapOf(
@@ -260,37 +262,12 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
     )
 }
 
-/**
- * Merges source maps into target map, only including defined and non-empty values.
- * Supports multiple source maps passed as varargs.
- * Returns the same type as the target parameter.
- *
- * @param T The type of map to work with
- * @param target The target map to merge into
- * @param sources One or more source maps to merge from
- * @return The target map with merged values (same type as input)
- */
-fun <T : MutableMap<String, Any?>> assignDefined(
-    target: T,
-    vararg sources: Map<String, Any?>
-): T {
-    for (source in sources) {
-        if (source.isEmpty()) continue
-
-        for ((key, value) in source) {
-            if (value != null && value != "") {
-                target[key] = value
-            }
-        }
-    }
-    return target
-}
 
 /**
  * Checks BNPL eligibility based on item categories.
  * Sets bnplEligible to false if any item has an ineligible category.
  *
- * @param order FmcOrder object to check
+ * @param order Order object to check
  */
 fun checkBnplEligibility(order: Order?) {
     if (order == null) return
@@ -309,12 +286,12 @@ val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
 
 
 /**
- * Maps buyer billing address to FMC address.
+ * Maps buyer billing address to UPQ address.
  *
  * @param buyer Buyer object containing billing address
- * @return FmcAddress with mapped fields, or null if address is not available
+ * @return UPQAddressRequest with mapped fields, or null if address is not available
  */
-fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): UPQAddressRequest? {
+fun mapUnifiedPlacementContextToUPQAddressRequest(buyer: BreadPartnersBuyer?): UPQAddressRequest? {
     if (buyer?.shippingAddress == null) return null
     return UPQAddressRequest(
         address1 = buyer.shippingAddress?.address1,
@@ -326,18 +303,18 @@ fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): UPQAddre
 }
 
 /**
- * Maps unified placement order to FMC order.
+ * Maps unified placement order to order.
  *
  * @param order Order object from placement config
- * @return FmcOrder with mapped fields, or null if order is null
+ * @return Order with mapped fields, or null if order is null
  */
-fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> {
-    return assignDefined(
+fun mapUnifiedPlacementOrderToOrder(order: Order?): MutableMap<String, Any?> {
+    return CommonUtils().assignDefined(
         mutableMapOf<String, Any?>(),
         mapOf(
             "bnplEligible" to order?.bnplEligible,
             "items" to order?.items?.map { item ->
-                assignDefined(
+                CommonUtils().assignDefined(
                     mutableMapOf<String, Any?>(),
                     mapOf(
                         "name" to item.name,
@@ -366,10 +343,10 @@ fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> 
             // shippingTrackingUrl: not captured
             "fulfillmentType" to order?.fulfillmentType,
             "pickupInformation" to if (order?.pickupInformation != null) {
-                assignDefined(
+                CommonUtils().assignDefined(
                     mutableMapOf<String, Any?>(),
                     mapOf(
-                        "name" to assignDefined(
+                        "name" to CommonUtils().assignDefined(
                             mutableMapOf<String, Any?>(),
                             mapOf(
                                 "firstName" to order.pickupInformation?.name?.givenName,
@@ -377,7 +354,7 @@ fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> 
                                 "additionalName" to order.pickupInformation?.name?.additionalName
                             )
                         ),
-                        "address" to assignDefined(
+                        "address" to CommonUtils().assignDefined(
                             mutableMapOf<String, Any?>(),
                             mapOf(
                                 "address1" to order.pickupInformation?.address?.address1,
@@ -398,11 +375,6 @@ fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> 
     )
 }
 
-data class UnifiedPrequalPathResult(
-    val path: String,
-    val queryString: String,
-    val queryParams: Map<String, Any?>
-)
 
 /**
  * Generates path and query string for unified prequalification checkout.
