@@ -66,10 +66,6 @@ class PlacementRequestBuilder(
             val upqCheckoutData = mapUnifiedPlacementContextToFmcUpqCheckout(
                 placementData = placementData,
                 merchantConfiguration = merchantConfiguration,
-                upqInSessionToken = placementData.upqInSessionToken,
-                financingBuyerId = placementData.financingBuyerId,
-                prequalificationId = placementData.prequalificationId,
-                prequalCreditLimit = placementData.prequalCreditLimit,
             )
 
             val upqPathData = pathForUnifiedPrequalCheckout(
@@ -238,11 +234,8 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
     userTrackingId: String? = null,
     financingLocationId: String? = null,
     callCenter: String? = null,
-    upqInSessionToken: String? = null,
-    financingBuyerId: String? = null,
-    prequalificationId: String? = null,
-    prequalCreditLimit: String? = null,
-): MutableMap<String, Any?> {
+
+    ): MutableMap<String, Any?> {
     // Map common data from placement and setup configs
     val commonData = mapUnifiedPlacementContextToFmcCommonData(
         placementData = placementData,
@@ -265,12 +258,12 @@ fun mapUnifiedPlacementContextToFmcUpqCheckout(
         mapOf(
             "order" to newOrder,
             "shippingAddress" to shippingAddress,
-            "prequalCreditLimit" to prequalCreditLimit,
-            "prequalificationId" to prequalificationId,
-            "financingBuyerId" to financingBuyerId,
+            "prequalCreditLimit" to placementData?.prequalCreditLimit,
+            "prequalificationId" to placementData?.prequalificationId,
+            "financingBuyerId" to placementData?.financingBuyerId,
             "financingLocationId" to financingLocationId,
             "callCenter" to callCenter,
-            "inSessionToken" to upqInSessionToken
+            "inSessionToken" to placementData?.upqInSessionToken
         )
     )
 }
