@@ -137,3 +137,11 @@ data class Item(
     var fulfillmentType: String? = null
 )
 
+
+/**
+ * Set of ineligible item categories for BNPL
+ */
+val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
+
+
+

@@ -254,3 +254,21 @@ class CommonUtils(
         return target
     }
 }
+
+
+/**
+ * Extension function to convert map to query string with proper URL encoding.
+ * (Already exists in your UnifiedPlacementModels.kt)
+ */
+fun Map<String, Any?>.toQueryString(): String {
+    return this.filter { it.value != null }
+        .map { (key, value) ->
+            val encodedKey = java.net.URLEncoder.encode(key, "UTF-8")
+            val encodedValue = when (value) {
+                is String -> java.net.URLEncoder.encode(value, "UTF-8")
+                else -> java.net.URLEncoder.encode(value.toString(), "UTF-8")
+            }
+            "$encodedKey=$encodedValue"
+        }
+        .joinToString("&")
+}
