@@ -93,7 +93,7 @@ data class Order(
  * Data model representing currency value information.
  */
 data class CurrencyValue(
-    var currency: String? = null, var value: Double? = null
+    var currency: String? = null, var value: Long? = null
 )
 
 /**

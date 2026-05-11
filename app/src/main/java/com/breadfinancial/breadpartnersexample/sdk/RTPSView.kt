@@ -64,7 +64,7 @@ class RTPSView : BottomSheetDialogFragment() {
         val rtpsData = RTPSData(
             locationType = BreadPartnersLocationType.CHECKOUT, order = Order(
                 totalPrice = CurrencyValue(
-                    currency = "USD", value = 5000.0
+                    currency = "USD", value = 5000
                 )
             ), mockResponse = BreadPartnersMockOptions.SUCCESS
         )

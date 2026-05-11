@@ -217,4 +217,14 @@ class CommonUtils(
         val manufacturer = Build.MANUFACTURER           // e.g., "Google"
         return "$manufacturer $deviceModel; $osVersion" // Google Pixel 7; Android 13
     }
+
+    /**
+     * Converts Money value to dollars (divides by 100).
+     *
+     * @param moneyValue Double value in cents
+     * @return Double value in dollars, or null if input is null
+     */
+    fun fromMoneyToDollars(moneyValue: Long?): Double? {
+        return if (moneyValue != null) (moneyValue.toDouble() / 100) else null
+    }
 }

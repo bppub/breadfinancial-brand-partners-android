@@ -113,11 +113,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
             placementId = placementID,
             domID = "123",
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = 1000.0),
-                totalDiscounts = CurrencyValue(currency = "USD", value = 0.0),
-                totalPrice = CurrencyValue(currency = "USD", value = 1200.0),
-                totalShipping = CurrencyValue(currency = "USD", value = 0.0),
-                totalTax = CurrencyValue(currency = "USD", value = 200.0),
+                subTotal = CurrencyValue(currency = "USD", value = 100000),
+                totalDiscounts = CurrencyValue(currency = "USD", value = 0),
+                totalPrice = CurrencyValue(currency = "USD", value = 115450),
+                totalShipping = CurrencyValue(currency = "USD", value = 0),
+                totalTax = CurrencyValue(currency = "USD", value = 20000),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
@@ -141,11 +141,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         name = "Headphones",
                         category = "Electronics",
                         quantity = 1,
-                        unitPrice = CurrencyValue(currency = "USD", value = 500.0),
-                        unitTax = CurrencyValue(currency = "USD", value = 200.0),
+                        unitPrice = CurrencyValue(currency = "USD", value = 50000),
+                        unitTax = CurrencyValue(currency = "USD", value = 20000),
                         sku = "SKU-001",
                         fulfillmentType = "PICKUP",
-                        shippingCost = CurrencyValue(currency = "USD", value = 0.0)
+                        shippingCost = CurrencyValue(currency = "USD", value = 0)
                     )
                 )
             )

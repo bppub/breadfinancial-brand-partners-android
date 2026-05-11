@@ -21,6 +21,7 @@ import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
+import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.google.gson.Gson
 
 /**
@@ -44,7 +45,7 @@ class PlacementRequestBuilder(
     ) {
         var context = ContextRequestBody(
             ENV = merchantConfiguration?.env?.value.takeIfNotEmpty(),
-            PRICE = placementData?.order?.totalPrice?.value?.toLong(),
+            PRICE = placementData?.order?.totalPrice?.value,
             CARDHOLDER_TIER = merchantConfiguration?.cardholderTier.takeIfNotEmpty(),
             STORE_NUMBER = merchantConfiguration?.storeNumber.takeIfNotEmpty(),
             LOYALTY_ID = merchantConfiguration?.loyaltyID.takeIfNotEmpty(),
@@ -135,7 +136,7 @@ fun mapUnifiedPlacementContextToFmcCommonData(
             "storeNumber" to merchantConfiguration?.storeNumber,
             "loyaltyNumber" to merchantConfiguration?.loyaltyID,
             "departmentId" to merchantConfiguration?.departmentId,
-            "checkoutAmount" to placementData?.order?.totalPrice?.value?.toInt(),
+            "checkoutAmount" to CommonUtils().fromMoneyToDollars(placementData?.order?.totalPrice?.value),
             "location" to placementData?.locationType,
             "epId" to userTrackingId,
             "epPlacementId" to placementData?.placementId,
@@ -154,16 +155,6 @@ fun mapUnifiedPlacementContextToFmcCommonData(
             "splitPayment" to if (merchantConfiguration?.paymentMode == PaymentMode.SPLIT) true else null
         )
     )
-}
-
-/**
- * Converts Money value to dollars (divides by 100).
- *
- * @param moneyValue Double value in cents
- * @return Double value in dollars, or null if input is null
- */
-fun fromMoneyToDollars(moneyValue: Double?): Double? {
-    return if (moneyValue != null) moneyValue / 100 else null
 }
 
 
@@ -362,22 +353,22 @@ fun mapUnifiedPlacementOrderToFmcOrder(order: Order?): MutableMap<String, Any?> 
                         "name" to item.name,
                         "category" to item.category,
                         "quantity" to item.quantity,
-                        "unitPriceValue" to item.unitPrice?.value?.toInt(),
-                        "unitTaxValue" to item.unitTax?.value?.toInt(),
+                        "unitPriceValue" to CommonUtils().fromMoneyToDollars(item.unitPrice?.value),
+                        "unitTaxValue" to CommonUtils().fromMoneyToDollars(item.unitTax?.value),
                         "sku" to item.sku,
                         // itemUrl: not captured
                         // imageUrl: not captured
                         // description: not captured
-                        "shippingCostValue" to item.shippingCost?.value?.toInt(),
+                        "shippingCostValue" to CommonUtils().fromMoneyToDollars(item.shippingCost?.value),
                         "fulfillmentType" to item.fulfillmentType
                     )
                 )
             },
-            "subTotalValue" to order?.subTotal?.value?.toInt(),
-            "totalDiscountsValue" to order?.totalDiscounts?.value?.toInt(),
-            "totalPriceValue" to order?.totalPrice?.value?.toInt(),
-            "totalShippingValue" to order?.totalShipping?.value?.toInt(),
-            "totalTaxValue" to order?.totalTax?.value?.toInt(),
+            "subTotalValue" to CommonUtils().fromMoneyToDollars(order?.subTotal?.value),
+            "totalDiscountsValue" to CommonUtils().fromMoneyToDollars(order?.totalDiscounts?.value),
+            "totalPriceValue" to CommonUtils().fromMoneyToDollars(order?.totalPrice?.value),
+            "totalShippingValue" to CommonUtils().fromMoneyToDollars(order?.totalShipping?.value),
+            "totalTaxValue" to CommonUtils().fromMoneyToDollars(order?.totalTax?.value),
             // discountCode: not captured
             // shippingProvider: not captured
             // shippingDescription: not captured

@@ -218,11 +218,11 @@ class MainActivity : AppCompatActivity() {
             placementId = placementID,
             allowCheckout = allowCheckout,
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = price?.toDouble()),
-                totalDiscounts = CurrencyValue(currency = "USD", value = 0.0),
-                totalPrice = CurrencyValue(currency = "USD", value = price?.toDouble()),
-                totalShipping = CurrencyValue(currency = "USD", value = 0.0),
-                totalTax = CurrencyValue(currency = "USD", value = 0.0),
+                subTotal = CurrencyValue(currency = "USD", value = price?.toLong()),
+                totalDiscounts = CurrencyValue(currency = "USD", value = 0),
+                totalPrice = CurrencyValue(currency = "USD", value = price?.toLong()),
+                totalShipping = CurrencyValue(currency = "USD", value = 0),
+                totalTax = CurrencyValue(currency = "USD", value = 0),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
