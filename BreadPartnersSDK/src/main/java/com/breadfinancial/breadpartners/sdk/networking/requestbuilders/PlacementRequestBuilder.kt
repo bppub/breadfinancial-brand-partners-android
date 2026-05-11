@@ -17,6 +17,7 @@ import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration.PaymentMode
 import com.breadfinancial.breadpartners.sdk.core.models.Order
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementData
+import com.breadfinancial.breadpartners.sdk.core.models.UPQAddressRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
@@ -313,9 +314,9 @@ val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
  * @param buyer Buyer object containing billing address
  * @return FmcAddress with mapped fields, or null if address is not available
  */
-fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): FmcAddress? {
+fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): UPQAddressRequest? {
     if (buyer?.shippingAddress == null) return null
-    return FmcAddress(
+    return UPQAddressRequest(
         address1 = buyer.shippingAddress?.address1,
         address2 = buyer.shippingAddress?.address2,
         city = buyer.shippingAddress?.locality,
@@ -323,17 +324,6 @@ fun mapUnifiedPlacementContextToFmcAddress(buyer: BreadPartnersBuyer?): FmcAddre
         zip = buyer.shippingAddress?.postalCode
     )
 }
-
-/**
- * Data class representing FMC address
- */
-data class FmcAddress(
-    val address1: String? = null,
-    val address2: String? = null,
-    val city: String? = null,
-    val state: String? = null,
-    val zip: String? = null
-)
 
 /**
  * Maps unified placement order to FMC order.
