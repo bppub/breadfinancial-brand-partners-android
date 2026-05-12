@@ -153,6 +153,7 @@ enum class OrderFulfillmentType(val value: String) {
 enum class ItemFulfillmentType(val value: String) {
     PICKUP("PICKUP"),
     DELIVERY("DELIVERY"),
+    UNKNOWN("UNKNOWN")
 }
 
 
