@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         val primaryColor = style["primaryColor"] as? String? ?: "#d50132"
         val lightColor = style["lightColor"] as? String ?: "#b8bdc0"
         val darkColor = style["darkColor"] as? String ?: "#000000"
+
         val boxColor = style["boxColor"] as? String ?: "#ececec"
         val fontFamily = style["fontFamily"] as? String ?: "poppins_bold"
         val smallTextSize = style["smallTextSize"] as? Int ?: 12
@@ -285,7 +286,7 @@ class MainActivity : AppCompatActivity() {
 
                     val textView = binding.textView
                     val spannable = event.spannableText
-                    
+
                     // If you want to correctly style the text view with link functionality,
                     // you can call the actionPlacement function,
                     actionPlacement(spannable, primaryColor, textView, customFont)
