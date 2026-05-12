@@ -90,8 +90,8 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         val givenName = "John"
         val familyName = "Doe"
         val additionalName = "Smith"
-        val email = "joncarlos.tavarez.1127@gmail.com"
-        val phone = "3474351127"
+        val email = "joncarlos.tavarez.1158@gmail.com"
+        val phone = "3474351158"
         val postalCode = "11222"
         val region = "NY"
         val country = "US"
@@ -113,11 +113,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
             placementId = placementID,
             domID = "123",
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = 100000),
+                subTotal = CurrencyValue(currency = "USD", value = 299999),
                 totalDiscounts = CurrencyValue(currency = "USD", value = 0),
-                totalPrice = CurrencyValue(currency = "USD", value = 115450),
+                totalPrice = CurrencyValue(currency = "USD", value = 399999),
                 totalShipping = CurrencyValue(currency = "USD", value = 0),
-                totalTax = CurrencyValue(currency = "USD", value = 20000),
+                totalTax = CurrencyValue(currency = "USD", value = 100000),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
@@ -138,12 +138,22 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                 fulfillmentType = "PICKUP",
                 items = listOf(
                     Item(
-                        name = "Headphones",
+                        name = "4K Smart Television 65\"",
                         category = "Electronics",
                         quantity = 1,
-                        unitPrice = CurrencyValue(currency = "USD", value = 50000),
-                        unitTax = CurrencyValue(currency = "USD", value = 20000),
+                        unitPrice = CurrencyValue(currency = "USD", value = 1499995),
+                        unitTax = CurrencyValue(currency = "USD", value = 50000),
                         sku = "SKU-001",
+                        fulfillmentType = "PICKUP",
+                        shippingCost = CurrencyValue(currency = "USD", value = 0)
+                    ),
+                    Item(
+                        name = "Premium TV Wall Mount",
+                        category = "Electronics",
+                        quantity = 1,
+                        unitPrice = CurrencyValue(currency = "USD", value = 1499995),
+                        unitTax = CurrencyValue(currency = "USD", value = 50000),
+                        sku = "SKU-002",
                         fulfillmentType = "PICKUP",
                         shippingCost = CurrencyValue(currency = "USD", value = 0)
                     )
