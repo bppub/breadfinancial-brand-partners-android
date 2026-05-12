@@ -84,7 +84,7 @@ data class Order(
     var totalTax: CurrencyValue? = null,
     var discountCode: String? = null,
     var pickupInformation: PickupInformation? = null,
-    var fulfillmentType: String? = null,
+    var fulfillmentType: OrderFulfillmentType? = null,
     var items: List<Item>? = null,
     var bnplEligible: Boolean? = null
 )
@@ -134,8 +134,26 @@ data class Item(
     var shippingDescription: String? = null,
     var shippingTrackingNumber: String? = null,
     var shippingTrackingUrl: String? = null,
-    var fulfillmentType: String? = null
+    var fulfillmentType: ItemFulfillmentType? = null
 )
+
+/**
+ * Enum representing different fulfillment types for orders.
+ */
+enum class OrderFulfillmentType(val value: String) {
+    PICKUP("PICKUP"),
+    DELIVERY("DELIVERY"),
+    MULTIPLE("MULTIPLE"),
+    UNKNOWN("UNKNOWN")
+}
+
+/**
+ * Enum representing different fulfillment types for Item.
+ */
+enum class ItemFulfillmentType(val value: String) {
+    PICKUP("PICKUP"),
+    DELIVERY("DELIVERY"),
+}
 
 
 /**

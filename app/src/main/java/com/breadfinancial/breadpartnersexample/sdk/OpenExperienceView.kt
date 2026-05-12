@@ -27,9 +27,11 @@ import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersFinancingTy
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersLocationType
 import com.breadfinancial.breadpartners.sdk.core.models.CurrencyValue
 import com.breadfinancial.breadpartners.sdk.core.models.Item
+import com.breadfinancial.breadpartners.sdk.core.models.ItemFulfillmentType
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.Name
 import com.breadfinancial.breadpartners.sdk.core.models.Order
+import com.breadfinancial.breadpartners.sdk.core.models.OrderFulfillmentType
 import com.breadfinancial.breadpartners.sdk.core.models.PickupInformation
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementData
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
@@ -90,8 +92,8 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         val givenName = "John"
         val familyName = "Doe"
         val additionalName = "Smith"
-        val email = "joncarlos.tavarez.1159@gmail.com"
-        val phone = "3474351159"
+        val email = "joncarlos.tavarez.1160@gmail.com"
+        val phone = "3474351160"
         val postalCode = "11222"
         val region = "NY"
         val country = "US"
@@ -135,7 +137,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                     ),
                     email = email
                 ),
-                fulfillmentType = "PICKUP",
+                fulfillmentType = OrderFulfillmentType.PICKUP,
                 items = listOf(
                     Item(
                         name = "4K Smart Television 65\"",
@@ -144,7 +146,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         unitPrice = CurrencyValue(currency = "USD", value = 1499995),
                         unitTax = CurrencyValue(currency = "USD", value = 50000),
                         sku = "SKU-001",
-                        fulfillmentType = "PICKUP",
+                        fulfillmentType = ItemFulfillmentType.PICKUP,
                         shippingCost = CurrencyValue(currency = "USD", value = 0)
                     ),
                     Item(
@@ -154,7 +156,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         unitPrice = CurrencyValue(currency = "USD", value = 1499995),
                         unitTax = CurrencyValue(currency = "USD", value = 50000),
                         sku = "SKU-002",
-                        fulfillmentType = "PICKUP",
+                        fulfillmentType = ItemFulfillmentType.PICKUP,
                         shippingCost = CurrencyValue(currency = "USD", value = 0)
                     )
                 )

@@ -235,7 +235,6 @@ class MainActivity : AppCompatActivity() {
                         country = "US"
                     ), email = "john.doe@gmail.com"
                 ),
-                fulfillmentType = "type",
                 items = emptyList()
             )
         )
