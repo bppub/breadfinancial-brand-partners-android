@@ -196,7 +196,12 @@ internal class BreadFinancialWebViewInterstitial(
                         action.optJSONObject("payload")?.let { payload ->
                             Logger.logApplicationResultDetails(payload)
                             callback(BreadPartnerEvent.WebViewSuccess(result = payload))
-                            callback(BreadPartnerEvent.ReceiveUnifiedCheckoutApplicationResult(result = payload))
+                            callback(
+                                BreadPartnerEvent.ReceiveUnifiedCheckoutApplicationResult(
+                                    result = payload
+                                )
+                            )
+                            callback(BreadPartnerEvent.PopupClosed)
                         }
                     }
 
