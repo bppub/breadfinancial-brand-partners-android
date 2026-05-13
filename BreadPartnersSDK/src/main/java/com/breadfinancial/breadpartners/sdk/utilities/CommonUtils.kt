@@ -217,4 +217,58 @@ class CommonUtils(
         val manufacturer = Build.MANUFACTURER           // e.g., "Google"
         return "$manufacturer $deviceModel; $osVersion" // Google Pixel 7; Android 13
     }
+
+    /**
+     * Converts Money value to dollars (divides by 100).
+     *
+     * @param moneyValue Double value in cents
+     * @return Double value in dollars, or null if input is null
+     */
+    fun fromMoneyToDollars(moneyValue: Long?): Double? {
+        return if (moneyValue != null) (moneyValue.toDouble() / 100) else null
+    }
+
+    /**
+     * Merges source maps into target map, only including defined and non-empty values.
+     * Supports multiple source maps passed as varargs.
+     * Returns the same type as the target parameter.
+     *
+     * @param T The type of map to work with
+     * @param target The target map to merge into
+     * @param sources One or more source maps to merge from
+     * @return The target map with merged values (same type as input)
+     */
+    fun <T : MutableMap<String, Any?>> assignDefined(
+        target: T,
+        vararg sources: Map<String, Any?>
+    ): T {
+        for (source in sources) {
+            if (source.isEmpty()) continue
+
+            for ((key, value) in source) {
+                if (value != null && value != "") {
+                    target[key] = value
+                }
+            }
+        }
+        return target
+    }
+}
+
+
+/**
+ * Extension function to convert map to query string with proper URL encoding.
+ * (Already exists in your UnifiedPlacementModels.kt)
+ */
+fun Map<String, Any?>.toQueryString(): String {
+    return this.filter { it.value != null }
+        .map { (key, value) ->
+            val encodedKey = java.net.URLEncoder.encode(key, "UTF-8")
+            val encodedValue = when (value) {
+                is String -> java.net.URLEncoder.encode(value, "UTF-8")
+                else -> java.net.URLEncoder.encode(value.toString(), "UTF-8")
+            }
+            "$encodedKey=$encodedValue"
+        }
+        .joinToString("&")
 }

@@ -23,7 +23,11 @@ data class PlacementData(
     var allowCheckout: Boolean? = null,
     var order: Order? = null,
     var defaultSelectedCardKey: String? = null,
-    var selectedCardKey: String? = null
+    var selectedCardKey: String? = null,
+    val upqInSessionToken: String? = null,
+    val financingBuyerId: String? = null,
+    val prequalificationId: String? = null,
+    val prequalCreditLimit: String? = null
 )
 
 /**
@@ -80,15 +84,16 @@ data class Order(
     var totalTax: CurrencyValue? = null,
     var discountCode: String? = null,
     var pickupInformation: PickupInformation? = null,
-    var fulfillmentType: String? = null,
-    var items: List<Item>? = null
+    var fulfillmentType: OrderFulfillmentType? = null,
+    var items: List<Item>? = null,
+    var bnplEligible: Boolean? = null
 )
 
 /**
  * Data model representing currency value information.
  */
 data class CurrencyValue(
-    var currency: String? = null, var value: Double? = null
+    var currency: String? = null, var value: Long? = null
 )
 
 /**
@@ -129,5 +134,33 @@ data class Item(
     var shippingDescription: String? = null,
     var shippingTrackingNumber: String? = null,
     var shippingTrackingUrl: String? = null,
-    var fulfillmentType: String? = null
+    var fulfillmentType: ItemFulfillmentType? = null
 )
+
+/**
+ * Enum representing different fulfillment types for orders.
+ */
+enum class OrderFulfillmentType(val value: String) {
+    PICKUP("PICKUP"),
+    DELIVERY("DELIVERY"),
+    MULTIPLE("MULTIPLE"),
+    UNKNOWN("UNKNOWN")
+}
+
+/**
+ * Enum representing different fulfillment types for Item.
+ */
+enum class ItemFulfillmentType(val value: String) {
+    PICKUP("PICKUP"),
+    DELIVERY("DELIVERY"),
+    UNKNOWN("UNKNOWN")
+}
+
+
+/**
+ * Set of ineligible item categories for BNPL
+ */
+val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
+
+
+

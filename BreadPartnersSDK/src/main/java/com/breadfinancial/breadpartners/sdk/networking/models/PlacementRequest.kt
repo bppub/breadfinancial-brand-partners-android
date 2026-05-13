@@ -55,6 +55,7 @@ data class ContextRequestBody(
     val subchannel: String? = null,
     val CMP: String? = null,
     val ALLOW_CHECKOUT: Boolean? = null,
-    val UQP_PARAMS: String? = null,
+    val UPQ_CHECKOUT_PARAMS: String? = null,
+    val UPQ_PARAMS: String? = null,
     val embeddedUrl: String? = null
 )

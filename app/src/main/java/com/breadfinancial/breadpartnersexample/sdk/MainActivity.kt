@@ -217,11 +217,11 @@ class MainActivity : AppCompatActivity() {
             placementId = placementID,
             allowCheckout = allowCheckout,
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = price?.toDouble()),
-                totalDiscounts = CurrencyValue(currency = "USD", value = 0.0),
-                totalPrice = CurrencyValue(currency = "USD", value = price?.toDouble()),
-                totalShipping = CurrencyValue(currency = "USD", value = 0.0),
-                totalTax = CurrencyValue(currency = "USD", value = 0.0),
+                subTotal = CurrencyValue(currency = "USD", value = price?.toLong()),
+                totalDiscounts = CurrencyValue(currency = "USD", value = 0),
+                totalPrice = CurrencyValue(currency = "USD", value = price?.toLong()),
+                totalShipping = CurrencyValue(currency = "USD", value = 0),
+                totalTax = CurrencyValue(currency = "USD", value = 0),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
@@ -234,7 +234,6 @@ class MainActivity : AppCompatActivity() {
                         country = "US"
                     ), email = "john.doe@gmail.com"
                 ),
-                fulfillmentType = "type",
                 items = emptyList()
             )
         )
@@ -285,7 +284,6 @@ class MainActivity : AppCompatActivity() {
 
                     val textView = binding.textView
                     val spannable = event.spannableText
-                    
                     // If you want to correctly style the text view with link functionality,
                     // you can call the actionPlacement function,
                     actionPlacement(spannable, primaryColor, textView, customFont)
