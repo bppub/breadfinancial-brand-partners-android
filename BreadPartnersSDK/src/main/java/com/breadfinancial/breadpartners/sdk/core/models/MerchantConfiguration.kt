@@ -67,5 +67,3 @@ data class BreadPartnersAddress(
     var region: String? = null,
     var postalCode: String? = null
 )
-
-

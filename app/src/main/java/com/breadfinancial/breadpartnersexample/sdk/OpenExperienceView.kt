@@ -12,7 +12,6 @@
 
 package com.breadfinancial.breadpartnersexample.sdk
 
-import TestData
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -74,10 +73,9 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         // like placement ID, SDK transaction ID, environment, price, and brand ID.
         // This allows testing of various placement setups by fetching specific configurations
         // based on the placement type key.
-//        val placementRequestType = mapOf<String, Any>()
+        val placementRequestType = mapOf<String, Any>()
         // If using TestData file do:
-        val placementRequestType =
-            TestData.shared.placementConfigurations["ECO"] ?: emptyMap()
+        // val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType200"] ?: emptyMap()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val loyaltyId = placementRequestType["loyaltyId"] as? String?
@@ -115,11 +113,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
             placementId = placementID,
             domID = "123",
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = 299999),
+                subTotal = CurrencyValue(currency = "USD", value = price?.toLong()),
                 totalDiscounts = CurrencyValue(currency = "USD", value = 0),
-                totalPrice = CurrencyValue(currency = "USD", value = 399999),
+                totalPrice = CurrencyValue(currency = "USD", value = price?.toLong()),
                 totalShipping = CurrencyValue(currency = "USD", value = 0),
-                totalTax = CurrencyValue(currency = "USD", value = 100000),
+                totalTax = CurrencyValue(currency = "USD", value = price?.times(0.05)?.toLong()),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(

@@ -14,7 +14,6 @@
 
 package com.breadfinancial.breadpartnersexample.sdk
 
-import TestData
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
@@ -105,9 +104,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun generatePlacement() {
 //         For using TestData file do
-        val placementRequestType =
-            TestData.shared.placementConfigurations["ECO"] ?: emptyMap()
-//        val placementRequestType = emptyMap<String, Any>()
+//        val placementRequestType =
+//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
+        val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val allowCheckout = placementRequestType["allowCheckout"] as? Boolean ?: false
@@ -285,7 +284,6 @@ class MainActivity : AppCompatActivity() {
 
                     val textView = binding.textView
                     val spannable = event.spannableText
-
                     // If you want to correctly style the text view with link functionality,
                     // you can call the actionPlacement function,
                     actionPlacement(spannable, primaryColor, textView, customFont)

@@ -109,20 +109,16 @@ class PlacementRequestBuilder(
 
 
     /**
-     * Maps unified placement context to UPQ prequalification checkout data.
-     * Includes all common data fields plus checkout-specific fields.
+     * Maps placement and merchant data to UPQ checkout data.
+     * Combines buyer info, order details, and shipping address for checkout processing.
      *
-     * @param placementConfig Unified placement configuration (optional)
-     * @param setupConfig Unified setup configuration (optional)
-     * @param sessionTrackingId Session tracking identifier (optional)
-     * @param userTrackingId User tracking identifier (optional)
-     * @param prequalLimit Prequalification credit limit (optional)
-     * @param prequalId Prequalification ID (optional)
-     * @param financingBuyerId Financing buyer ID (optional)
-     * @param financingLocationId Financing location ID (optional)
-     * @param callCenter Call center identifier (optional)
-     * @param inSessionToken In-session token (optional)
-     * @return MutableMap with all mapped checkout data
+     * @param placementData Placement configuration with order information
+     * @param merchantConfiguration Merchant and buyer configuration
+     * @param sessionTrackingId Session tracking identifier
+     * @param userTrackingId User tracking identifier
+     * @param financingLocationId Financing location identifier
+     * @param callCenter Call center identifier
+     * @return Map with all checkout data
      */
     fun mapUnifiedPlacementContextToUpqCheckout(
         placementData: PlacementData? = null,
@@ -167,14 +163,14 @@ class PlacementRequestBuilder(
     }
 
     /**
-     * Maps unified placement context to UPQ common data.
-     * Transforms all fields from placementConfig and setupConfig to CommonData format.
+     * Maps placement and merchant data to UPQ common data.
+     * Extracts buyer info, store details, and tracking identifiers for UPQ requests.
      *
-     * @param placementConfig Unified placement configuration (optional)
-     * @param setupConfig Unified setup configuration (optional)
-     * @param sessionId Session tracking identifier (optional)
-     * @param userTrackingId User tracking identifier (optional)
-     * @return CommonData with mapped fields from both configs
+     * @param placementData Placement configuration with order information
+     * @param merchantConfiguration Merchant and buyer configuration
+     * @param sessionId Session tracking identifier
+     * @param userTrackingId User tracking identifier
+     * @return Map with all common UPQ data
      */
     fun mapUnifiedPlacementContextToUPQCommonData(
         placementData: PlacementData? = null,
@@ -285,9 +281,6 @@ class PlacementRequestBuilder(
                             "unitPriceValue" to CommonUtils().fromMoneyToDollars(item.unitPrice?.value),
                             "unitTaxValue" to CommonUtils().fromMoneyToDollars(item.unitTax?.value),
                             "sku" to item.sku,
-                            // itemUrl: not captured
-                            // imageUrl: not captured
-                            // description: not captured
                             "shippingCostValue" to CommonUtils().fromMoneyToDollars(item.shippingCost?.value),
                             "fulfillmentType" to item.fulfillmentType
                         )
@@ -298,11 +291,6 @@ class PlacementRequestBuilder(
                 "totalPriceValue" to CommonUtils().fromMoneyToDollars(order?.totalPrice?.value),
                 "totalShippingValue" to CommonUtils().fromMoneyToDollars(order?.totalShipping?.value),
                 "totalTaxValue" to CommonUtils().fromMoneyToDollars(order?.totalTax?.value),
-                // discountCode: not captured
-                // shippingProvider: not captured
-                // shippingDescription: not captured
-                // shippingTrackingNumber: not captured
-                // shippingTrackingUrl: not captured
                 "fulfillmentType" to order?.fulfillmentType,
                 "pickupInformation" to if (order?.pickupInformation != null) {
                     CommonUtils().assignDefined(
@@ -397,8 +385,6 @@ class PlacementRequestBuilder(
             }
         }
     }
-
-
 }
 
 
