@@ -90,7 +90,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         val givenName = "John"
         val familyName = "Doe"
         val additionalName = "Smith"
-        val email = "joncarlos.tavarez.1160@gmail.com"
+        val email = "john.doe@gmail.com"
         val phone = "3474351160"
         val postalCode = "11222"
         val region = "NY"
@@ -99,7 +99,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         val address2 = "Apt. 2B"
         val locality = "Brooklyn"
         val birthDate = "1990-01-01"
-
+        val subTotal = price?.toLong() ?: 0L
+        val totalTax = price?.times(0.05)?.toLong() ?: 0L
+        val totalShipping = 0L
+        val totalDiscounts = 0L
+        val totalPrice = (subTotal.plus(totalTax).plus(totalShipping)).minus(totalDiscounts)
 
         /**
          * Configuration for defining placement options in BreadPartners.
@@ -113,11 +117,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
             placementId = placementID,
             domID = "123",
             order = Order(
-                subTotal = CurrencyValue(currency = "USD", value = price?.toLong()),
-                totalDiscounts = CurrencyValue(currency = "USD", value = 0),
-                totalPrice = CurrencyValue(currency = "USD", value = price?.toLong()),
-                totalShipping = CurrencyValue(currency = "USD", value = 0),
-                totalTax = CurrencyValue(currency = "USD", value = price?.times(0.05)?.toLong()),
+                subTotal = CurrencyValue(currency = "USD", value = subTotal),
+                totalDiscounts = CurrencyValue(currency = "USD", value = totalDiscounts),
+                totalPrice = CurrencyValue(currency = "USD", value = totalPrice),
+                totalShipping = CurrencyValue(currency = "USD", value = totalShipping),
+                totalTax = CurrencyValue(currency = "USD", value = totalTax),
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
@@ -141,21 +145,21 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         name = "4K Smart Television 65\"",
                         category = "Electronics",
                         quantity = 1,
-                        unitPrice = CurrencyValue(currency = "USD", value = 1499995),
-                        unitTax = CurrencyValue(currency = "USD", value = 50000),
+                        unitPrice = CurrencyValue(currency = "USD", value = subTotal.div(2)),
+                        unitTax = CurrencyValue(currency = "USD", value = totalTax.div(2)),
                         sku = "SKU-001",
                         fulfillmentType = ItemFulfillmentType.PICKUP,
-                        shippingCost = CurrencyValue(currency = "USD", value = 0)
+                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2))
                     ),
                     Item(
                         name = "Premium TV Wall Mount",
                         category = "Electronics",
                         quantity = 1,
-                        unitPrice = CurrencyValue(currency = "USD", value = 1499995),
-                        unitTax = CurrencyValue(currency = "USD", value = 50000),
+                        unitPrice = CurrencyValue(currency = "USD", value = subTotal.div(2)),
+                        unitTax = CurrencyValue(currency = "USD", value = totalTax.div(2)),
                         sku = "SKU-002",
                         fulfillmentType = ItemFulfillmentType.PICKUP,
-                        shippingCost = CurrencyValue(currency = "USD", value = 0)
+                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2))
                     )
                 )
             )
