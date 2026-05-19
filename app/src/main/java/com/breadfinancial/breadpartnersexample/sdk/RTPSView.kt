@@ -108,7 +108,7 @@ class RTPSView : BottomSheetDialogFragment() {
                 }
 
                 is BreadPartnerEvent.OfferResponse -> {
-                    Log.i("BreadPartnerSDK::", "OfferResponse: ${event.offerResponse}")
+                    Log.i("BreadPartnerSDK::", "OfferResponse: ${event.response}")
                 }
 
                 else -> {

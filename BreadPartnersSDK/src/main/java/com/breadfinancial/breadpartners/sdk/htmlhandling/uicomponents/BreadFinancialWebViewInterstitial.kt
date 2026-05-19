@@ -216,9 +216,9 @@ internal class BreadFinancialWebViewInterstitial(
                         val offerResponse = OfferResponse.fromValue(payload)
                         if (offerResponse != null) {
                             callback(BreadPartnerEvent.OfferResponse(offerResponse))
-                        }
-                        if (payload == "NO" || payload == "NOT_ME") {
-                            callback(BreadPartnerEvent.PopupClosed)
+                            if (offerResponse == OfferResponse.NO || offerResponse == OfferResponse.NOT_ME) {
+                                callback(BreadPartnerEvent.PopupClosed)
+                            }
                         }
                     }
 
