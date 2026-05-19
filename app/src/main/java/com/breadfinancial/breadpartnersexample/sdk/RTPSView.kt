@@ -107,6 +107,10 @@ class RTPSView : BottomSheetDialogFragment() {
                     Log.i("BreadPartnerSDK::", "Successfully rendered PopupView.")
                 }
 
+                is BreadPartnerEvent.OfferResponse -> {
+                    Log.i("BreadPartnerSDK::", "OfferResponse: ${event.offerResponse}")
+                }
+
                 else -> {
                     Log.i("BreadPartnerSDK::", "Event:$event")
                 }

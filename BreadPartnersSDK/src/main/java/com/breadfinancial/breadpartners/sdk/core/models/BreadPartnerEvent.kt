@@ -94,4 +94,8 @@ sealed class BreadPartnerEvent {
 
     /// Fires when application have been submitted in different flows.
     object ApplicationCompleted : BreadPartnerEvent()
+
+    /// Provides the offer response from the WebView OFFER_RESPONSE message.
+    /// - Parameter offerResponse: The OfferResponse enum value corresponding to the payload.
+    data class OfferResponse(val offerResponse: com.breadfinancial.breadpartners.sdk.core.models.OfferResponse) : BreadPartnerEvent()
 }
