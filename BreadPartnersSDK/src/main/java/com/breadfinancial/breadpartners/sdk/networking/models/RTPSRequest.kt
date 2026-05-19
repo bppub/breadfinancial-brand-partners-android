@@ -20,6 +20,7 @@ data class RTPSRequest(
     val firstName: String? = null,
     val lastName: String? = null,
     val address1: String? = null,
+    val country: String? = null,
     val city: String? = null,
     val state: String? = null,
     val zip: String? = null,
