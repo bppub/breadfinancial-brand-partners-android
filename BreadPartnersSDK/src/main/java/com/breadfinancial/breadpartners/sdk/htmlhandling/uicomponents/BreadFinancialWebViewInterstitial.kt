@@ -27,10 +27,13 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
+import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
+import com.breadfinancial.breadpartners.sdk.networking.APIUrl
+import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import org.json.JSONObject
 
@@ -42,6 +45,7 @@ internal class BreadFinancialWebViewInterstitial(
     private val callback: (BreadPartnerEvent) -> Unit?
 ) {
     private var webView: WebView? = null
+    private val allowedBaseUrl: String = APIUrl(APIUrlType.PreScreen).rtpsBaseURL
 
     /**
      * Replaces the given parent view with a WebView and loads the specified URL.
@@ -56,12 +60,18 @@ internal class BreadFinancialWebViewInterstitial(
             )
             settings.apply {
                 javaScriptEnabled = true
-                javaScriptCanOpenWindowsAutomatically = true
                 domStorageEnabled = true
-                allowFileAccess = true
-                allowContentAccess = true
-                mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                setWebContentsDebuggingEnabled(true)
+                allowFileAccess = false
+                allowContentAccess = false
+                mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                // Only enable remote debugging in debug builds
+                setWebContentsDebuggingEnabled(
+                    android.os.Build.TYPE == "eng" ||
+                    android.provider.Settings.Global.getInt(
+                        context.contentResolver,
+                        android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+                    ) != 0
+                )
             }
 
             Logger.logLoadingURL(url = url)
@@ -71,6 +81,7 @@ internal class BreadFinancialWebViewInterstitial(
                     super.onPageFinished(view, url)
 
                     injectAnchorInterceptorScript(view)
+                    injectFocusOutlineRemoval(view)
 
                     url?.let {
                         onPageLoadCompleted(it)
@@ -86,6 +97,24 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
             }
+            webChromeClient = object : WebChromeClient() {
+                override fun onJsBeforeUnload(
+                    view: WebView?,
+                    url: String?,
+                    message: String?,
+                    result: android.webkit.JsResult?
+                ): Boolean {
+                    return if (url != null && url.startsWith(allowedBaseUrl)) {
+                        // Let the WebView show the native "Stay / Leave" dialog
+                        false
+                    } else {
+                        // Silently block navigation for non-allowed URLs
+                        result?.cancel()
+                        true
+                    }
+                }
+            }
+
             addJavascriptInterface(WebAppInterface(this), "Android")
 
             loadUrl(url)
@@ -110,7 +139,13 @@ internal class BreadFinancialWebViewInterstitial(
 
         @JavascriptInterface
         fun onAppRestartClicked(url: String) {
-            listener?.onAppRestartClicked(url)
+            val uri = Uri.parse(url)
+            val scheme = uri.scheme?.lowercase()
+            if (scheme == "https" || scheme == "http") {
+                listener?.onAppRestartClicked(url)
+            } else {
+                Log.w("BreadPartnersSDK", "onAppRestartClicked blocked unsafe URL scheme: $scheme")
+            }
         }
 
         @JavascriptInterface
@@ -120,8 +155,22 @@ internal class BreadFinancialWebViewInterstitial(
 
         @JavascriptInterface
         fun openExternally(url: String) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
+            val uri = Uri.parse(url)
+            val scheme = uri.scheme?.lowercase()
+            if (scheme != "https" && scheme != "http") {
+                Log.w("BreadPartnersSDK", "openExternally blocked unsafe URL scheme: $scheme")
+                return
+            }
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                if (intent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(intent)
+                } else {
+                    Log.w("BreadPartnersSDK", "openExternally: no app can handle URL: $url")
+                }
+            } catch (e: Exception) {
+                Log.e("BreadPartnersSDK", "openExternally failed for URL: $url", e)
+            }
         }
 
         @JavascriptInterface
@@ -242,6 +291,21 @@ internal class BreadFinancialWebViewInterstitial(
                 callback(BreadPartnerEvent.SdkError(error = e))
             }
         }
+    }
+
+    /// This is to remove default focus outlines that some browsers add when elements are clicked,
+    /// which can interfere with the visual design of the WebView content.
+    /// By injecting this CSS, we ensure a cleaner look without unexpected outlines.
+    private fun injectFocusOutlineRemoval(view: WebView?) {
+        view?.evaluateJavascript(
+            """
+            (function() {
+                var style = document.createElement('style');
+                style.textContent = '* { outline: none !important; }';
+                document.head.appendChild(style);
+            })();
+            """.trimIndent(), null
+        )
     }
 
     private fun injectAnchorInterceptorScript(view: WebView?) {
