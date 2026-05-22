@@ -35,6 +35,7 @@ class RTPSRequestBuilder(
                 firstName = buyer?.givenName.takeIfNotEmpty(),
                 lastName = buyer?.familyName.takeIfNotEmpty(),
                 address1 = buyer?.billingAddress?.address1.takeIfNotEmpty(),
+                country = buyer?.billingAddress?.country.takeIfNotEmpty(),
                 city = buyer?.billingAddress?.locality.takeIfNotEmpty(),
                 state = buyer?.billingAddress?.region.takeIfNotEmpty(),
                 zip = buyer?.billingAddress?.postalCode.takeIfNotEmpty(),

@@ -30,6 +30,7 @@ import android.webkit.WebView.setWebContentsDebuggingEnabled
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
+import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import org.json.JSONObject
 
@@ -217,8 +218,12 @@ internal class BreadFinancialWebViewInterstitial(
 
                     "OFFER_RESPONSE" -> {
                         val payload = action.optString("payload")
-                        if (payload == "NO" || payload == "NOT_ME") {
-                            callback(BreadPartnerEvent.PopupClosed)
+                        val offerResponse = OfferResponse.fromValue(payload)
+                        if (offerResponse != null) {
+                            callback(BreadPartnerEvent.OfferResponse(offerResponse))
+                            if (offerResponse == OfferResponse.NO || offerResponse == OfferResponse.NOT_ME) {
+                                callback(BreadPartnerEvent.PopupClosed)
+                            }
                         }
                     }
 
