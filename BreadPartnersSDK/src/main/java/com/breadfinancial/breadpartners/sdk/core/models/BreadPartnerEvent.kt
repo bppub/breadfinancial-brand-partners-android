@@ -16,6 +16,7 @@ import android.text.Spannable
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse as OfferResponseEnum
 
 /// Enum representing different events supported by BreadPartnerSDK.
 sealed class BreadPartnerEvent {
@@ -97,5 +98,5 @@ sealed class BreadPartnerEvent {
 
     /// Provides the offer response from the WebView OFFER_RESPONSE message.
     /// - Parameter offerResponse: The OfferResponse enum value corresponding to the payload.
-    data class OfferResponse(val response: com.breadfinancial.breadpartners.sdk.core.models.OfferResponse) : BreadPartnerEvent()
+    data class OfferResponse(val response: OfferResponseEnum) : BreadPartnerEvent()
 }
