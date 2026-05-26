@@ -125,7 +125,7 @@ internal class BreadFinancialWebViewInterstitial(
             if (scheme == "https" || scheme == "http") {
                 listener?.onAppRestartClicked(url)
             } else {
-                Log.w("BreadPartnersSDK", "onAppRestartClicked blocked unsafe URL scheme: $scheme")
+                callback(BreadPartnerEvent.OnSDKEventLog("onAppRestartClicked blocked unsafe URL scheme: $scheme"))
             }
         }
 
