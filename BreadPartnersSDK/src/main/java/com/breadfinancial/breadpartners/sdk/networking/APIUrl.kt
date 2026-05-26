@@ -40,7 +40,7 @@ class APIUrl(private val urlType: APIUrlType) {
     }
 
     private val baseURL: String
-    val rtpsBaseURL: String
+    private val rtpsBaseURL: String
 
     init {
         when (currentBreadPartnersEnvironment) {

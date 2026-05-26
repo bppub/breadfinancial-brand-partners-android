@@ -32,8 +32,6 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import org.json.JSONObject
 
@@ -45,7 +43,6 @@ internal class BreadFinancialWebViewInterstitial(
     private val callback: (BreadPartnerEvent) -> Unit?
 ) {
     private var webView: WebView? = null
-    private val allowedBaseUrl: String = APIUrl(APIUrlType.PreScreen).rtpsBaseURL
 
     /**
      * Replaces the given parent view with a WebView and loads the specified URL.
@@ -97,23 +94,7 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
             }
-            webChromeClient = object : WebChromeClient() {
-                override fun onJsBeforeUnload(
-                    view: WebView?,
-                    url: String?,
-                    message: String?,
-                    result: android.webkit.JsResult?
-                ): Boolean {
-                    return if (url != null && url.startsWith(allowedBaseUrl)) {
-                        // Let the WebView show the native "Stay / Leave" dialog
-                        false
-                    } else {
-                        // Silently block navigation for non-allowed URLs
-                        result?.cancel()
-                        true
-                    }
-                }
-            }
+            webChromeClient = WebChromeClient()
 
             addJavascriptInterface(WebAppInterface(this), "Android")
 
@@ -158,18 +139,14 @@ internal class BreadFinancialWebViewInterstitial(
             val uri = Uri.parse(url)
             val scheme = uri.scheme?.lowercase()
             if (scheme != "https" && scheme != "http") {
-                Log.w("BreadPartnersSDK", "openExternally blocked unsafe URL scheme: $scheme")
+                callback(BreadPartnerEvent.OnSDKEventLog("openExternally blocked unsafe URL scheme: $scheme"))
                 return
             }
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
-                if (intent.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(intent)
-                } else {
-                    Log.w("BreadPartnersSDK", "openExternally: no app can handle URL: $url")
-                }
+                context.startActivity(intent)
             } catch (e: Exception) {
-                Log.e("BreadPartnersSDK", "openExternally failed for URL: $url", e)
+                callback(BreadPartnerEvent.SdkError(error = e))
             }
         }
 
