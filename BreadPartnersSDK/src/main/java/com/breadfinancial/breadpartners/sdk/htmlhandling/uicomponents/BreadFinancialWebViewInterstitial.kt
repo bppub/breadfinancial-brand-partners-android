@@ -27,7 +27,6 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
-import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
@@ -44,7 +43,6 @@ internal class BreadFinancialWebViewInterstitial(
     private val callback: (BreadPartnerEvent) -> Unit?
 ) {
     private var webView: WebView? = null
-    private var initialUrl: String? = null
 
     /**
      * Replaces the given parent view with a WebView and loads the specified URL.
@@ -73,64 +71,11 @@ internal class BreadFinancialWebViewInterstitial(
                 )
             }
 
-        Logger.logLoadingURL(url = url)
-        initialUrl = url
+            Logger.logLoadingURL(url = url)
             webViewClient = object : WebViewClient() {
-
-                override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
-                    // Inject window.open override as early as possible so it's ready
-                    // before any page scripts run and call window.open
-                    injectWindowOpenOverride(view)
-                }
-
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?, request: WebResourceRequest?
-                ): Boolean {
-                    val requestedUrl = request?.url?.toString() ?: return false
-                    println("BreadPartnersSDK: shouldOverrideUrlLoading: $requestedUrl")
-
-                    // about:blank#blocked means WebView blocked a popup (window.open) natively.
-                    // This should never reach the browser – just suppress it.
-                    if (requestedUrl == "about:blank#blocked" || requestedUrl.startsWith("about:")) {
-                        println("BreadPartnersSDK: shouldOverrideUrlLoading – suppressing about: scheme")
-                        return true
-                    }
-
-                    val initialHost = Uri.parse(initialUrl).host
-                    val requestedHost = Uri.parse(requestedUrl).host
-                    println("BreadPartnersSDK: shouldOverrideUrlLoading initialHost=$initialHost requestedHost=$requestedHost")
-
-                    if (requestedHost != null && requestedHost == initialHost) {
-                        println("BreadPartnersSDK: shouldOverrideUrlLoading same host – loading internally")
-                        return false
-                    }
-
-                    println("BreadPartnersSDK: shouldOverrideUrlLoading different host – opening externally")
-                    openExternalUrl(requestedUrl)
-                    return true
-                }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    println("BreadPartnersSDK: onPageFinished url=$url")
-
-                    // If WebView landed on about:blank (e.g. a document opened in a new tab on web),
-                    // go back and open the intended URL externally
-                    if (url == "about:blank") {
-                        println("BreadPartnersSDK: onPageFinished landed on about:blank – evaluating document.location.href")
-                        view?.evaluateJavascript("document.location.href") { href ->
-                            val resolved = href?.trim('"')
-                            println("BreadPartnersSDK: about:blank resolved href=$resolved")
-                            if (!resolved.isNullOrEmpty() && resolved != "about:blank") {
-                                view.goBack()
-                                openExternalUrl(resolved)
-                            } else {
-                                view.goBack()
-                            }
-                        }
-                        return
-                    }
 
                     injectAnchorInterceptorScript(view)
                     injectFocusOutlineRemoval(view)
@@ -149,17 +94,7 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
             }
-            webChromeClient = object : WebChromeClient() {
-                // Suppress the "Confirm Navigation" (beforeunload) dialog.
-                // We auto-confirm so navigation proceeds and shouldOverrideUrlLoading can intercept it.
-                override fun onJsBeforeUnload(
-                    view: WebView?, url: String?, message: String?, result: JsResult?
-                ): Boolean {
-                    println("BreadPartnersSDK: onJsBeforeUnload url=$url message=$message – auto-confirming to suppress dialog")
-                    result?.confirm()
-                    return true
-                }
-            }
+            webChromeClient = WebChromeClient()
 
             addJavascriptInterface(WebAppInterface(this), "Android")
 
@@ -201,7 +136,6 @@ internal class BreadFinancialWebViewInterstitial(
 
         @JavascriptInterface
         fun openHtmlContent(html: String) {
-            println("BreadPartnersSDK: WebAppInterface.openHtmlContent called, html length=${html.length}")
             Handler(Looper.getMainLooper()).post {
                 try {
                     // Extract the base URL from the current WebView URL or use a default
@@ -245,11 +179,8 @@ internal class BreadFinancialWebViewInterstitial(
                             Intent.FLAG_GRANT_READ_URI_PERMISSION
                         )
                     }
-
-                    println("BreadPartnersSDK: openHtmlContent – starting browser for temp file $uri")
                     context.startActivity(intent)
                 } catch (e: Exception) {
-                    println("BreadPartnersSDK: openHtmlContent – exception: ${e.message}")
                     callback(BreadPartnerEvent.SdkError(error = e))
                 }
             }
@@ -257,25 +188,17 @@ internal class BreadFinancialWebViewInterstitial(
 
         @JavascriptInterface
         fun openExternally(url: String) {
-            println("BreadPartnersSDK: WebAppInterface.openExternally called with url=$url")
             val uri = Uri.parse(url)
             val scheme = uri.scheme?.lowercase()
             if (scheme != "https" && scheme != "http") {
-                println("BreadPartnersSDK: WebAppInterface.openExternally – blocked unsafe scheme: $scheme")
                 callback(BreadPartnerEvent.OnSDKEventLog("openExternally blocked unsafe URL scheme: $scheme"))
                 return
             }
-            // @JavascriptInterface runs on a background thread – post to main thread
-            // and add FLAG_ACTIVITY_NEW_TASK as required outside of Activity context
-            Handler(Looper.getMainLooper()).post {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    println("BreadPartnersSDK: WebAppInterface.openExternally – starting activity for $url")
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    println("BreadPartnersSDK: WebAppInterface.openExternally – exception: ${e.message}")
-                    callback(BreadPartnerEvent.SdkError(error = e))
-                }
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                callback(BreadPartnerEvent.SdkError(error = e))
             }
         }
 
@@ -399,25 +322,6 @@ internal class BreadFinancialWebViewInterstitial(
         }
     }
 
-    private fun openExternalUrl(url: String) {
-        println("BreadPartnersSDK: openExternalUrl called with url=$url")
-        val uri = Uri.parse(url)
-        val scheme = uri.scheme?.lowercase()
-        println("BreadPartnersSDK: openExternalUrl scheme=$scheme")
-        if (scheme != "https" && scheme != "http") {
-            println("BreadPartnersSDK: openExternalUrl – blocked unsafe scheme: $scheme")
-            return
-        }
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            println("BreadPartnersSDK: openExternalUrl – starting activity for $url")
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            println("BreadPartnersSDK: openExternalUrl – exception: ${e.message}")
-            callback(BreadPartnerEvent.SdkError(error = e))
-        }
-    }
-
     /// This is to remove default focus outlines that some browsers add when elements are clicked,
     /// which can interfere with the visual design of the WebView content.
     /// By injecting this CSS, we ensure a cleaner look without unexpected outlines.
@@ -499,7 +403,6 @@ internal class BreadFinancialWebViewInterstitial(
         view?.evaluateJavascript(
             """
         (function() {
-
             function isVisible(elem) {
                 return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
             }        
