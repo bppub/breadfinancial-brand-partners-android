@@ -43,6 +43,7 @@ internal class BreadFinancialWebViewInterstitial(
     private val callback: (BreadPartnerEvent) -> Unit?
 ) {
     private var webView: WebView? = null
+    private var showNavigationDialog = false
 
     /**
      * Replaces the given parent view with a WebView and loads the specified URL.
@@ -94,7 +95,21 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
             }
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onJsBeforeUnload(
+                    view: WebView?,
+                    url: String?,
+                    message: String?,
+                    result: android.webkit.JsResult
+                ): Boolean {
+                    if (showNavigationDialog) {
+                        showNavigationDialog = false
+                        return false // let the system show the native dialog
+                    }
+                    result.confirm()
+                    return true
+                }
+            }
 
             addJavascriptInterface(WebAppInterface(this), "Android")
 
@@ -292,6 +307,10 @@ internal class BreadFinancialWebViewInterstitial(
                         callback(BreadPartnerEvent.ScreenName(name = "application-completed"))
                         callback(BreadPartnerEvent.ApplicationCompleted)
                         callback(BreadPartnerEvent.PopupClosed)
+                    }
+
+                    "LOG_OUT_OR_RESTART" -> {
+                        showNavigationDialog = true
                     }
 
                     "OFFER_RESPONSE" -> {
