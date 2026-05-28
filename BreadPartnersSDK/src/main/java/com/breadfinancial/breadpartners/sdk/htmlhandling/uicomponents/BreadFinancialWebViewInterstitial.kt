@@ -174,7 +174,8 @@ internal class BreadFinancialWebViewInterstitial(
                     }
 
                     val docsDir = java.io.File(context.cacheDir, "bread_docs").also { it.mkdirs() }
-                    val tempFile = java.io.File(docsDir, "document_${System.currentTimeMillis()}.html")
+                    // Use a fixed filename so it is always overwritten and never accumulates
+                    val tempFile = java.io.File(docsDir, "document.html")
                     tempFile.writeText(modifiedHtml)
                     val uri = androidx.core.content.FileProvider.getUriForFile(
                         context,
