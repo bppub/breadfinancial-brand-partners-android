@@ -153,11 +153,14 @@ internal class BreadFinancialWebViewInterstitial(
         fun openHtmlContent(html: String) {
             Handler(Looper.getMainLooper()).post {
                 try {
-                    // Extract the base URL from the current WebView URL or use a default
+                    // Extract the base URL from the current WebView URL
                     val baseUrl = webView?.url?.let { url ->
                         val uri = Uri.parse(url)
                         "${uri.scheme}://${uri.host}"
-                    } ?: "https://acquire1.comenity.net"
+                    } ?: run {
+                        callback(BreadPartnerEvent.SdkError(error = Exception("openHtmlContent: unable to resolve base URL – WebView URL is null")))
+                        return@post
+                    }
 
                     // Add base tag to HTML if not present to resolve relative URLs
                     val modifiedHtml = if (!html.contains("<base", ignoreCase = true)) {
@@ -356,72 +359,44 @@ internal class BreadFinancialWebViewInterstitial(
         )
     }
 
-    private fun injectWindowOpenOverride(view: WebView?) {
-        view?.evaluateJavascript(
-            """
-            (function() {
-                if (!window.__breadWindowOpenOverridden__) {
-                    window.__breadWindowOpenOverridden__ = true;
-                    var _origOpen = window.open;
-                    window.open = function(url, target, features) {
-                        if (url && url !== '' && url !== 'about:blank') {
-                            window.Android.openExternally(url);
-                            return null;
-                        }
-                        // about:blank or empty url: the page will call document.write() or
-                        // set innerHTML on the returned window to inject HTML content
-                        // (e.g. a loan agreement). Capture that content and send it to
-                        // Android to open in a browser.
-                        var _content = '';
-                        function sendContent() {
-                            if (_content) {
-                                window.Android.openHtmlContent(_content);
-                                _content = '';
-                            }
-                        }
-                        var fakeDoc = {
-                            write: function(html) { _content += html; },
-                            writeln: function(html) { _content += html + '\n'; },
-                            close: function() { sendContent(); },
-                            open: function() { _content = ''; }
-                        };
-                        function makeContentSink() {
-                            var el = {};
-                            Object.defineProperty(el, 'innerHTML', {
-                                set: function(html) { _content = html; sendContent(); },
-                                get: function() { return _content; }
-                            });
-                            Object.defineProperty(el, 'outerHTML', {
-                                set: function(html) { _content = html; sendContent(); },
-                                get: function() { return _content; }
-                            });
-                            return el;
-                        }
-                        fakeDoc.body = makeContentSink();
-                        fakeDoc.documentElement = makeContentSink();
-                        var fakeWin = {
-                            document: fakeDoc,
-                            focus: function() {},
-                            close: function() {}
-                        };
-                        return fakeWin;
-                    };
-                    return 'installed';
-                }
-                return 'already installed';
-            })();
-            """.trimIndent()
-        ) { result ->
-            println("BreadPartnersSDK: injectWindowOpenOverride result=$result for url=${view.url}")
-        }
-    }
-
     private fun injectAnchorInterceptorScript(view: WebView?) {
-        println("BreadPartnersSDK: injectAnchorInterceptorScript called for url=${view?.url}")
-        injectWindowOpenOverride(view)
         view?.evaluateJavascript(
             """
         (function() {
+            // Override window.open to intercept JS-driven navigation and HTML content popups
+            if (!window.__breadWindowOpenOverridden__) {
+                window.__breadWindowOpenOverridden__ = true;
+                window.open = function(url, target, features) {
+                    if (url && url !== '' && url !== 'about:blank') {
+                        window.Android.openExternally(url);
+                        return null;
+                    }
+                    // about:blank or empty url: the page will call document.write() or
+                    // set innerHTML on the returned window to inject HTML content
+                    // (e.g. a loan agreement). Capture that content and send it to
+                    // Android to open in a browser.
+                    var _content = '';
+                    function sendContent() {
+                        if (_content) {
+                            window.Android.openHtmlContent(_content);
+                            _content = '';
+                        }
+                    }
+                    var fakeBody = {};
+                    Object.defineProperty(fakeBody, 'innerHTML', {
+                        set: function(html) { _content = html; sendContent(); },
+                        get: function() { return _content; }
+                    });
+                    var fakeDoc = {
+                        write: function(html) { _content += html; },
+                        writeln: function(html) { _content += html + '\n'; },
+                        close: function() { sendContent(); },
+                        body: fakeBody
+                    };
+                    return { document: fakeDoc, focus: function() {}, close: function() {} };
+                };
+            }
+
             function isVisible(elem) {
                 return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
             }        
