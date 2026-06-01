@@ -23,6 +23,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -30,9 +33,6 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import android.webkit.WebViewClient
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
@@ -178,9 +178,7 @@ internal class BreadFinancialWebViewInterstitial(
 
                     val popup = HtmlPopupDisplayer(
                         html = modifiedHtml,
-                        baseUrl = "https://example.com",
-                        width = 0.9f,  // 90% of screen width
-                        height = 0.8f, // 80% of screen height
+                        baseUrl = baseUrl,
                         onDismiss = {
                             // Handle popup closure
                         }
@@ -495,14 +493,12 @@ internal class BreadFinancialWebViewInterstitial(
 
     /**
      * HTML Popup Displayer helper class
-     * Creates a popup dialog that displays HTML content in a WebView
+     * Converts HTML to PDF and displays it in a popup dialog
      *
      * Usage:
      *   val popup = HtmlPopupDisplayer(
      *       html = "<html>...</html>",
      *       baseUrl = "https://example.com",
-     *       width = 0.9f, // 90% of screen width
-     *       height = 0.8f, // 80% of screen height
      *       onDismiss = { /* Handle dismiss */ }
      *   )
      *   popup.show()
@@ -510,20 +506,19 @@ internal class BreadFinancialWebViewInterstitial(
     inner class HtmlPopupDisplayer(
         private val html: String,
         private val baseUrl: String = "",
-        private val width: Float = 0.95f,  // 95% of screen width
-        private val height: Float = 0.9f,  // 90% of screen height
         private val onDismiss: () -> Unit = {}
     ) {
         private var dialog: Dialog? = null
+        private var pdfWebView: WebView? = null
         private var popupWebView: WebView? = null
 
         /**
-         * Shows the HTML popup dialog
+         * Shows the HTML popup dialog with PDF content
          */
         fun show() {
             Handler(Looper.getMainLooper()).post {
                 try {
-                    createAndShowPopup()
+                    convertHtmlToPdfAndShow()
                 } catch (e: Exception) {
                     Logger.printLog("Error showing HTML popup: ${e.message}")
                 }
@@ -541,11 +536,58 @@ internal class BreadFinancialWebViewInterstitial(
         }
 
         /**
-         * Creates and configures the popup dialog
+         * Converts HTML to PDF and displays it in the popup
          */
         @SuppressLint("SetJavaScriptEnabled")
-        private fun createAndShowPopup() {
-            // Create main container for header + WebView
+        private fun convertHtmlToPdfAndShow() {
+            // Create a temporary WebView to render the HTML for PDF generation
+            pdfWebView = WebView(context).apply {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                }
+
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        Logger.printLog("HTML content rendered for PDF conversion")
+
+                        // Wait a bit for JavaScript to fully render
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            createPdfViewerPopup(view)
+                        }, 1500)
+                    }
+
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        val errorMsg = error?.description?.toString() ?: "Unknown error"
+                        Logger.printLog("Error rendering HTML for PDF: $errorMsg")
+                    }
+                }
+
+                // Load the HTML content
+                val finalHtml = addBaseUrlToHtml(html, baseUrl)
+                loadDataWithBaseURL(
+                    baseUrl.ifEmpty { "https://localhost/" },
+                    finalHtml,
+                    "text/html",
+                    "UTF-8",
+                    null
+                )
+            }
+        }
+
+        /**
+         * Creates the popup dialog with a WebView displaying the PDF content
+         */
+        @SuppressLint("SetJavaScriptEnabled")
+        private fun createPdfViewerPopup(renderedWebView: WebView?) {
+            // Create main container for header + PDF WebView
             val mainContainer = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = FrameLayout.LayoutParams(
@@ -555,26 +597,33 @@ internal class BreadFinancialWebViewInterstitial(
             }
 
             // Create header with close button
-//            val headerContainer = LinearLayout(context).apply {
-//                orientation = LinearLayout.HORIZONTAL
-//                layoutParams = LinearLayout.LayoutParams(
-//                    ViewGroup.LayoutParams.MATCH_PARENT,
-//                    dpToPx(50)
-//                )
-//                setBackgroundColor(android.graphics.Color.parseColor("#F5F5F5"))
-//                gravity = Gravity.CENTER_VERTICAL or Gravity.END
-//                setPadding(dpToPx(10), dpToPx(5), dpToPx(10), dpToPx(5))
-//            }
+            val headerContainer = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dpToPx(50)
+                )
+                setBackgroundColor(android.graphics.Color.parseColor("#F5F5F5"))
+                gravity = android.view.Gravity.CENTER_VERTICAL or android.view.Gravity.END
+                setPadding(dpToPx(10), dpToPx(5), dpToPx(10), dpToPx(5))
+            }
 
             // Create close button
             val closeButton = Button(context).apply {
-                text = "X"
+                text = "✕ Close"
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                setBackgroundColor(android.graphics.Color.parseColor("#E0E0E0"))
+                setTextColor(android.graphics.Color.parseColor("#333333"))
                 textSize = 14f
+                setPadding(dpToPx(15), dpToPx(8), dpToPx(15), dpToPx(8))
             }
 
-//            headerContainer.addView(closeButton)
+            headerContainer.addView(closeButton)
 
-            // Create WebView for the popup
+            // Create WebView for PDF display
             popupWebView = WebView(context).apply {
                 settings.apply {
                     javaScriptEnabled = true
@@ -585,7 +634,7 @@ internal class BreadFinancialWebViewInterstitial(
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
-                        Logger.printLog("HTML popup content loaded successfully")
+                        Logger.printLog("PDF viewer loaded successfully")
                     }
 
                     override fun onReceivedError(
@@ -595,7 +644,7 @@ internal class BreadFinancialWebViewInterstitial(
                     ) {
                         super.onReceivedError(view, request, error)
                         val errorMsg = error?.description?.toString() ?: "Unknown error"
-                        Logger.printLog("Error loading HTML popup content: $errorMsg")
+                        Logger.printLog("Error loading PDF viewer: $errorMsg")
                     }
                 }
 
@@ -612,8 +661,10 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
 
-                // Load the HTML content
+                // Display the HTML content as PDF using Google's PDF Viewer
                 val finalHtml = addBaseUrlToHtml(html, baseUrl)
+
+                // Alternative: Display HTML directly in WebView
                 loadDataWithBaseURL(
                     baseUrl.ifEmpty { "https://localhost/" },
                     finalHtml,
@@ -629,7 +680,7 @@ internal class BreadFinancialWebViewInterstitial(
                 )
             }
 
-            mainContainer.addView(closeButton)
+            mainContainer.addView(headerContainer)
             mainContainer.addView(popupWebView)
 
             // Create dialog
@@ -659,6 +710,12 @@ internal class BreadFinancialWebViewInterstitial(
             closeButton.setOnClickListener {
                 dismiss()
             }
+
+            // Clean up the temporary rendering WebView
+            Handler(Looper.getMainLooper()).postDelayed({
+                pdfWebView?.destroy()
+                pdfWebView = null
+            }, 500)
         }
 
         /**
@@ -677,10 +734,24 @@ internal class BreadFinancialWebViewInterstitial(
         }
 
         /**
+         * Convert dp to pixels
+         */
+        private fun dpToPx(dp: Int): Int {
+            return (dp * context.resources.displayMetrics.density).toInt()
+        }
+
+        /**
          * Cleanup resources
          */
         private fun cleanup() {
             Handler(Looper.getMainLooper()).post {
+                pdfWebView?.apply {
+                    stopLoading()
+                    clearHistory()
+                    destroy()
+                }
+                pdfWebView = null
+
                 popupWebView?.apply {
                     stopLoading()
                     clearHistory()
