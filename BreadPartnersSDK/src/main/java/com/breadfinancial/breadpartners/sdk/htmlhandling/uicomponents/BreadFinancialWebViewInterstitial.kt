@@ -30,7 +30,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
@@ -543,6 +545,35 @@ internal class BreadFinancialWebViewInterstitial(
          */
         @SuppressLint("SetJavaScriptEnabled")
         private fun createAndShowPopup() {
+            // Create main container for header + WebView
+            val mainContainer = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+
+            // Create header with close button
+//            val headerContainer = LinearLayout(context).apply {
+//                orientation = LinearLayout.HORIZONTAL
+//                layoutParams = LinearLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.MATCH_PARENT,
+//                    dpToPx(50)
+//                )
+//                setBackgroundColor(android.graphics.Color.parseColor("#F5F5F5"))
+//                gravity = Gravity.CENTER_VERTICAL or Gravity.END
+//                setPadding(dpToPx(10), dpToPx(5), dpToPx(10), dpToPx(5))
+//            }
+
+            // Create close button
+            val closeButton = Button(context).apply {
+                text = "X"
+                textSize = 14f
+            }
+
+//            headerContainer.addView(closeButton)
+
             // Create WebView for the popup
             popupWebView = WebView(context).apply {
                 settings.apply {
@@ -590,19 +621,28 @@ internal class BreadFinancialWebViewInterstitial(
                     "UTF-8",
                     null
                 )
+
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    1f
+                )
             }
+
+            mainContainer.addView(closeButton)
+            mainContainer.addView(popupWebView)
 
             // Create dialog
             dialog = Dialog(context, android.R.style.Theme_Material_Light_Dialog).apply {
-                setTitle("Document")
+                setTitle(null)
                 setCancelable(true)
                 setOnDismissListener {
                     onDismiss()
                     cleanup()
                 }
 
-                // Set the WebView as the dialog content
-                popupWebView?.let { setContentView(it) }
+                // Set the main container as the dialog content
+                setContentView(mainContainer)
 
                 // Configure dialog window size
                 window?.apply {
@@ -613,6 +653,11 @@ internal class BreadFinancialWebViewInterstitial(
                 }
 
                 show()
+            }
+
+            // Set up close button click listener
+            closeButton.setOnClickListener {
+                dismiss()
             }
         }
 
