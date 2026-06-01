@@ -15,6 +15,7 @@
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -23,11 +24,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
-import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
@@ -65,10 +66,10 @@ internal class BreadFinancialWebViewInterstitial(
                 // Only enable remote debugging in debug builds
                 setWebContentsDebuggingEnabled(
                     android.os.Build.TYPE == "eng" ||
-                    android.provider.Settings.Global.getInt(
-                        context.contentResolver,
-                        android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
-                    ) != 0
+                            android.provider.Settings.Global.getInt(
+                                context.contentResolver,
+                                android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+                            ) != 0
                 )
             }
 
@@ -173,32 +174,45 @@ internal class BreadFinancialWebViewInterstitial(
                         html
                     }
 
-                    val docsDir = java.io.File(context.cacheDir, "bread_docs").also { it.mkdirs() }
-                    // Use a fixed filename so it is always overwritten and never accumulates
-                    val tempFile = java.io.File(docsDir, "document.html")
-                    tempFile.writeText(modifiedHtml)
-                    val uri = androidx.core.content.FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.breadpartners.fileprovider",
-                        tempFile
+                    val popup = HtmlPopupDisplayer(
+                        html = modifiedHtml,
+                        baseUrl = "https://example.com",
+                        width = 0.9f,  // 90% of screen width
+                        height = 0.8f, // 80% of screen height
+                        onDismiss = {
+                            // Handle popup closure
+                        }
                     )
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(uri, "text/html")
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
+                    popup.show()
 
-                    // Grant URI permission to all potential receivers
-                    val resInfoList = context.packageManager.queryIntentActivities(intent, 0)
-                    for (resolveInfo in resInfoList) {
-                        val packageName = resolveInfo.activityInfo.packageName
-                        context.grantUriPermission(
-                            packageName,
-                            uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        )
-                    }
-                    context.startActivity(intent)
+
+//
+//                    val docsDir = java.io.File(context.cacheDir, "bread_docs").also { it.mkdirs() }
+//                    // Use a fixed filename so it is always overwritten and never accumulates
+//                    val tempFile = java.io.File(docsDir, "document.html")
+//                    tempFile.writeText(modifiedHtml)
+//                    val uri = androidx.core.content.FileProvider.getUriForFile(
+//                        context,
+//                        "${context.packageName}.breadpartners.fileprovider",
+//                        tempFile
+//                    )
+//                    val intent = Intent(Intent.ACTION_VIEW).apply {
+//                        setDataAndType(uri, "text/html")
+//                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                    }
+//
+//                    // Grant URI permission to all potential receivers
+//                    val resInfoList = context.packageManager.queryIntentActivities(intent, 0)
+//                    for (resolveInfo in resInfoList) {
+//                        val packageName = resolveInfo.activityInfo.packageName
+//                        context.grantUriPermission(
+//                            packageName,
+//                            uri,
+//                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+//                        )
+//                    }
+//                    context.startActivity(intent)
                 } catch (e: Exception) {
                     callback(BreadPartnerEvent.SdkError(error = e))
                 }
@@ -475,5 +489,161 @@ internal class BreadFinancialWebViewInterstitial(
 
     fun setOnAppRestartListener(listener: WebViewRestartButtonListener) {
         this.listener = listener
+    }
+
+    /**
+     * HTML Popup Displayer helper class
+     * Creates a popup dialog that displays HTML content in a WebView
+     *
+     * Usage:
+     *   val popup = HtmlPopupDisplayer(
+     *       html = "<html>...</html>",
+     *       baseUrl = "https://example.com",
+     *       width = 0.9f, // 90% of screen width
+     *       height = 0.8f, // 80% of screen height
+     *       onDismiss = { /* Handle dismiss */ }
+     *   )
+     *   popup.show()
+     */
+    inner class HtmlPopupDisplayer(
+        private val html: String,
+        private val baseUrl: String = "",
+        private val width: Float = 0.95f,  // 95% of screen width
+        private val height: Float = 0.9f,  // 90% of screen height
+        private val onDismiss: () -> Unit = {}
+    ) {
+        private var dialog: Dialog? = null
+        private var popupWebView: WebView? = null
+
+        /**
+         * Shows the HTML popup dialog
+         */
+        fun show() {
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    createAndShowPopup()
+                } catch (e: Exception) {
+                    Logger.printLog("Error showing HTML popup: ${e.message}")
+                }
+            }
+        }
+
+        /**
+         * Closes the popup dialog
+         */
+        fun dismiss() {
+            Handler(Looper.getMainLooper()).post {
+                dialog?.dismiss()
+                cleanup()
+            }
+        }
+
+        /**
+         * Creates and configures the popup dialog
+         */
+        @SuppressLint("SetJavaScriptEnabled")
+        private fun createAndShowPopup() {
+            // Create WebView for the popup
+            popupWebView = WebView(context).apply {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                }
+
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        Logger.printLog("HTML popup content loaded successfully")
+                    }
+
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        val errorMsg = error?.description?.toString() ?: "Unknown error"
+                        Logger.printLog("Error loading HTML popup content: $errorMsg")
+                    }
+                }
+
+                webChromeClient = object : WebChromeClient() {
+                    override fun onJsAlert(
+                        view: WebView?,
+                        url: String?,
+                        message: String?,
+                        result: android.webkit.JsResult?
+                    ): Boolean {
+                        Logger.printLog("JS Alert: $message")
+                        result?.confirm()
+                        return true
+                    }
+                }
+
+                // Load the HTML content
+                val finalHtml = addBaseUrlToHtml(html, baseUrl)
+                loadDataWithBaseURL(
+                    baseUrl.ifEmpty { "https://localhost/" },
+                    finalHtml,
+                    "text/html",
+                    "UTF-8",
+                    null
+                )
+            }
+
+            // Create dialog
+            dialog = Dialog(context, android.R.style.Theme_Material_Light_Dialog).apply {
+                setTitle("Document")
+                setCancelable(true)
+                setOnDismissListener {
+                    onDismiss()
+                    cleanup()
+                }
+
+                // Set the WebView as the dialog content
+                popupWebView?.let { setContentView(it) }
+
+                // Configure dialog window size
+                window?.apply {
+                    val displayMetrics = context.resources.displayMetrics
+                    val dialogWidth = displayMetrics.widthPixels
+                    val dialogHeight = displayMetrics.heightPixels
+                    setLayout(dialogWidth, dialogHeight)
+                }
+
+                show()
+            }
+        }
+
+        /**
+         * Adds base URL tag to HTML if not present
+         */
+        private fun addBaseUrlToHtml(htmlContent: String, url: String): String {
+            return if (!htmlContent.contains("<base", ignoreCase = true) && url.isNotEmpty()) {
+                htmlContent.replaceFirst(
+                    "<head>",
+                    "<head><base href=\"$url/\">",
+                    ignoreCase = true
+                )
+            } else {
+                htmlContent
+            }
+        }
+
+        /**
+         * Cleanup resources
+         */
+        private fun cleanup() {
+            Handler(Looper.getMainLooper()).post {
+                popupWebView?.apply {
+                    stopLoading()
+                    clearHistory()
+                    destroy()
+                }
+                popupWebView = null
+                dialog = null
+            }
+        }
     }
 }

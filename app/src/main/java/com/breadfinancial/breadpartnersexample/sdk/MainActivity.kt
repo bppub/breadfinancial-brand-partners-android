@@ -14,6 +14,7 @@
 
 package com.breadfinancial.breadpartnersexample.sdk
 
+import TestData
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         generatePlacement()
     }
 
@@ -104,9 +106,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun generatePlacement() {
 //         For using TestData file do
-//        val placementRequestType =
-//            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
-        val placementRequestType = emptyMap<String, Any>()
+        val placementRequestType =
+            TestData.shared.placementConfigurations["ECO"] ?: emptyMap()
+//        val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val allowCheckout = placementRequestType["allowCheckout"] as? Boolean ?: false
@@ -414,6 +416,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
-
-

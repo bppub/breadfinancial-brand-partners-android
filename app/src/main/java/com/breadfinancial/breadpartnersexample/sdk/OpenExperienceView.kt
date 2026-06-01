@@ -12,6 +12,7 @@
 
 package com.breadfinancial.breadpartnersexample.sdk
 
+import TestData
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -35,10 +36,10 @@ import com.breadfinancial.breadpartners.sdk.core.models.PickupInformation
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementData
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartnersexample.sdk.databinding.ViewOpenexperienceBinding
+import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OpenExperienceView : BottomSheetDialogFragment() {
-
     private lateinit var binding: ViewOpenexperienceBinding
 
     override fun onCreateView(
@@ -52,7 +53,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         super.onStart()
         dialog?.let {
             val bottomSheet =
-                it.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                it.findViewById<View>(R.id.design_bottom_sheet)
             bottomSheet?.layoutParams?.height =
                 (resources.displayMetrics.heightPixels * 0.9).toInt()
         }
@@ -61,6 +62,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         openExperienceFlow()
     }
 
@@ -73,11 +75,12 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         // like placement ID, SDK transaction ID, environment, price, and brand ID.
         // This allows testing of various placement setups by fetching specific configurations
         // based on the placement type key.
-        val placementRequestType = mapOf<String, Any>()
+//        val placementRequestType = mapOf<String, Any>()
         // If using TestData file do:
-        // val placementRequestType = TestData.shared.placementConfigurations["textPlacementRequestType200"] ?: emptyMap()
+        val placementRequestType = TestData.shared.placementConfigurations["ECO"] ?: emptyMap()
         val placementID = placementRequestType["placementID"] as String?
-        val price = placementRequestType["price"] as? Int?
+//        val price = placementRequestType["price"] as? Int?
+        val price = 150000
         val loyaltyId = placementRequestType["loyaltyId"] as? String?
         val channel = placementRequestType["channel"] as? String?
         val subChannel = placementRequestType["subchannel"] as? String?
@@ -87,11 +90,11 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         val breadPartnersFinancingType =
             placementRequestType["financingType"] as? BreadPartnersFinancingType?
 
-        val givenName = "John"
-        val familyName = "Doe"
+        val givenName = "Always"
+        val familyName = "Prequal"
         val additionalName = "Smith"
-        val email = "john.doe@gmail.com"
-        val phone = "3474351160"
+        val email = "joncarlos.tavarez.1177@gmail.com"
+        val phone = "3474351177"
         val postalCode = "11222"
         val region = "NY"
         val country = "US"
@@ -194,6 +197,10 @@ class OpenExperienceView : BottomSheetDialogFragment() {
             subchannel = subChannel
         )
 
+
+
+
+
         BreadPartnersSDK.getInstance().openExperienceForPlacement(
             merchantConfiguration = merchantConfiguration,
             placementsConfiguration = placementsConfiguration,
@@ -203,6 +210,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                 is BreadPartnerEvent.RenderPopupView -> {
                     val view = event.dialogFragment
                     view.show(parentFragmentManager, "PopupDialog")
+
                 }
 
                 is BreadPartnerEvent.OnSDKEventLog -> {
@@ -217,3 +225,4 @@ class OpenExperienceView : BottomSheetDialogFragment() {
 
     }
 }
+
