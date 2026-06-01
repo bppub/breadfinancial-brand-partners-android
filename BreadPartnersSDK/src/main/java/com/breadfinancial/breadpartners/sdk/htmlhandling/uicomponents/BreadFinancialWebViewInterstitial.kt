@@ -20,14 +20,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
-import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
@@ -65,10 +67,10 @@ internal class BreadFinancialWebViewInterstitial(
                 // Only enable remote debugging in debug builds
                 setWebContentsDebuggingEnabled(
                     android.os.Build.TYPE == "eng" ||
-                    android.provider.Settings.Global.getInt(
-                        context.contentResolver,
-                        android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
-                    ) != 0
+                            android.provider.Settings.Global.getInt(
+                                context.contentResolver,
+                                android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+                            ) != 0
                 )
             }
 
@@ -173,32 +175,32 @@ internal class BreadFinancialWebViewInterstitial(
                         html
                     }
 
-                    val docsDir = java.io.File(context.cacheDir, "bread_docs").also { it.mkdirs() }
-                    // Use a fixed filename so it is always overwritten and never accumulates
-                    val tempFile = java.io.File(docsDir, "document.html")
-                    tempFile.writeText(modifiedHtml)
-                    val uri = androidx.core.content.FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.breadpartners.fileprovider",
-                        tempFile
-                    )
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(uri, "text/html")
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
+                    val pdfWebView = WebView(context)
+                        .apply {
+                            webViewClient = WebViewClient()
+                            loadDataWithBaseURL(null, modifiedHtml, "text/html", "UTF-8", null)
+                        }
 
-                    // Grant URI permission to all potential receivers
-                    val resInfoList = context.packageManager.queryIntentActivities(intent, 0)
-                    for (resolveInfo in resInfoList) {
-                        val packageName = resolveInfo.activityInfo.packageName
-                        context.grantUriPermission(
-                            packageName,
-                            uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    // Extract title from HTML
+                    val titleMatch =
+                        Regex("<title[^>]*>([^<]*)</title>", RegexOption.IGNORE_CASE).find(
+                            modifiedHtml
                         )
-                    }
-                    context.startActivity(intent)
+                    val pageTitle = titleMatch?.groupValues?.get(1) ?: "Disclosure"
+
+                    val printManager =
+                        context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+                    val printAdapter =
+                        pdfWebView.createPrintDocumentAdapter(pageTitle)
+                    val printAttributes = PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .build()
+                    printManager.print(
+                        pageTitle,
+                        printAdapter,
+                        printAttributes
+                    )
+
                 } catch (e: Exception) {
                     callback(BreadPartnerEvent.SdkError(error = e))
                 }
