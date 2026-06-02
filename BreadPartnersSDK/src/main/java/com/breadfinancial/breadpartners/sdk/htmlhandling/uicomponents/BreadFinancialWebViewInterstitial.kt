@@ -20,8 +20,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.print.PrintAttributes
-import android.print.PrintManager
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
@@ -175,12 +173,6 @@ internal class BreadFinancialWebViewInterstitial(
                         html
                     }
 
-                    val pdfWebView = WebView(context)
-                        .apply {
-                            webViewClient = WebViewClient()
-                            loadDataWithBaseURL(null, modifiedHtml, "text/html", "UTF-8", null)
-                        }
-
                     // Extract title from HTML
                     val titleMatch =
                         Regex("<title[^>]*>([^<]*)</title>", RegexOption.IGNORE_CASE).find(
@@ -188,18 +180,25 @@ internal class BreadFinancialWebViewInterstitial(
                         )
                     val pageTitle = titleMatch?.groupValues?.get(1) ?: "Disclosure"
 
-                    val printManager =
-                        context.getSystemService(Context.PRINT_SERVICE) as PrintManager
-                    val printAdapter =
-                        pdfWebView.createPrintDocumentAdapter(pageTitle)
-                    val printAttributes = PrintAttributes.Builder()
-                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                        .build()
-                    printManager.print(
-                        pageTitle,
-                        printAdapter,
-                        printAttributes
-                    )
+                    WebView(context).apply {
+                        val pageWidth = 794
+                        // Attach to decor view (invisible) so the WebView actually renders
+                        val decorView = (context as? android.app.Activity)?.window?.decorView as? android.view.ViewGroup
+                        // Use a large height so the WebView can render its full content
+                        val lp = android.view.ViewGroup.LayoutParams(pageWidth, 10000)
+                        visibility = android.view.View.INVISIBLE
+                        decorView?.addView(this, lp)
+
+                        webViewClient = object : WebViewClient() {
+                            override fun onPageFinished(view: WebView, url: String?) {
+                                // Post a delay to let the WebView finish layout/paint of all content
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    generatePdfDirectly(context, view, pageTitle, decorView) { callback(it) }
+                                }, 1000)
+                            }
+                        }
+                        loadDataWithBaseURL(null, modifiedHtml, "text/html", "UTF-8", null)
+                    }
 
                 } catch (e: Exception) {
                     callback(BreadPartnerEvent.SdkError(error = e))
@@ -478,4 +477,62 @@ internal class BreadFinancialWebViewInterstitial(
     fun setOnAppRestartListener(listener: WebViewRestartButtonListener) {
         this.listener = listener
     }
+
+    private fun generatePdfDirectly(
+        context: Context,
+        webView: WebView,
+        fileName: String,
+        decorView: android.view.ViewGroup?,
+        callback: (BreadPartnerEvent) -> Unit
+    ) {
+        try {
+            // A4 width at 96 dpi; height matches full content so text is never split between pages
+            val pageWidth = 794
+
+            // webView.contentHeight is in CSS pixels; multiply by display density to get screen pixels
+            val density = context.resources.displayMetrics.density
+            val contentHeight = (webView.contentHeight * density).toInt().takeIf { it > 0 }
+                ?: webView.measuredHeight.takeIf { it > 0 }
+                ?: 1123
+
+            // Force re-layout at exact content size before drawing
+            webView.measure(
+                android.view.View.MeasureSpec.makeMeasureSpec(pageWidth, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(contentHeight, android.view.View.MeasureSpec.EXACTLY)
+            )
+            webView.layout(0, 0, pageWidth, contentHeight)
+
+            // Single page whose height equals the full content — no mid-line splits
+            val pdfDocument = android.graphics.pdf.PdfDocument()
+            val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(pageWidth, contentHeight, 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            webView.draw(page.canvas)
+            pdfDocument.finishPage(page)
+
+            // Detach the WebView from the decor now that we're done with it
+            decorView?.removeView(webView)
+            webView.destroy()
+
+            val pdfDir = java.io.File(context.cacheDir, "bread_pdfs").apply { mkdirs() }
+            val pdfFile = java.io.File(pdfDir, "${fileName.replace("[^a-zA-Z0-9_\\-]".toRegex(), "_")}.pdf")
+            java.io.FileOutputStream(pdfFile).use { pdfDocument.writeTo(it) }
+            pdfDocument.close()
+
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.breadpartners.sdk.fileprovider",
+                pdfFile
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/pdf")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            decorView?.removeView(webView)
+            callback(BreadPartnerEvent.SdkError(error = e))
+        }
+    }
 }
+
+
