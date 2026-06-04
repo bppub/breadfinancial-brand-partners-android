@@ -81,6 +81,7 @@ class CommonUtils(
             "zip" to merchantConfiguration.buyer?.billingAddress?.postalCode.takeIfNotEmpty(),
             "storeNumber" to merchantConfiguration.storeNumber.takeIfNotEmpty(),
             "mobilePhone" to merchantConfiguration.buyer?.phone.takeIfNotEmpty(),
+            "alternativePhone" to merchantConfiguration.buyer?.alternativePhone.takeIfNotEmpty(),
             "emailAddress" to merchantConfiguration.buyer?.email.takeIfNotEmpty(),
             "location" to rtpsConfig.locationType?.value?.takeIfNotEmpty(),
             "channel" to rtpsConfig.channel.takeIfNotEmpty(),

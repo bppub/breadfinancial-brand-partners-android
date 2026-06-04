@@ -48,7 +48,8 @@ class RTPSRequestBuilder(
                 overrideConfig = RTPSRequest.OverrideConfig(enhancedPresentment = true),
                 customerAcceptedOffer = rtpsData.customerAcceptedOffer,
                 mobilePhone = buyer?.phone.takeIfNotEmpty(),
-                email = buyer?.email.takeIfNotEmpty(),
+                emailAddress = buyer?.email.takeIfNotEmpty(),
+                alternativePhone = buyer?.alternativePhone.takeIfNotEmpty(),
                 )
         } else {
             // Validate PreScreenID using virtuallookup
