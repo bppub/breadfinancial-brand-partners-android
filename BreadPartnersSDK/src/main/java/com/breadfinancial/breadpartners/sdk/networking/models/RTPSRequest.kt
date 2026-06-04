@@ -33,7 +33,9 @@ data class RTPSRequest(
     val overrideConfig: OverrideConfig? = null,
     val prescreenId: String? = null,
     val platform: String = "android",
-    val customerAcceptedOffer: Boolean? = null
+    val customerAcceptedOffer: Boolean? = null,
+    val mobilePhone: String? = null,
+    val email: String? = null
 ) {
 
     data class OverrideConfig(
