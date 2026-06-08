@@ -20,14 +20,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
-import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
@@ -43,6 +45,7 @@ internal class BreadFinancialWebViewInterstitial(
     private val callback: (BreadPartnerEvent) -> Unit?
 ) {
     private var webView: WebView? = null
+    private var showNavigationDialog = false
 
     /**
      * Replaces the given parent view with a WebView and loads the specified URL.
@@ -64,10 +67,10 @@ internal class BreadFinancialWebViewInterstitial(
                 // Only enable remote debugging in debug builds
                 setWebContentsDebuggingEnabled(
                     android.os.Build.TYPE == "eng" ||
-                    android.provider.Settings.Global.getInt(
-                        context.contentResolver,
-                        android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
-                    ) != 0
+                            android.provider.Settings.Global.getInt(
+                                context.contentResolver,
+                                android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+                            ) != 0
                 )
             }
 
@@ -94,7 +97,21 @@ internal class BreadFinancialWebViewInterstitial(
                     }
                 }
             }
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onJsBeforeUnload(
+                    view: WebView?,
+                    url: String?,
+                    message: String?,
+                    result: android.webkit.JsResult
+                ): Boolean {
+                    if (showNavigationDialog) {
+                        showNavigationDialog = false
+                        return false // let the system show the native dialog
+                    }
+                    result.confirm()
+                    return true
+                }
+            }
 
             addJavascriptInterface(WebAppInterface(this), "Android")
 
@@ -132,6 +149,62 @@ internal class BreadFinancialWebViewInterstitial(
         @JavascriptInterface
         fun logAnchorTags(data: String) {
 //            Logger().printWebAnchorLogs(data)
+        }
+
+        @JavascriptInterface
+        fun openHtmlContent(html: String) {
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    // Extract the base URL from the current WebView URL
+                    val baseUrl = webView?.url?.let { url ->
+                        val uri = Uri.parse(url)
+                        "${uri.scheme}://${uri.host}"
+                    } ?: run {
+                        callback(BreadPartnerEvent.SdkError(error = Exception("openHtmlContent: unable to resolve base URL – WebView URL is null")))
+                        return@post
+                    }
+
+                    // Add base tag to HTML if not present to resolve relative URLs
+                    val modifiedHtml = if (!html.contains("<base", ignoreCase = true)) {
+                        html.replaceFirst(
+                            "<head>",
+                            "<head><base href=\"$baseUrl/\">",
+                            ignoreCase = true
+                        )
+                    } else {
+                        html
+                    }
+
+                    val pdfWebView = WebView(context)
+                        .apply {
+                            webViewClient = WebViewClient()
+                            loadDataWithBaseURL(null, modifiedHtml, "text/html", "UTF-8", null)
+                        }
+
+                    // Extract title from HTML
+                    val titleMatch =
+                        Regex("<title[^>]*>([^<]*)</title>", RegexOption.IGNORE_CASE).find(
+                            modifiedHtml
+                        )
+                    val pageTitle = titleMatch?.groupValues?.get(1) ?: "Disclosure"
+
+                    val printManager =
+                        context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+                    val printAdapter =
+                        pdfWebView.createPrintDocumentAdapter(pageTitle)
+                    val printAttributes = PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .build()
+                    printManager.print(
+                        pageTitle,
+                        printAdapter,
+                        printAttributes
+                    )
+
+                } catch (e: Exception) {
+                    callback(BreadPartnerEvent.SdkError(error = e))
+                }
+            }
         }
 
         @JavascriptInterface
@@ -242,6 +315,10 @@ internal class BreadFinancialWebViewInterstitial(
                         callback(BreadPartnerEvent.PopupClosed)
                     }
 
+                    "LOG_OUT_OR_RESTART" -> {
+                        showNavigationDialog = true
+                    }
+
                     "OFFER_RESPONSE" -> {
                         val payload = action.optString("payload")
                         val offerResponse = OfferResponse.fromValue(payload)
@@ -289,6 +366,40 @@ internal class BreadFinancialWebViewInterstitial(
         view?.evaluateJavascript(
             """
         (function() {
+            // Override window.open to intercept JS-driven navigation and HTML content popups
+            if (!window.__breadWindowOpenOverridden__) {
+                window.__breadWindowOpenOverridden__ = true;
+                window.open = function(url, target, features) {
+                    if (url && url !== '' && url !== 'about:blank') {
+                        window.Android.openExternally(url);
+                        return null;
+                    }
+                    // about:blank or empty url: the page will call document.write() or
+                    // set innerHTML on the returned window to inject HTML content
+                    // (e.g. a loan agreement). Capture that content and send it to
+                    // Android to open in a browser.
+                    var _content = '';
+                    function sendContent() {
+                        if (_content) {
+                            window.Android.openHtmlContent(_content);
+                            _content = '';
+                        }
+                    }
+                    var fakeBody = {};
+                    Object.defineProperty(fakeBody, 'innerHTML', {
+                        set: function(html) { _content = html; sendContent(); },
+                        get: function() { return _content; }
+                    });
+                    var fakeDoc = {
+                        write: function(html) { _content += html; },
+                        writeln: function(html) { _content += html + '\n'; },
+                        close: function() { sendContent(); },
+                        body: fakeBody
+                    };
+                    return { document: fakeDoc, focus: function() {}, close: function() {} };
+                };
+            }
+
             function isVisible(elem) {
                 return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
             }        
