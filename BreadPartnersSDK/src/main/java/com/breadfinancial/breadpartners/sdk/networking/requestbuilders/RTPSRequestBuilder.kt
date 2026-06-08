@@ -46,8 +46,11 @@ class RTPSRequestBuilder(
                 reCaptchaToken = reCaptchaToken.takeIfNotEmpty(),
                 mockResponse = rtpsData.mockResponse?.value,
                 overrideConfig = RTPSRequest.OverrideConfig(enhancedPresentment = true),
-                customerAcceptedOffer = rtpsData.customerAcceptedOffer
-            )
+                customerAcceptedOffer = rtpsData.customerAcceptedOffer,
+                mobilePhone = buyer?.phone.takeIfNotEmpty(),
+                emailAddress = buyer?.email.takeIfNotEmpty(),
+                alternativePhone = buyer?.alternativePhone.takeIfNotEmpty(),
+                )
         } else {
             // Validate PreScreenID using virtuallookup
             return RTPSRequest(

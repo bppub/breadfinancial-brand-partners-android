@@ -80,7 +80,8 @@ class RTPSView : BottomSheetDialogFragment() {
                 additionalName = "C.",
                 birthDate = "1974-08-21",
                 email = "johncseamus@gmail.com",
-                phone = "+13235323423",
+                phone = "3474351111",
+                alternativePhone = "3474352222",
                 billingAddress = BreadPartnersAddress(
                     address1 = "323 something lane",
                     address2 = "apt. B",

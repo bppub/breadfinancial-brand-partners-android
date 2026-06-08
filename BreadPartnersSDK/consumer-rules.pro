@@ -37,7 +37,7 @@
 -keep class androidx.multidex.** { *; }
 
 # Or keep all classes in a package public
--keep public class com.breadfinancial.breadpartners.sdk.core.** { *; }
+-keep public class com.breadfinancial.breadpartners.sdk.** { *; }
 
 # Suppress general warnings for smooth builds
 -dontwarn javax.annotation.**
