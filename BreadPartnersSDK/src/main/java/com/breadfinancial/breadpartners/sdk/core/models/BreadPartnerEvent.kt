@@ -99,4 +99,32 @@ sealed class BreadPartnerEvent {
     /// Provides the offer response from the WebView OFFER_RESPONSE message.
     /// - Parameter offerResponse: The OfferResponse enum value corresponding to the payload.
     data class OfferResponse(val response: OfferResponseEnum) : BreadPartnerEvent()
+
+    /// Fires when Google Wallet push provisioning is requested from the WebView.
+    ///
+    /// This event is raised through two paths:
+    ///  1. **URL interception** – the WebView's `window.open` override detects a
+    ///     `pay.google.com/.../pushprovisioning` URL and the SDK attempts to deep-link
+    ///     it directly to the Google Wallet app. When the Wallet app is absent the
+    ///     event is forwarded to the host application via [provisioningUrl].
+    ///  2. **Explicit JS bridge** – the web page calls
+    ///     `window.Android.provisionToGoogleWallet(json)` with the issuer-supplied
+    ///     card data. The host app can then call
+    ///     `TapAndPayClient.pushTokenize()` using the provided fields.
+    ///
+    /// - Parameters:
+    ///   - provisioningUrl: Full Google Pay push-provisioning frame URL (path 1).
+    ///   - opc: Base-64-encoded Opaque Payment Card blob from the issuer server (path 2).
+    ///   - cardNetwork: Card network string, e.g. "VISA", "MASTERCARD" (path 2).
+    ///   - lastDigits: Last four digits of the card (path 2).
+    ///   - tokenServiceProvider: TSP identifier, e.g. "VISA", "MASTERCARD" (path 2).
+    ///   - displayName: Human-readable card name shown in the Wallet UI (path 2).
+    data class PushProvisionGoogleWallet(
+        val provisioningUrl: String? = null,
+        val opc: String? = null,
+        val cardNetwork: String? = null,
+        val lastDigits: String? = null,
+        val tokenServiceProvider: String? = null,
+        val displayName: String? = null
+    ) : BreadPartnerEvent()
 }

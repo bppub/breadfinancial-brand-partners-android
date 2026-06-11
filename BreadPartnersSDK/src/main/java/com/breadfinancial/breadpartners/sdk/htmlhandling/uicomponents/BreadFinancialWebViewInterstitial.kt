@@ -15,6 +15,7 @@
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -215,11 +216,63 @@ internal class BreadFinancialWebViewInterstitial(
                 callback(BreadPartnerEvent.OnSDKEventLog("openExternally blocked unsafe URL scheme: $scheme"))
                 return
             }
+
+            // Intercept Google Pay push provisioning URLs.
+            // A standard WebView/browser cannot host the push provisioning flow
+            // because Google Wallet requires secure app-to-app communication.
+            // We try to deep-link directly into the Google Wallet app first; if the
+            // app is not installed we surface a PushProvisionGoogleWallet event so
+            // the host application can handle it (e.g. redirect to Play Store).
+            if (isGooglePayPushProvisioningUrl(uri)) {
+                handleGooglePayPushProvisioning(uri)
+                return
+            }
+
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 context.startActivity(intent)
             } catch (e: Exception) {
                 callback(BreadPartnerEvent.SdkError(error = e))
+            }
+        }
+
+        /**
+         * JavaScript bridge called by the web page when it has issuer-supplied card
+         * provisioning data and wants native Android code to complete the Google
+         * Wallet push provisioning flow.
+         *
+         * Expected JSON shape:
+         * {
+         *   "opc":                  "<base64-encoded OPC from issuer server>",
+         *   "cardNetwork":          "VISA" | "MASTERCARD" | …,
+         *   "lastDigits":           "1234",
+         *   "tokenServiceProvider": "VISA" | "MASTERCARD" | …,
+         *   "displayName":          "My Visa Card"
+         * }
+         *
+         * The host app receives a [BreadPartnerEvent.PushProvisionGoogleWallet] event
+         * and is responsible for calling TapAndPayClient.pushTokenize() with the data.
+         *
+         * Web-page usage (after checking window.BreadPartnersSDK.isAndroid):
+         *   window.BreadPartnersSDK.provisionToGoogleWallet({ opc, cardNetwork, … });
+         */
+        @JavascriptInterface
+        fun provisionToGoogleWallet(cardDataJson: String) {
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    val payload = org.json.JSONObject(cardDataJson)
+                    callback(
+                        BreadPartnerEvent.PushProvisionGoogleWallet(
+                            opc = payload.optString("opc").takeIf { it.isNotBlank() },
+                            cardNetwork = payload.optString("cardNetwork").takeIf { it.isNotBlank() },
+                            lastDigits = payload.optString("lastDigits").takeIf { it.isNotBlank() },
+                            tokenServiceProvider = payload.optString("tokenServiceProvider").takeIf { it.isNotBlank() },
+                            displayName = payload.optString("displayName").takeIf { it.isNotBlank() }
+                        )
+                    )
+                } catch (e: Exception) {
+                    callback(BreadPartnerEvent.SdkError(error = e))
+                }
             }
         }
 
@@ -347,6 +400,54 @@ internal class BreadFinancialWebViewInterstitial(
         }
     }
 
+    /**
+     * Returns true if the URI points to a Google Pay push provisioning frame.
+     * These URLs cannot be rendered in a standard WebView or browser — they
+     * require the Google Wallet app's secure provisioning context.
+     */
+    private fun isGooglePayPushProvisioningUrl(uri: Uri): Boolean {
+        val host = uri.host?.lowercase() ?: return false
+        val path = uri.path?.lowercase() ?: return false
+        return (host == "pay.google.com" || host == "pay.sandbox.google.com") &&
+                path.contains("pushprovisioning")
+    }
+
+    /**
+     * Handles a Google Pay push provisioning URL that was intercepted from
+     * the WebView's window.open call.
+     *
+     * Strategy:
+     *  1. Try to deep-link directly into the Google Wallet app using an
+     *     ACTION_VIEW intent targeted at the Wallet package. The Wallet app
+     *     can handle these URLs inside its own secure WebView context, which
+     *     has the necessary Google Play Services bridge for provisioning.
+     *  2. If Google Wallet is not installed, surface a
+     *     [BreadPartnerEvent.PushProvisionGoogleWallet] event (with the full
+     *     provisioning URL) so the host application can redirect the user to
+     *     the Play Store or apply an alternative fallback.
+     */
+    private fun handleGooglePayPushProvisioning(uri: Uri) {
+        val googleWalletPackage = "com.google.android.apps.walletnfcrelient"
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage(googleWalletPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            context.startActivity(intent)
+            Logger.printLog("BreadPartnersSDK: Google Pay push provisioning handed off to Google Wallet app")
+        } catch (e: ActivityNotFoundException) {
+            // Google Wallet not installed — let the host app decide what to do.
+            Logger.printLog("BreadPartnersSDK: Google Wallet app not found, firing PushProvisionGoogleWallet event")
+            callback(
+                BreadPartnerEvent.PushProvisionGoogleWallet(
+                    provisioningUrl = uri.toString()
+                )
+            )
+        } catch (e: Exception) {
+            callback(BreadPartnerEvent.SdkError(error = e))
+        }
+    }
+
     /// This is to remove default focus outlines that some browsers add when elements are clicked,
     /// which can interfere with the visual design of the WebView content.
     /// By injecting this CSS, we ensure a cleaner look without unexpected outlines.
@@ -366,6 +467,36 @@ internal class BreadFinancialWebViewInterstitial(
         view?.evaluateJavascript(
             """
         (function() {
+            // ── BreadPartnersSDK Native Bridge ────────────────────────────────────────
+            // Expose a stable namespace that the web page can use to detect it is
+            // running inside the native Android SDK and to call native methods.
+            //
+            // Push provisioning usage (web page side):
+            //   if (window.BreadPartnersSDK && window.BreadPartnersSDK.isAndroid) {
+            //       window.BreadPartnersSDK.provisionToGoogleWallet({
+            //           opc:                  "<base64 OPC from issuer>",
+            //           cardNetwork:          "VISA",
+            //           lastDigits:           "1234",
+            //           tokenServiceProvider: "VISA",
+            //           displayName:          "My Visa Card"
+            //       });
+            //   }
+            if (!window.BreadPartnersSDK) {
+                window.BreadPartnersSDK = {
+                    isAndroid: true,
+                    provisionToGoogleWallet: function(cardData) {
+                        try {
+                            var json = (typeof cardData === 'string')
+                                ? cardData
+                                : JSON.stringify(cardData);
+                            window.Android.provisionToGoogleWallet(json);
+                        } catch(e) {
+                            console.error('BreadPartnersSDK.provisionToGoogleWallet error: ' + e);
+                        }
+                    }
+                };
+            }
+
             // Override window.open to intercept JS-driven navigation and HTML content popups
             if (!window.__breadWindowOpenOverridden__) {
                 window.__breadWindowOpenOverridden__ = true;

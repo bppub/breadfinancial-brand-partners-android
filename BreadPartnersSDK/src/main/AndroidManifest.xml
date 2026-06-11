@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+        Android 11+ package-visibility: declare Google Wallet so the SDK can
+        check whether it is installed and launch push provisioning via intent.
+    -->
+    <queries>
+        <package android:name="com.google.android.apps.walletnfcrelient" />
+    </queries>
+
 </manifest>
