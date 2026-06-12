@@ -2,11 +2,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-        Android 11+ package-visibility: declare Google Wallet so the SDK can
-        check whether it is installed and launch push provisioning via intent.
+        Android 11+ (API 30) package-visibility declarations.
+
+        1. Explicit package: lets the SDK call PackageManager.getPackageInfo() to
+           check whether Google Wallet is installed before attempting the intent.
+
+        2. Intent queries: lets the OS surface any app (Chrome, Google Wallet,
+           etc.) that registers as a verified-link handler for pay.google.com /
+           pay.sandbox.google.com when the SDK fires the generic ACTION_VIEW
+           fallback intent inside handleGooglePayPushProvisioning().
     -->
     <queries>
-        <package android:name="com.google.android.apps.walletnfcrelient" />
+        <!-- Google Wallet — explicit package check -->
+        <package android:name="com.google.android.apps.walletnfcrel" />
+
+        <!-- Generic intent fallback — production Google Pay domain -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="pay.google.com" />
+        </intent>
+
+        <!-- Generic intent fallback — sandbox Google Pay domain -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="pay.sandbox.google.com" />
+        </intent>
     </queries>
 
 </manifest>
