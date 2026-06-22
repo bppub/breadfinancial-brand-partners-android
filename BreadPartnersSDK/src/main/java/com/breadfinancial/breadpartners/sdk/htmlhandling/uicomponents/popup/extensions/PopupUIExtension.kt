@@ -13,13 +13,23 @@
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.net.Uri
+import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.URLSpan
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import com.breadfinancial.breadpartners.sdk.R
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
@@ -31,6 +41,42 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.Popu
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.bumptech.glide.Glide
+
+/**
+ * Replaces every URLSpan inside this TextView with a custom ClickableSpan whose
+ * onClick routes to [onLinkClicked].  This lets us handle fragment links
+ * (e.g. "Back to top" with href="#top") that Html.fromHtml() turns into URLSpans
+ * but that the default LinkMovementMethod cannot resolve inside a native view.
+ */
+private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
+    val raw = text ?: return
+    val spannable = SpannableString.valueOf(raw)
+    val urlSpans = spannable.getSpans(0, spannable.length, URLSpan::class.java)
+    if (urlSpans.isEmpty()) return
+
+    urlSpans.forEach { urlSpan ->
+        val start = spannable.getSpanStart(urlSpan)
+        val end   = spannable.getSpanEnd(urlSpan)
+        val flags = spannable.getSpanFlags(urlSpan)
+        val url   = urlSpan.url
+        Log.d("BreadPartnersSDK", "makeLinksClickable: found URLSpan url=\"$url\" text=\"${spannable.subSequence(start, end)}\"")
+        spannable.removeSpan(urlSpan)
+        spannable.setSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                Log.d("BreadPartnersSDK", "makeLinksClickable: link clicked url=\"$url\"")
+                onLinkClicked(url)
+            }
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = true
+            }
+        }, start, end, flags)
+    }
+
+    text = spannable
+    movementMethod = LinkMovementMethod.getInstance()
+    highlightColor = Color.TRANSPARENT
+}
 
 /**
  * Initializes and sets up the UI components of the popup,
@@ -122,6 +168,37 @@ fun PopupDialog.setupUI() {
         addSectionsToLinearLayout(
             popupModel, contentStackView, it, popupStyle
         )
+
+        // The ScrollView wraps overlay_product_view; find it so "Back to top" can scroll it.
+        val scrollView = overlayProductView.parent as? ScrollView
+
+        /** Shared link-click handler for all native TextViews in the popup. */
+        val linkClickHandler: (String) -> Unit = { url ->
+            Log.d("BreadPartnersSDK", "PopupLink clicked: url=\"$url\"")
+            when {
+                url.startsWith("#") -> {
+                    // Fragment link — scroll the popup back to the top
+                    Log.d("BreadPartnersSDK", "PopupLink: fragment link → scrolling to top")
+                    scrollView?.smoothScrollTo(0, 0)
+                }
+                url.startsWith("http://") || url.startsWith("https://") -> {
+                    try {
+                        context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    } catch (e: Exception) {
+                        callback(BreadPartnerEvent.SdkError(error = e))
+                    }
+                }
+                else -> Log.d("BreadPartnersSDK", "PopupLink: unhandled scheme in url=\"$url\"")
+            }
+        }
+
+        // Apply to disclosure label
+        disclosureLabel.makeLinksClickable(linkClickHandler)
+
+        // Apply to every TextView dynamically added to the content stack
+        for (i in 0 until contentStackView.childCount) {
+            (contentStackView.getChildAt(i) as? TextView)?.makeLinksClickable(linkClickHandler)
+        }
 
         PopupElements.shared.decorateLinearLayout(
             linearLayout = contentContainer, borderColor = popupStyle.borderColor
