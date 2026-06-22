@@ -59,11 +59,9 @@ private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
         val end   = spannable.getSpanEnd(urlSpan)
         val flags = spannable.getSpanFlags(urlSpan)
         val url   = urlSpan.url
-        Log.d("BreadPartnersSDK", "makeLinksClickable: found URLSpan url=\"$url\" text=\"${spannable.subSequence(start, end)}\"")
         spannable.removeSpan(urlSpan)
         spannable.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
-                Log.d("BreadPartnersSDK", "makeLinksClickable: link clicked url=\"$url\"")
                 onLinkClicked(url)
             }
             override fun updateDrawState(ds: TextPaint) {
@@ -169,36 +167,17 @@ fun PopupDialog.setupUI() {
             popupModel, contentStackView, it, popupStyle
         )
 
-        // The ScrollView wraps overlay_product_view; find it so "Back to top" can scroll it.
+        // The ScrollView wraps overlay_view so that scroll would work.
         val scrollView = overlayProductView.parent as? ScrollView
 
-        /** Shared link-click handler for all native TextViews in the popup. */
+        // Shared link-click handler for all native TextViews in the popup.
         val linkClickHandler: (String) -> Unit = { url ->
-            Log.d("BreadPartnersSDK", "PopupLink clicked: url=\"$url\"")
-            when {
-                url.startsWith("#") -> {
-                    // Fragment link — scroll the popup back to the top
-                    Log.d("BreadPartnersSDK", "PopupLink: fragment link → scrolling to top")
-                    scrollView?.smoothScrollTo(0, 0)
-                }
-                url.startsWith("http://") || url.startsWith("https://") -> {
-                    try {
-                        context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    } catch (e: Exception) {
-                        callback(BreadPartnerEvent.SdkError(error = e))
-                    }
-                }
-                else -> Log.d("BreadPartnersSDK", "PopupLink: unhandled scheme in url=\"$url\"")
+            if (url.equals("#epjs-css-overlay-header", ignoreCase = true)) {
+                scrollView?.smoothScrollTo(0, 0)
             }
         }
 
-        // Apply to disclosure label
         disclosureLabel.makeLinksClickable(linkClickHandler)
-
-        // Apply to every TextView dynamically added to the content stack
-        for (i in 0 until contentStackView.childCount) {
-            (contentStackView.getChildAt(i) as? TextView)?.makeLinksClickable(linkClickHandler)
-        }
 
         PopupElements.shared.decorateLinearLayout(
             linearLayout = contentContainer, borderColor = popupStyle.borderColor
