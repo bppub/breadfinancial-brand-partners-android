@@ -13,19 +13,16 @@
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
-import android.net.Uri
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
