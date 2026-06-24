@@ -17,9 +17,16 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.URLSpan
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import com.breadfinancial.breadpartners.sdk.R
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
@@ -31,6 +38,40 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.Popu
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.bumptech.glide.Glide
+
+/**
+ * Replaces every URLSpan inside this TextView with a custom ClickableSpan whose
+ * onClick routes to [onLinkClicked].  This lets us handle fragment links
+ * (e.g. "Back to top" with href="#top") that Html.fromHtml() turns into URLSpans
+ * but that the default LinkMovementMethod cannot resolve inside a native view.
+ */
+private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
+    val raw = text ?: return
+    val spannable = SpannableString.valueOf(raw)
+    val urlSpans = spannable.getSpans(0, spannable.length, URLSpan::class.java)
+    if (urlSpans.isEmpty()) return
+
+    urlSpans.forEach { urlSpan ->
+        val start = spannable.getSpanStart(urlSpan)
+        val end   = spannable.getSpanEnd(urlSpan)
+        val flags = spannable.getSpanFlags(urlSpan)
+        val url   = urlSpan.url
+        spannable.removeSpan(urlSpan)
+        spannable.setSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                onLinkClicked(url)
+            }
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = true
+            }
+        }, start, end, flags)
+    }
+
+    text = spannable
+    movementMethod = LinkMovementMethod.getInstance()
+    highlightColor = Color.TRANSPARENT
+}
 
 /**
  * Initializes and sets up the UI components of the popup,
@@ -122,6 +163,18 @@ fun PopupDialog.setupUI() {
         addSectionsToLinearLayout(
             popupModel, contentStackView, it, popupStyle
         )
+
+        // The ScrollView wraps overlay_view so that scroll would work.
+        val scrollView = overlayProductView.parent as? ScrollView
+
+        // Shared link-click handler for all native TextViews in the popup.
+        val linkClickHandler: (String) -> Unit = { url ->
+            if (url.equals("#epjs-css-overlay-header", ignoreCase = true)) {
+                scrollView?.smoothScrollTo(0, 0)
+            }
+        }
+
+        disclosureLabel.makeLinksClickable(linkClickHandler)
 
         PopupElements.shared.decorateLinearLayout(
             linearLayout = contentContainer, borderColor = popupStyle.borderColor
