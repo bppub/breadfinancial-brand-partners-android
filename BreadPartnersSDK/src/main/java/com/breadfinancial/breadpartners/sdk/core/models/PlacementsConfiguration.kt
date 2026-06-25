@@ -41,16 +41,34 @@ data class PopUpStyling(
     val crossColor: Int = Color.BLACK,
     val dividerColor: Int = Color.LTGRAY,
     val borderColor: Int = Color.BLACK,
-    val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = 16.0f
+    ),
+    val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = 12.0f
+    ),
+    val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = 14.0f
+    ),
     val headerBgColor: Int = Color.LTGRAY,
-    val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(),
-    var actionButtonStyle: PopupActionButtonStyle? = null,
+    val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = 14.0f
+    ),
+    val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = 10.0f
+    ),
+    val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = 14.0f
+    ),
+    val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = 10.0f
+    ),
+    var actionButtonStyle: PopupActionButtonStyle? = PopupActionButtonStyle(),
 )
+
 
 /**
  * Structure that defines text styling config for popup elements.
@@ -60,8 +78,8 @@ data class PopUpStyling(
  * - `textSize`: Specifies the size of the text.
  */
 data class PopupTextStyle(
-    val font: Typeface? = null,
-    val textColor: Int = BreadPartnerDefaults.grayColor,
+    val font: Typeface? = Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
+    val textColor: Int? = BreadPartnerDefaults.grayColor,
     val textSize: Float? = null
 )
 
