@@ -66,7 +66,7 @@ data class PopUpStyling(
     val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE
     ),
-    var actionButtonStyle: PopupActionButtonStyle? = PopupActionButtonStyle(),
+    var actionButtonStyle: PopupActionButtonStyle = PopupActionButtonStyle(),
 )
 
 
