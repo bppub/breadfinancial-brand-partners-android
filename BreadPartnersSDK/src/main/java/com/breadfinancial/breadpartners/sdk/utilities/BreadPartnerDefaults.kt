@@ -30,7 +30,14 @@ class BreadPartnerDefaults private constructor() {
     companion object {
         val shared: BreadPartnerDefaults by lazy { BreadPartnerDefaults() }
         // Default color used for gray text to match with web SDK.
-        val grayColor = "#767676".toColorInt()
+        val GRAY_COLOR = "#767676".toColorInt()
+        const val TITLE_POPUP_TEXT_SIZE = 16.0f
+        const val SUBTITLE_POPUP_TEXT_SIZE = 12.0f
+        const val HEADER_POPUP_TEXT_SIZE = 14.0f
+        const val HEADING_THREE_POPUP_TEXT_SIZE = 14.0f
+        const val PARAGRAPH_POPUP_TEXT_SIZE = 10.0f
+        const val CONNECTOR_POPUP_TEXT_SIZE = 14.0f
+        const val DISCLOSURE_POPUP_TEXT_SIZE = 10.0f
     }
     // region Default Popup Style
     fun createPopUpStyling(context: Context): PopUpStyling {
@@ -44,21 +51,21 @@ class BreadPartnerDefaults private constructor() {
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
                 textColor = Color.BLACK,
-                textSize = 16.0f
+                textSize = TITLE_POPUP_TEXT_SIZE
             ),
             subTitlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
-                textColor = grayColor,
-                textSize = 12.0f
+                textColor = GRAY_COLOR,
+                textSize = SUBTITLE_POPUP_TEXT_SIZE
             ),
             headerPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
-                textColor = grayColor,
-                textSize = 14.0f
+                textColor = GRAY_COLOR,
+                textSize = HEADER_POPUP_TEXT_SIZE
             ),
             headerBgColor = Color.parseColor("#ececec"),
             headingThreePopupTextStyle = PopupTextStyle(
@@ -66,29 +73,29 @@ class BreadPartnerDefaults private constructor() {
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
                 textColor = Color.BLACK,
-                textSize = 14.0f
+                textSize = HEADING_THREE_POPUP_TEXT_SIZE
             ),
             paragraphPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
-                textColor = grayColor,
-                textSize = 10.0f
+                textColor = GRAY_COLOR,
+                textSize = PARAGRAPH_POPUP_TEXT_SIZE
             ),
             connectorPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
                 textColor = Color.BLACK,
-                textSize = 14.0f
+                textSize = CONNECTOR_POPUP_TEXT_SIZE
             ),
             disclosurePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular),
                     Typeface.BOLD
                 ),
-                textColor = grayColor,
-                textSize = 10.0f
+                textColor = GRAY_COLOR,
+                textSize = DISCLOSURE_POPUP_TEXT_SIZE
             ),
             actionButtonStyle = PopupActionButtonStyle(
                 font = Typeface.create(

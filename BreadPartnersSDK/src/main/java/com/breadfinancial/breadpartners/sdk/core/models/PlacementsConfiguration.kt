@@ -43,28 +43,28 @@ data class PopUpStyling(
     val borderColor: Int = Color.BLACK,
     val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = 16.0f
+        textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE
     ),
     val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = 12.0f
+        textSize = BreadPartnerDefaults.SUBTITLE_POPUP_TEXT_SIZE
     ),
     val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = 14.0f
+        textSize = BreadPartnerDefaults.HEADER_POPUP_TEXT_SIZE
     ),
     val headerBgColor: Int = Color.LTGRAY,
     val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = 14.0f
+        textSize = BreadPartnerDefaults.HEADING_THREE_POPUP_TEXT_SIZE
     ),
     val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = 10.0f
+        textSize = BreadPartnerDefaults.PARAGRAPH_POPUP_TEXT_SIZE
     ),
     val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = 14.0f
+        textSize = BreadPartnerDefaults.CONNECTOR_POPUP_TEXT_SIZE
     ),
     val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = 10.0f
+        textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE
     ),
     var actionButtonStyle: PopupActionButtonStyle? = PopupActionButtonStyle(),
 )
@@ -79,7 +79,7 @@ data class PopUpStyling(
  */
 data class PopupTextStyle(
     val font: Typeface? = Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
-    val textColor: Int? = BreadPartnerDefaults.grayColor,
+    val textColor: Int? = BreadPartnerDefaults.GRAY_COLOR,
     val textSize: Float? = null
 )
 
