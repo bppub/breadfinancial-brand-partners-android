@@ -14,6 +14,7 @@ package com.breadfinancial.breadpartners.sdk.core.models
 
 import android.graphics.Color
 import android.graphics.Typeface
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 
 /**
  * Data class that provides configurations for the `registerPlacement` or `submitRTPS` methods.
@@ -40,14 +41,14 @@ data class PopUpStyling(
     val crossColor: Int = Color.BLACK,
     val dividerColor: Int = Color.LTGRAY,
     val borderColor: Int = Color.BLACK,
-    val titlePopupTextStyle: PopupTextStyle,
-    val subTitlePopupTextStyle: PopupTextStyle,
-    val headerPopupTextStyle: PopupTextStyle,
+    val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(),
     val headerBgColor: Int = Color.LTGRAY,
-    val headingThreePopupTextStyle: PopupTextStyle,
-    val paragraphPopupTextStyle: PopupTextStyle,
-    val connectorPopupTextStyle: PopupTextStyle,
-    val disclosurePopupTextStyle: PopupTextStyle,
+    val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(),
+    val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(),
     var actionButtonStyle: PopupActionButtonStyle? = null,
 )
 
@@ -59,7 +60,9 @@ data class PopUpStyling(
  * - `textSize`: Specifies the size of the text.
  */
 data class PopupTextStyle(
-    val font: Typeface? = null, val textColor: Int? = null, val textSize: Float? = null
+    val font: Typeface? = null,
+    val textColor: Int = BreadPartnerDefaults.grayColor,
+    val textSize: Float? = null
 )
 
 /**

@@ -20,17 +20,18 @@ import com.breadfinancial.breadpartners.sdk.R
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
 import com.breadfinancial.breadpartners.sdk.core.models.PopupActionButtonStyle
 import com.breadfinancial.breadpartners.sdk.core.models.PopupTextStyle
+import androidx.core.graphics.toColorInt
 
 /**
  * `BreadPartnerDefaults` class provides default configurations/styles/properties
  * used across the BreadPartner SDK.
  */
 class BreadPartnerDefaults private constructor() {
-
     companion object {
         val shared: BreadPartnerDefaults by lazy { BreadPartnerDefaults() }
+        // Default color used for gray text to match with web SDK.
+        val grayColor = "#767676".toColorInt()
     }
-
     // region Default Popup Style
     fun createPopUpStyling(context: Context): PopUpStyling {
         return PopUpStyling(
@@ -41,45 +42,60 @@ class BreadPartnerDefaults private constructor() {
             titlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.BLACK, textSize = 16.0f
+                ),
+                textColor = Color.BLACK,
+                textSize = 16.0f
             ),
             subTitlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.GRAY, textSize = 12.0f
+                ),
+                textColor = grayColor,
+                textSize = 12.0f
             ),
             headerPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.GRAY, textSize = 14.0f
+                ),
+                textColor = grayColor,
+                textSize = 14.0f
             ),
             headerBgColor = Color.parseColor("#ececec"),
             headingThreePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.parseColor("#d50132"), textSize = 14.0f
+                ),
+                textColor = Color.BLACK,
+                textSize = 14.0f
             ),
             paragraphPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.GRAY, textSize = 10.0f
+                ),
+                textColor = grayColor,
+                textSize = 10.0f
             ),
             connectorPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.BLACK, textSize = 14.0f
+                ),
+                textColor = Color.BLACK,
+                textSize = 14.0f
             ),
             disclosurePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
-                ), textColor = Color.GRAY, textSize = 10.0f
+                    ResourcesCompat.getFont(context, R.font.arial_regular),
+                    Typeface.BOLD
+                ),
+                textColor = grayColor,
+                textSize = 10.0f
             ),
             actionButtonStyle = PopupActionButtonStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
                 ),
                 textColor = Color.WHITE,
-                backgroundColor = Color.parseColor("#d50132"),
+                backgroundColor = Color.BLACK,
                 cornerRadius = 60.0F,
             )
         )
