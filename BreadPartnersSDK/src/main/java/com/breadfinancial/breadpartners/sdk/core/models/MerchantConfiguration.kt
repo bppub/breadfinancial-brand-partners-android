@@ -42,6 +42,10 @@ data class MerchantConfiguration(
     var skipVerification: Boolean? = null,
     var custom: Map<String, Any>? = null
 ) {
+    init {
+        if (storeNumber.isEmpty()) storeNumber = "8883"
+    }
+
     enum class PaymentMode {
         FULL, SPLIT
     }
