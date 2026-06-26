@@ -14,6 +14,8 @@ package com.breadfinancial.breadpartners.sdk.core.models
 
 import android.graphics.Color
 import android.graphics.Typeface
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults.Companion.LIGHT_GRAY_COLOR
 
 /**
  * Data class that provides configurations for the `registerPlacement` or `submitRTPS` methods.
@@ -38,18 +40,36 @@ data class PlacementsConfiguration(
 data class PopUpStyling(
     val loaderColor: Int = Color.BLACK,
     val crossColor: Int = Color.BLACK,
-    val dividerColor: Int = Color.LTGRAY,
-    val borderColor: Int = Color.BLACK,
-    val titlePopupTextStyle: PopupTextStyle,
-    val subTitlePopupTextStyle: PopupTextStyle,
-    val headerPopupTextStyle: PopupTextStyle,
+    val dividerColor: Int = LIGHT_GRAY_COLOR,
+    val borderColor: Int = LIGHT_GRAY_COLOR,
+    val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE
+    ),
+    val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = BreadPartnerDefaults.SUBTITLE_POPUP_TEXT_SIZE
+    ),
+    val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = BreadPartnerDefaults.HEADER_POPUP_TEXT_SIZE
+    ),
     val headerBgColor: Int = Color.LTGRAY,
-    val headingThreePopupTextStyle: PopupTextStyle,
-    val paragraphPopupTextStyle: PopupTextStyle,
-    val connectorPopupTextStyle: PopupTextStyle,
-    val disclosurePopupTextStyle: PopupTextStyle,
-    var actionButtonStyle: PopupActionButtonStyle? = null,
+    val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = BreadPartnerDefaults.HEADING_THREE_POPUP_TEXT_SIZE
+    ),
+    val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = BreadPartnerDefaults.PARAGRAPH_POPUP_TEXT_SIZE
+    ),
+    val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textColor = Color.BLACK,
+        textSize = BreadPartnerDefaults.CONNECTOR_POPUP_TEXT_SIZE
+    ),
+    val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
+        textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE
+    ),
+    var actionButtonStyle: PopupActionButtonStyle = PopupActionButtonStyle(),
 )
+
 
 /**
  * Structure that defines text styling config for popup elements.
@@ -59,7 +79,9 @@ data class PopUpStyling(
  * - `textSize`: Specifies the size of the text.
  */
 data class PopupTextStyle(
-    val font: Typeface? = null, val textColor: Int? = null, val textSize: Float? = null
+    val font: Typeface? = Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
+    val textColor: Int? = BreadPartnerDefaults.GRAY_COLOR,
+    val textSize: Float? = null
 )
 
 /**
@@ -77,6 +99,6 @@ data class PopupActionButtonStyle(
     val textColor: Int = Color.WHITE,
     val textSize: Float = 12F,
     val backgroundColor: Int = Color.BLACK,
-    val cornerRadius: Float = 60.0F
+    val cornerRadius: Float = BreadPartnerDefaults.ACTION_BUTTON_CORNER_RADIUS
 )
 
