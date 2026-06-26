@@ -24,7 +24,7 @@ data class RTPSRequest(
     val city: String? = null,
     val state: String? = null,
     val zip: String? = null,
-    val storeNumber: String? = null,
+    val storeNumber: String = "8883",
     val location: String? = null,
     val channel: String? = null,
     val subchannel: String? = null,

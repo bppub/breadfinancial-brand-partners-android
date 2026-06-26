@@ -19,7 +19,7 @@ data class MerchantConfiguration(
     var buyer: BreadPartnersBuyer? = null,
     var loyaltyID: String? = null,
     var campaignID: String? = null,
-    var storeNumber: String? = null,
+    var storeNumber: String = "8883",
     var departmentId: String? = null,
     var existingCardHolder: Boolean? = null,
     var cardholderTier: String? = null,
