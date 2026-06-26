@@ -15,6 +15,7 @@ package com.breadfinancial.breadpartners.sdk.core.models
 import android.graphics.Color
 import android.graphics.Typeface
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults.Companion.LIGHT_GRAY_COLOR
 
 /**
  * Data class that provides configurations for the `registerPlacement` or `submitRTPS` methods.
@@ -39,8 +40,8 @@ data class PlacementsConfiguration(
 data class PopUpStyling(
     val loaderColor: Int = Color.BLACK,
     val crossColor: Int = Color.BLACK,
-    val dividerColor: Int = Color.LTGRAY,
-    val borderColor: Int = Color.BLACK,
+    val dividerColor: Int = LIGHT_GRAY_COLOR,
+    val borderColor: Int = LIGHT_GRAY_COLOR,
     val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
         textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE

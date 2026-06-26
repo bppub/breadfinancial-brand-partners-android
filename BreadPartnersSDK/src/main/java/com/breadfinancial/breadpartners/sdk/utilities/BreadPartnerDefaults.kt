@@ -31,6 +31,7 @@ class BreadPartnerDefaults private constructor() {
         val shared: BreadPartnerDefaults by lazy { BreadPartnerDefaults() }
         // Default color used for gray text to match with web SDK.
         val GRAY_COLOR = "#767676".toColorInt()
+        val LIGHT_GRAY_COLOR = "#ececec".toColorInt()
         const val TITLE_POPUP_TEXT_SIZE = 16.0f
         const val SUBTITLE_POPUP_TEXT_SIZE = 12.0f
         const val HEADER_POPUP_TEXT_SIZE = 14.0f
@@ -44,8 +45,8 @@ class BreadPartnerDefaults private constructor() {
         return PopUpStyling(
             loaderColor = Color.parseColor("#0f2233"),
             crossColor = Color.BLACK,
-            dividerColor = Color.parseColor("#ececec"),
-            borderColor = Color.parseColor("#ececec"),
+            dividerColor = LIGHT_GRAY_COLOR,
+            borderColor =LIGHT_GRAY_COLOR,
             titlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
@@ -67,7 +68,7 @@ class BreadPartnerDefaults private constructor() {
                 textColor = GRAY_COLOR,
                 textSize = HEADER_POPUP_TEXT_SIZE
             ),
-            headerBgColor = Color.parseColor("#ececec"),
+            headerBgColor = LIGHT_GRAY_COLOR,
             headingThreePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
