@@ -99,6 +99,6 @@ data class PopupActionButtonStyle(
     val textColor: Int = Color.WHITE,
     val textSize: Float = 12F,
     val backgroundColor: Int = Color.BLACK,
-    val cornerRadius: Float = 60.0F
+    val cornerRadius: Float = BreadPartnerDefaults.ACTION_BUTTON_CORNER_RADIUS
 )
 

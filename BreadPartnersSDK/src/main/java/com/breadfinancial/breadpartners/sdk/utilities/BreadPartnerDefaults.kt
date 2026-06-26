@@ -39,6 +39,7 @@ class BreadPartnerDefaults private constructor() {
         const val PARAGRAPH_POPUP_TEXT_SIZE = 10.0f
         const val CONNECTOR_POPUP_TEXT_SIZE = 14.0f
         const val DISCLOSURE_POPUP_TEXT_SIZE = 10.0f
+        const val ACTION_BUTTON_CORNER_RADIUS = 30.0f
     }
     // region Default Popup Style
     fun createPopUpStyling(context: Context): PopUpStyling {
@@ -104,7 +105,7 @@ class BreadPartnerDefaults private constructor() {
                 ),
                 textColor = Color.WHITE,
                 backgroundColor = Color.BLACK,
-                cornerRadius = 60.0F,
+                cornerRadius = ACTION_BUTTON_CORNER_RADIUS,
             )
         )
     }
