@@ -19,7 +19,9 @@ package com.breadfinancial.breadpartners.sdk.networking.models
  * Represents a request for fetching placement data based on brand and placement details.
  */
 data class PlacementRequest(
-    val placements: List<PlacementRequestBody>? = null, val brandId: String? = null
+    val placements: List<PlacementRequestBody>? = null,
+    val brandId: String? = null,
+    val platform: String = "android",
 )
 
 /**

@@ -39,7 +39,7 @@ class RTPSRequestBuilder(
                 city = buyer?.billingAddress?.locality.takeIfNotEmpty(),
                 state = buyer?.billingAddress?.region.takeIfNotEmpty(),
                 zip = buyer?.billingAddress?.postalCode.takeIfNotEmpty(),
-                storeNumber = merchantConfiguration.storeNumber.takeIfNotEmpty(),
+                storeNumber = merchantConfiguration.storeNumber.takeIfNotEmpty() ?: "8883",
                 location = rtpsData.locationType?.value.takeIfNotEmpty(),
                 channel = merchantConfiguration.channel.takeIfNotEmpty(),
                 subchannel = merchantConfiguration.subchannel.takeIfNotEmpty(),
