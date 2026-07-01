@@ -72,7 +72,7 @@ class BreadPartnerDefaults private constructor() {
             headerBgColor = LIGHT_GRAY_COLOR,
             headingThreePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.BOLD
+                    ResourcesCompat.getFont(context, R.font.arial_regular), Typeface.NORMAL
                 ),
                 textColor = Color.BLACK,
                 textSize = HEADING_THREE_POPUP_TEXT_SIZE
@@ -94,7 +94,7 @@ class BreadPartnerDefaults private constructor() {
             disclosurePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
                     ResourcesCompat.getFont(context, R.font.arial_regular),
-                    Typeface.BOLD
+                    Typeface.NORMAL
                 ),
                 textColor = GRAY_COLOR,
                 textSize = DISCLOSURE_POPUP_TEXT_SIZE
