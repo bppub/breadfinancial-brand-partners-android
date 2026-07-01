@@ -62,8 +62,8 @@ private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
                 onLinkClicked(url)
             }
             override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
                 ds.isUnderlineText = true
+                ds.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
         }, start, end, flags)
     }
