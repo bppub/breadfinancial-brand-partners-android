@@ -19,7 +19,7 @@ data class MerchantConfiguration(
     var buyer: BreadPartnersBuyer? = null,
     var loyaltyID: String? = null,
     var campaignID: String? = null,
-    var storeNumber: String? = null,
+    var storeNumber: String = "8883",
     var departmentId: String? = null,
     var existingCardHolder: Boolean? = null,
     var cardholderTier: String? = null,
@@ -42,6 +42,10 @@ data class MerchantConfiguration(
     var skipVerification: Boolean? = null,
     var custom: Map<String, Any>? = null
 ) {
+    init {
+        if (storeNumber.isEmpty()) storeNumber = "8883"
+    }
+
     enum class PaymentMode {
         FULL, SPLIT
     }
