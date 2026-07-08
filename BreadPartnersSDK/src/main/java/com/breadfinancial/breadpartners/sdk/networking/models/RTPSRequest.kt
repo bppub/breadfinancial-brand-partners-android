@@ -24,7 +24,7 @@ data class RTPSRequest(
     val city: String? = null,
     val state: String? = null,
     val zip: String? = null,
-    val storeNumber: String? = null,
+    var storeNumber: String = "8883",
     val location: String? = null,
     val channel: String? = null,
     val subchannel: String? = null,
@@ -38,6 +38,9 @@ data class RTPSRequest(
     val mobilePhone: String? = null,
     val alternativePhone: String? = null,
 ) {
+    init {
+        if (storeNumber.isEmpty()) storeNumber = "8883"
+    }
 
     data class OverrideConfig(
         val enhancedPresentment: Boolean? = null
