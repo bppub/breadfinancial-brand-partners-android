@@ -177,7 +177,9 @@ fun PopupDialog.setupUI() {
         disclosureLabel.makeLinksClickable(linkClickHandler)
 
         PopupElements.shared.decorateLinearLayout(
-            linearLayout = contentContainer, borderColor = popupStyle.borderColor
+            linearLayout = contentContainer,
+            borderColor = popupStyle.borderColor,
+            backgroundColor = popupStyle.backgroundColor,
         )
         headerView.setBackgroundColor(Color.GRAY)
         PopupElements.shared.decorateLinearLayout(
