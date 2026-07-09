@@ -12,6 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk
 
+import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -25,5 +26,12 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun offer_Response() {
+        val offerResponseYes = OfferResponse.fromValue("YES")
+        assertEquals(OfferResponse.YES, offerResponseYes)
+
     }
 }
