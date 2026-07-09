@@ -42,6 +42,7 @@ data class PopUpStyling(
     val crossColor: Int = Color.BLACK,
     val dividerColor: Int = LIGHT_GRAY_COLOR,
     val borderColor: Int = LIGHT_GRAY_COLOR,
+    val backgroundColor: Int = Color.WHITE,
     val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
         textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE
