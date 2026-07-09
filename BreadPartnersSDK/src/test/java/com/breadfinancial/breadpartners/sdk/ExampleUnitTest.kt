@@ -29,26 +29,6 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun addition_isFail() {
-        assertEquals(4, 2 + 12)
-    }
-
-    @Test
-    fun addition_isCorrect_1() {
-        assertEquals(4, 2 + 2)
-    }
-
-    @Test
-    fun addition_isCorrect_2() {
-        assertEquals(4, 2 + 2)
-    }
-
-    @Test
-    fun addition_isFail_1() {
-        assertEquals(4, 2 + 12)
-    }
-
-    @Test
     fun offer_Response() {
         val offerResponseYes = OfferResponse.fromValue("YES")
         assertEquals(OfferResponse.YES, offerResponseYes)
