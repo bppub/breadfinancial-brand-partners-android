@@ -24,6 +24,8 @@ object Constants {
     const val headerRequestedWithKey = "X-Requested-With"
     const val headerRequestedWithValue = "XMLHttpRequest"
     const val headerUserAgentKey = "User-Agent"
+    const val headerPlatformKey = "platform"
+    const val headerPlatformValue = "android"
     const val headerContentType = "Content-Type"
     const val headerContentTypeValue = "application/json"
     const val headerOriginKey = "Origin"

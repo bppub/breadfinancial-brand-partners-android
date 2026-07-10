@@ -32,7 +32,6 @@ data class RTPSRequest(
     val mockResponse: String? = null,
     val overrideConfig: OverrideConfig? = null,
     val prescreenId: String? = null,
-    val platform: String = "android",
     val customerAcceptedOffer: Boolean? = null,
     val emailAddress: String? = null,
     val mobilePhone: String? = null,
