@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  File:          OfferResponse.kt
+//  File:          OfferResponseTest.kt
 //  Author(s):     Bread Financial
 //  Date:          14 July 2026
 //

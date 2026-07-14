@@ -16,7 +16,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 
-class BreadPartnersEnvironment {
+class BreadPartnersEnvironmentTest {
 
     // -------------------------------------------------------------------------
     // Enum value property verification
