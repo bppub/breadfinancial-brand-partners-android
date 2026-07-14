@@ -7,7 +7,7 @@
 //  raw value mapping, initialisation from raw value, equality, and case
 //  iteration.
 //
-//  © 2025 Bread Financial
+//  © 2026 Bread Financial
 //------------------------------------------------------------------------------
 
 package com.breadfinancial.breadpartners.sdk

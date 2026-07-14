@@ -6,7 +6,7 @@
 //  Descriptions:  Unit tests for the OfferResponse enum and its companion
 //  object factory method.
 //
-//  © 2025 Bread Financial
+//  © 2026 Bread Financial
 //------------------------------------------------------------------------------
 
 package com.breadfinancial.breadpartners.sdk
