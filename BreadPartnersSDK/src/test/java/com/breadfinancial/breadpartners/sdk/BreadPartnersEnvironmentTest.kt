@@ -125,10 +125,6 @@ class BreadPartnersEnvironmentTest {
     // Helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Mirrors Swift's `BreadPartnersEnvironment(rawValue:)` failable initialiser,
-     * returning the matching enum constant or null when no match is found.
-     */
     private fun fromValue(rawValue: String): BreadPartnersEnvironment? {
         return BreadPartnersEnvironment.entries.find { it.value == rawValue }
     }
