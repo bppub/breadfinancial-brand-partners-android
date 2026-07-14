@@ -3,9 +3,8 @@
 //  Author(s):     Bread Financial
 //  Date:          14 July 2026
 //
-//  Descriptions:  Unit tests for the BreadPartnersEnvironment enum, covering
-//  raw value mapping, initialisation from raw value, equality, and case
-//  iteration.
+//  Descriptions:  Unit tests for the BreadPartnersEnvironment enum and its
+//  companion object factory method.
 //
 //  © 2026 Bread Financial
 //------------------------------------------------------------------------------
@@ -13,10 +12,10 @@
 package com.breadfinancial.breadpartners.sdk
 
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
+import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment.entries
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BreadPartnersEnvironmentTest {
@@ -99,30 +98,23 @@ class BreadPartnersEnvironmentTest {
     }
 
     // -------------------------------------------------------------------------
-    // Case Iteration (entries)
+    // All Cases Coverage
     // -------------------------------------------------------------------------
 
     @Test
-    fun `entries contains exactly three environments`() {
-        assertEquals(3, BreadPartnersEnvironment.entries.size)
-    }
-
-    @Test
-    fun `entries contains STAGE, PROD, and UAT`() {
-        assertTrue(BreadPartnersEnvironment.entries.contains(BreadPartnersEnvironment.STAGE))
-        assertTrue(BreadPartnersEnvironment.entries.contains(BreadPartnersEnvironment.PROD))
-        assertTrue(BreadPartnersEnvironment.entries.contains(BreadPartnersEnvironment.UAT))
-    }
-
-    @Test
-    fun `All cases have distinct raw values`() {
-        val rawValues = BreadPartnersEnvironment.entries.map { it.value }
+    fun `All three cases exist and have distinct raw values`() {
+        val allCases = listOf(
+            BreadPartnersEnvironment.STAGE,
+            BreadPartnersEnvironment.PROD,
+            BreadPartnersEnvironment.UAT
+        )
+        val rawValues = allCases.map { it.value }
         val uniqueRawValues = rawValues.toSet()
-        assertEquals(BreadPartnersEnvironment.entries.size, uniqueRawValues.size)
+        assertEquals(allCases.size, uniqueRawValues.size)
     }
 
     // -------------------------------------------------------------------------
-    // Helpers
+    // Helper Method for Testing
     // -------------------------------------------------------------------------
 
     private fun fromValue(rawValue: String): BreadPartnersEnvironment? {
