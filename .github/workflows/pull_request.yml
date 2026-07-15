@@ -35,7 +35,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           name: index.html
-          path: BreadPartnersSDK/build/reports/coverage/test/debug/report.xml
+          paths: BreadPartnersSDK/build/reports/coverage/test/debug/report.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "📊 Android App Code Coverage"
 
