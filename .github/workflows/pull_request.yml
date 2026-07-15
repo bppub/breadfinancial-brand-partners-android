@@ -30,6 +30,13 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew createDebugUnitTestCoverageReport
 
+      - name: Publish Test Report Dashboard
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: 'BreadPartnersSDK/build/test-results/testDebugUnitTest/TEST-*.xml'
+          detailed_summary: true
+          include_passed: true
+
       - name: Publish Test Results
         uses: madrapps/jacoco-report@v1.7.1
         if: github.event_name == 'pull_request'
