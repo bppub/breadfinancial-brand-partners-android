@@ -5,12 +5,17 @@ on:
     branches:
       - master
 
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set JDK 17
         uses: actions/setup-java@v3
@@ -26,8 +31,9 @@ jobs:
         run: ./gradlew createDebugUnitTestCoverageReport
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v4
+        uses: madrapps/jacoco-report@v1.7.1
         with:
           name: index.html
-          path: BreadPartnersSDK/build/reports/tests/testDebugUnitTest/index.html
+          path: BreadPartnersSDK/build/reports/coverage/test/debug/report.xml
+          title: "📊 Android App Code Coverage"
 
