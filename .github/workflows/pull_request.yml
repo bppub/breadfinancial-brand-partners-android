@@ -39,6 +39,12 @@ jobs:
           detailed_summary: true
           include_passed: true
 
+      - name: Upload html test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: index.html
+          path: BreadPartnersSDK/build/reports/tests/testDebugUnitTest/index.html
+
       - name: Publish Test Results
         uses: madrapps/jacoco-report@v1.7.1
         if: github.event_name == 'pull_request'
