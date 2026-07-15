@@ -23,5 +23,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest --info
+        run: ./gradlew createDebugUnitTestCoverageReport
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: index.html
+          path: BreadPartnersSDK/build/reports/tests/testDebugUnitTest/index.html
 
