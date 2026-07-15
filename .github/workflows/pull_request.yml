@@ -34,8 +34,13 @@ jobs:
         uses: madrapps/jacoco-report@v1.7.1
         if: github.event_name == 'pull_request'
         with:
-          name: index.html
           paths: BreadPartnersSDK/build/reports/coverage/test/debug/report.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "📊 Android App Code Coverage"
+
+      - name: Publish Unit Test Results 2
+        uses: pooi/coverage-comment@1.0.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          xml-test-report-path: ${SOURCE_PATH}BreadPartnersSDK/build/reports/coverage/test/debug/report.xml
 
