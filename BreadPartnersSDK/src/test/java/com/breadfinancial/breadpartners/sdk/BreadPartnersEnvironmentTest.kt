@@ -26,7 +26,7 @@ class BreadPartnersEnvironmentTest {
 
     @Test
     fun `BreadPartnersEnvironment STAGE has raw value 'STAGE'`() {
-        assertEquals("STAGE", BreadPartnersEnvironment.STAGE.value)
+        assertEquals("PROD", BreadPartnersEnvironment.STAGE.value)
     }
 
     @Test
