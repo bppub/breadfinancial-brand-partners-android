@@ -34,6 +34,7 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
+import com.breadfinancial.breadpartners.sdk.utilities.Constants
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import org.json.JSONObject
 
@@ -115,7 +116,10 @@ internal class BreadFinancialWebViewInterstitial(
 
             addJavascriptInterface(WebAppInterface(this), "Android")
 
-            loadUrl(url)
+            val additionalHeaders = mapOf(
+                Constants.headerPlatformKey to Constants.headerPlatformValue
+            )
+            loadUrl(url, additionalHeaders)
         }
 
         parent.addView(webView)

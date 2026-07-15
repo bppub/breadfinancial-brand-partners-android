@@ -68,7 +68,8 @@ class APIClient {
                 val genericHeader = mapOf(
                     Constants.headerContentType to Constants.headerContentTypeValue,
                     Constants.headerUserAgentKey to CommonUtils().getUserAgent(),
-                    Constants.headerOriginKey to Constants.headerOriginValue
+                    Constants.headerOriginKey to Constants.headerOriginValue,
+                    Constants.headerPlatformKey to Constants.headerPlatformValue,
                 )
                 val updatedHeaders = (headers ?: emptyMap()) + genericHeader
 

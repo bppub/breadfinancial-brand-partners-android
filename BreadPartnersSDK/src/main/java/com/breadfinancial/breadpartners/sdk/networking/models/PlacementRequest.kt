@@ -21,7 +21,6 @@ package com.breadfinancial.breadpartners.sdk.networking.models
 data class PlacementRequest(
     val placements: List<PlacementRequestBody>? = null,
     val brandId: String? = null,
-    val platform: String = "android",
 )
 
 /**
