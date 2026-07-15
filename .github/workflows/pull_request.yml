@@ -26,7 +26,7 @@ jobs:
         run: ./gradlew createDebugUnitTestCoverageReport
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: index.html
           path: BreadPartnersSDK/build/reports/tests/testDebugUnitTest/index.html
