@@ -101,7 +101,7 @@ fun PopupDialog.setupUI() {
     loader.updateLoaderColor(placementsConfiguration?.popUpStyling?.loaderColor!!)
 
     closeButton.setOnClickListener {
-        closeButtonTapped()
+        dismissPopup()
     }
     closeButton.setColorFilter(popupStyle.crossColor)
 
@@ -155,7 +155,7 @@ fun PopupDialog.setupUI() {
     context?.let {
         webViewManager = BreadFinancialWebViewInterstitial(it) { event ->
             when (event) {
-                is BreadPartnerEvent.PopupClosed -> closeButtonTapped()
+                is BreadPartnerEvent.PopupClosed -> dismissPopup()
                 else -> callback(event)
             }
         }

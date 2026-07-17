@@ -34,7 +34,7 @@ import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.BreadFinancialWebViewInterstitial
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementOverlayType
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PopupPlacementModel
-import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.closeButtonTapped
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.dismissPopup
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.setupUI
 import com.breadfinancial.breadpartners.sdk.networking.models.BrandConfigResponse
 import com.breadfinancial.breadpartners.sdk.utilities.LoaderIndicator
@@ -78,7 +78,6 @@ class PopupDialog(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-//        isCancelable = false
         popupView = inflater.inflate(R.layout.popup_dialog, container, false)
 
         setupUI()
@@ -129,7 +128,7 @@ class PopupDialog(
 
     override fun onCancel(dialog: android.content.DialogInterface) {
         super.onCancel(dialog)
-        closeButtonTapped()
+        dismissPopup()
     }
 
     override fun onAppRestartClicked(url: String) {
