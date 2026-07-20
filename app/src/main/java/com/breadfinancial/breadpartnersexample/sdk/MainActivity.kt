@@ -190,7 +190,6 @@ class MainActivity : AppCompatActivity() {
                 backgroundColor = Color.parseColor(primaryColor),
                 cornerRadius = 30.0F
             ),
-            superscriptTextScale = 0.75f
         )
         // endregion
 
