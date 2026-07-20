@@ -151,7 +151,7 @@ class PopupElements private constructor() {
         }
         textView.gravity = gravity
         textView.setPadding(0, 10, 0, 10)
-        textView.applySuperscriptSize(popupModel.superscriptTextScale)
+        textView.applySuperscriptSize(popupModel.disclosurePopupTextStyle.superscriptTextScale)
         return textView
     }
 

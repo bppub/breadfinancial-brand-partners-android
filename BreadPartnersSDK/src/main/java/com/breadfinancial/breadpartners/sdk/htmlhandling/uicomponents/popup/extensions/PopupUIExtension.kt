@@ -110,19 +110,19 @@ fun PopupDialog.setupUI() {
 
     titleLabel.text = popupModel.overlayTitle
     titleLabel.applyTextStyle(popupStyle.titlePopupTextStyle)
-    titleLabel.applySuperscriptSize(popupStyle.superscriptTextScale)
+    titleLabel.applySuperscriptSize(popupStyle.titlePopupTextStyle.superscriptTextScale)
     subtitleLabel.text = popupModel.overlaySubtitle
     subtitleLabel.applyTextStyle(popupStyle.subTitlePopupTextStyle)
-    subtitleLabel.applySuperscriptSize(popupStyle.superscriptTextScale)
+    subtitleLabel.applySuperscriptSize(popupStyle.subTitlePopupTextStyle.superscriptTextScale)
     disclosureLabel.text = popupModel.disclosure
     disclosureLabel.applyTextStyle(popupStyle.disclosurePopupTextStyle)
-    disclosureLabel.applySuperscriptSize(popupStyle.superscriptTextScale)
+    disclosureLabel.applySuperscriptSize(popupStyle.disclosurePopupTextStyle.superscriptTextScale)
     if (popupModel.overlayContainerBarHeading.isEmpty()) {
         headerView.visibility = View.GONE
     } else {
         headerLabel.text = popupModel.overlayContainerBarHeading
         headerLabel.applyTextStyle(popupStyle.headerPopupTextStyle)
-        headerLabel.applySuperscriptSize(popupStyle.superscriptTextScale)
+        headerLabel.applySuperscriptSize(popupStyle.headerPopupTextStyle.superscriptTextScale)
     }
 
     actionButton.text = popupModel.primaryActionButtonAttributes?.buttonText ?: "Action"
