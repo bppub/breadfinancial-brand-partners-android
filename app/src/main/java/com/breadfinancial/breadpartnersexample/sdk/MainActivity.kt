@@ -107,9 +107,7 @@ class MainActivity : AppCompatActivity() {
 //         For using TestData file do
 //        val placementRequestType =
 //            TestData.shared.placementConfigurations["textPlacementRequestType0"] ?: emptyMap()
-        val placementRequestType =
-            TestData.shared.placementConfigurations["academyIC"] ?: emptyMap()
-//        val placementRequestType = emptyMap<String, Any>()
+        val placementRequestType = emptyMap<String, Any>()
         val placementID = placementRequestType["placementID"] as String?
         val price = placementRequestType["price"] as? Int?
         val allowCheckout = placementRequestType["allowCheckout"] as? Boolean ?: false
@@ -242,25 +240,9 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-
-        val customStyle = PopUpStyling(
-            actionButtonStyle = PopupActionButtonStyle(
-                backgroundColor = Color.parseColor("#1946c8")
-            ),
-            backgroundColor = Color.argb(15, 25, 70, 200),
-            headingThreePopupTextStyle = PopupTextStyle(
-                font = Typeface.create(
-                    ResourcesCompat.getFont(this, com.breadfinancial.breadpartners.sdk.R.font.arial_regular), Typeface.NORMAL
-                ),
-                textColor = Color.BLACK,
-                textSize = HEADING_THREE_POPUP_TEXT_SIZE
-            ),
-            superscriptTextScale = 0.75f
-        )
-
         val placementsConfiguration = PlacementsConfiguration(
             placementData = placementData,
-            popUpStyling = customStyle
+            popUpStyling = popUpStyling
         )
 
         val merchantConfiguration = MerchantConfiguration(
