@@ -68,6 +68,13 @@ data class PopUpStyling(
     val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE
     ),
+    /**
+     * Relative scale applied to superscript (`<sup>`) text rendered inside the popup.
+     * The value is a proportion of the surrounding text size, e.g. `0.5` renders the
+     * superscript at half size. Applies to titles, subtitles, headers, disclosures and
+     * every dynamic body label that contains superscript content.
+     */
+    val superscriptTextScale: Float = BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE,
     var actionButtonStyle: PopupActionButtonStyle = PopupActionButtonStyle(),
 )
 
