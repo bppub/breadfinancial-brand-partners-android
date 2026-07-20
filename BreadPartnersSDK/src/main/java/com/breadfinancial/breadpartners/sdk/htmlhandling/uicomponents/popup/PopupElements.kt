@@ -61,7 +61,7 @@ fun TextView.applySuperscriptSize(scale: Float) {
     superscriptSpans.forEach { superscript ->
         val start = spannable.getSpanStart(superscript)
         val end = spannable.getSpanEnd(superscript)
-        if (start < 0 || end < 0 || start >= end) return@forEach
+        if (start >= end) return@forEach
 
         // Remove any pre-existing relative size spans over this run to prevent stacking.
         spannable.getSpans(start, end, RelativeSizeSpan::class.java).forEach { existing ->
