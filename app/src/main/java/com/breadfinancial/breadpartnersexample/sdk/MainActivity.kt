@@ -50,7 +50,6 @@ import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
 import com.breadfinancial.breadpartners.sdk.core.models.PopupActionButtonStyle
 import com.breadfinancial.breadpartners.sdk.core.models.PopupTextStyle
-import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults.Companion.HEADING_THREE_POPUP_TEXT_SIZE
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.replaceButton
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.replaceTextView
 import com.breadfinancial.breadpartnersexample.sdk.databinding.ActivityMainBinding
@@ -189,7 +188,7 @@ class MainActivity : AppCompatActivity() {
                 textColor = Color.WHITE,
                 backgroundColor = Color.parseColor(primaryColor),
                 cornerRadius = 30.0F
-            ),
+            )
         )
         // endregion
 
