@@ -37,6 +37,7 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.Popu
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupElements
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applySuperscriptSize
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.bumptech.glide.Glide
 
@@ -110,19 +111,19 @@ fun PopupDialog.setupUI() {
 
     titleLabel.text = popupModel.overlayTitle
     titleLabel.applyTextStyle(popupStyle.titlePopupTextStyle)
-    titleLabel.applySuperscriptSize(popupStyle.titlePopupTextStyle.superscriptTextScale)
+    titleLabel.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
     subtitleLabel.text = popupModel.overlaySubtitle
     subtitleLabel.applyTextStyle(popupStyle.subTitlePopupTextStyle)
-    subtitleLabel.applySuperscriptSize(popupStyle.subTitlePopupTextStyle.superscriptTextScale)
+    subtitleLabel.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
     disclosureLabel.text = popupModel.disclosure
     disclosureLabel.applyTextStyle(popupStyle.disclosurePopupTextStyle)
-    disclosureLabel.applySuperscriptSize(popupStyle.disclosurePopupTextStyle.superscriptTextScale)
+    disclosureLabel.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
     if (popupModel.overlayContainerBarHeading.isEmpty()) {
         headerView.visibility = View.GONE
     } else {
         headerLabel.text = popupModel.overlayContainerBarHeading
         headerLabel.applyTextStyle(popupStyle.headerPopupTextStyle)
-        headerLabel.applySuperscriptSize(popupStyle.headerPopupTextStyle.superscriptTextScale)
+        headerLabel.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
     }
 
     actionButton.text = popupModel.primaryActionButtonAttributes?.buttonText ?: "Action"

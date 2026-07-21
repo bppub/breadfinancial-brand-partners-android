@@ -24,6 +24,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
 import com.breadfinancial.breadpartners.sdk.core.models.PopupTextStyle
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 
 /**
  * Applies the given text style to the TextView.
@@ -151,7 +152,7 @@ class PopupElements private constructor() {
         }
         textView.gravity = gravity
         textView.setPadding(0, 10, 0, 10)
-        textView.applySuperscriptSize(popupModel.disclosurePopupTextStyle.superscriptTextScale)
+        textView.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
         return textView
     }
 

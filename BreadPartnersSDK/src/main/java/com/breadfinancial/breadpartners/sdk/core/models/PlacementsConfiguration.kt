@@ -82,8 +82,7 @@ data class PopUpStyling(
 data class PopupTextStyle(
     val font: Typeface? = Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
     val textColor: Int? = BreadPartnerDefaults.GRAY_COLOR,
-    val textSize: Float? = null,
-    val superscriptTextScale: Float = BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE
+    val textSize: Float? = null
 )
 
 /**
