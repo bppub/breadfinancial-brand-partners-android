@@ -53,7 +53,7 @@ fun TextView.applyTextStyle(style: PopupTextStyle) {
  *
  * @param scale Proportion of the surrounding text size, e.g. `0.5` = half size.
  */
-fun TextView.applySuperscriptSize(scale: Float) {
+fun TextView.applySuperscriptSize() {
     val spanned = text as? Spanned ?: return
     val superscriptSpans = spanned.getSpans(0, spanned.length, SuperscriptSpan::class.java)
     if (superscriptSpans.isEmpty()) return
@@ -69,7 +69,7 @@ fun TextView.applySuperscriptSize(scale: Float) {
             spannable.removeSpan(existing)
         }
         spannable.setSpan(
-            RelativeSizeSpan(scale), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            RelativeSizeSpan(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
     }
     text = spannable
@@ -152,7 +152,7 @@ class PopupElements private constructor() {
         }
         textView.gravity = gravity
         textView.setPadding(0, 10, 0, 10)
-        textView.applySuperscriptSize(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE)
+        textView.applySuperscriptSize()
         return textView
     }
 
