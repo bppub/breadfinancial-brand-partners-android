@@ -34,6 +34,7 @@ import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.BreadFinancialWebViewInterstitial
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementOverlayType
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PopupPlacementModel
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.dismissPopup
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.setupUI
 import com.breadfinancial.breadpartners.sdk.networking.models.BrandConfigResponse
 import com.breadfinancial.breadpartners.sdk.utilities.LoaderIndicator
@@ -123,6 +124,11 @@ class PopupDialog(
             loader.visibility = View.GONE
         }
         Glide.with(this).load(popupPlacementModel.brandLogoUrl).into(brandLogo)
+    }
+
+    override fun onCancel(dialog: android.content.DialogInterface) {
+        super.onCancel(dialog)
+        dismissPopup()
     }
 
     override fun onAppRestartClicked(url: String) {

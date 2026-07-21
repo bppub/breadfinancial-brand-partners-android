@@ -17,9 +17,10 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.Popu
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
 
 /**
- * Handles the close button tap action.
+ * Dismisses the popup, notifies via callback, and cleans up the web view.
+ * Called when the close button is tapped, the dialog is cancelled, or the web view triggers a close event.
  */
-fun PopupDialog.closeButtonTapped() {
+fun PopupDialog.dismissPopup() {
     callback(BreadPartnerEvent.PopupClosed)
     dismiss()
     webViewManager.destroyWebView()
