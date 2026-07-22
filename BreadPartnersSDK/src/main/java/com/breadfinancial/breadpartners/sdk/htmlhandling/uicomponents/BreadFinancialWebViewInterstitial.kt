@@ -83,6 +83,7 @@ internal class BreadFinancialWebViewInterstitial(
 
                     injectAnchorInterceptorScript(view)
                     injectFocusOutlineRemoval(view)
+                    injectScrollRestorationFix(view)
 
                     url?.let {
                         onPageLoadCompleted(it)
@@ -349,6 +350,37 @@ internal class BreadFinancialWebViewInterstitial(
                 callback(BreadPartnerEvent.SdkError(error = e))
             }
         }
+    }
+
+    /**
+     * Disables the browser's default asynchronous scroll restoration and replaces it with a
+     * synchronous microtask-based approach. This prevents the visible scroll-to-top flash that
+     * occurs when a SPA navigates back to a previously-scrolled page: the browser would normally
+     * restore the saved scroll position only after painting (causing a jump), whereas
+     * Promise.resolve().then() runs after React's synchronous render but before the next paint.
+     */
+    private fun injectScrollRestorationFix(view: WebView?) {
+        view?.evaluateJavascript(
+            """
+            (function() {
+                if (window.__breadScrollRestoration__) return;
+                window.__breadScrollRestoration__ = true;
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                var _pos = {};
+                window.addEventListener('scroll', function() {
+                    _pos[location.pathname + location.search] = window.pageYOffset;
+                }, { passive: true });
+                window.addEventListener('popstate', function() {
+                    var saved = _pos[location.pathname + location.search] || 0;
+                    Promise.resolve().then(function() {
+                        window.scrollTo(0, saved);
+                    });
+                });
+            })();
+            """.trimIndent(), null
+        )
     }
 
     /// This is to remove default focus outlines that some browsers add when elements are clicked,
