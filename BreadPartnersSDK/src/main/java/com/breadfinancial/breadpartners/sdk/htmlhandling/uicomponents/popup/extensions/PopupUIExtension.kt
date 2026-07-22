@@ -36,6 +36,8 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.Pop
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupDialog
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupElements
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applySuperscriptSize
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.bumptech.glide.Glide
 
@@ -109,15 +111,19 @@ fun PopupDialog.setupUI() {
 
     titleLabel.text = popupModel.overlayTitle
     titleLabel.applyTextStyle(popupStyle.titlePopupTextStyle)
+    titleLabel.applySuperscriptSize()
     subtitleLabel.text = popupModel.overlaySubtitle
     subtitleLabel.applyTextStyle(popupStyle.subTitlePopupTextStyle)
+    subtitleLabel.applySuperscriptSize()
     disclosureLabel.text = popupModel.disclosure
     disclosureLabel.applyTextStyle(popupStyle.disclosurePopupTextStyle)
+    disclosureLabel.applySuperscriptSize()
     if (popupModel.overlayContainerBarHeading.isEmpty()) {
         headerView.visibility = View.GONE
     } else {
         headerLabel.text = popupModel.overlayContainerBarHeading
         headerLabel.applyTextStyle(popupStyle.headerPopupTextStyle)
+        headerLabel.applySuperscriptSize()
     }
 
     actionButton.text = popupModel.primaryActionButtonAttributes?.buttonText ?: "Action"

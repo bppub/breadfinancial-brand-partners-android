@@ -15,12 +15,16 @@ package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.text.SpannableString
 import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.SuperscriptSpan
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.breadfinancial.breadpartners.sdk.core.models.PopUpStyling
 import com.breadfinancial.breadpartners.sdk.core.models.PopupTextStyle
+import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 
 /**
  * Applies the given text style to the TextView.
@@ -37,6 +41,38 @@ fun TextView.applyTextStyle(style: PopupTextStyle) {
             this.textSize = it
         }
     }
+}
+
+/**
+ * Resizes every superscript (`<sup>`) run inside this TextView's text.
+ *
+ * When HTML content is converted with `Html.fromHtml`, `<sup>` elements become
+ * [SuperscriptSpan]s (paired with a default [RelativeSizeSpan]). This method finds
+ * those runs, removes any existing relative-size spans covering them to avoid
+ * compounding, and applies a fresh [RelativeSizeSpan] of the requested [scale].
+ *
+ * @param scale Proportion of the surrounding text size, e.g. `0.5` = half size.
+ */
+fun TextView.applySuperscriptSize() {
+    val spanned = text as? Spanned ?: return
+    val superscriptSpans = spanned.getSpans(0, spanned.length, SuperscriptSpan::class.java)
+    if (superscriptSpans.isEmpty()) return
+
+    val spannable = SpannableString.valueOf(spanned)
+    superscriptSpans.forEach { superscript ->
+        val start = spannable.getSpanStart(superscript)
+        val end = spannable.getSpanEnd(superscript)
+        if (start >= end) return@forEach
+
+        // Remove any pre-existing relative size spans over this run to prevent stacking.
+        spannable.getSpans(start, end, RelativeSizeSpan::class.java).forEach { existing ->
+            spannable.removeSpan(existing)
+        }
+        spannable.setSpan(
+            RelativeSizeSpan(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+    text = spannable
 }
 
 /**
@@ -116,6 +152,7 @@ class PopupElements private constructor() {
         }
         textView.gravity = gravity
         textView.setPadding(0, 10, 0, 10)
+        textView.applySuperscriptSize()
         return textView
     }
 
