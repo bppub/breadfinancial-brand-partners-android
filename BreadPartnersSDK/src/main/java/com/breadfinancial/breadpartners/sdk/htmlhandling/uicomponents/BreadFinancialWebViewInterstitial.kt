@@ -32,6 +32,7 @@ import android.webkit.WebView
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import androidx.multidex.BuildConfig
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.OfferResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
