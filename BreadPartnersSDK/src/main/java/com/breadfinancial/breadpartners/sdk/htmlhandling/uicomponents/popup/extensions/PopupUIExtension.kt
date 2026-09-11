@@ -159,8 +159,6 @@ fun PopupDialog.setupUI() {
     dividerBottom.setBackgroundColor(popupStyle.dividerColor)
 
     actionButton.setOnClickListener {
-        callback(BreadPartnerEvent.PopupClosed)
-
         onActionButtonTapped()
     }
 
