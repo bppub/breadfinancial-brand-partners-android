@@ -66,13 +66,7 @@ internal class BreadFinancialWebViewInterstitial(
                 allowContentAccess = false
                 mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
                 // Only enable remote debugging in debug builds
-                setWebContentsDebuggingEnabled(
-                    android.os.Build.TYPE == "eng" ||
-                            android.provider.Settings.Global.getInt(
-                                context.contentResolver,
-                                android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
-                            ) != 0
-                )
+                setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
             }
 
             Logger.logLoadingURL(url = url)
