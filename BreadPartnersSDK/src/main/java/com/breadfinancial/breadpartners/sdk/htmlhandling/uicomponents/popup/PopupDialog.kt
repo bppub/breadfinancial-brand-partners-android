@@ -38,7 +38,7 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.exte
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions.setupUI
 import com.breadfinancial.breadpartners.sdk.networking.models.BrandConfigResponse
 import com.breadfinancial.breadpartners.sdk.utilities.LoaderIndicator
-import com.bumptech.glide.Glide
+import com.breadfinancial.breadpartners.sdk.utilities.imageloader.ImageLoaderUtil
 
 /**
  * DialogFragment that renders a dynamic popup based on placement data,
@@ -124,7 +124,7 @@ class PopupDialog(
         ) {
             loader.visibility = View.GONE
         }
-        Glide.with(this).load(popupPlacementModel.brandLogoUrl).into(brandLogo)
+        ImageLoaderUtil.loadImage(this, popupPlacementModel.brandLogoUrl, brandLogo)
     }
 
     override fun onCancel(dialog: android.content.DialogInterface) {

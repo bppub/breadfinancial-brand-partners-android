@@ -23,6 +23,14 @@
 # Glide Annotation Processor
 -keep class com.bumptech.glide.compiler.** { *; }
 
+# Glide AppGlideModule (SVG support) and generated GlideApp
+-keep class * extends com.bumptech.glide.module.AppGlideModule { *; }
+-keep class com.breadfinancial.breadpartners.sdk.utilities.imageloader.** { *; }
+
+# AndroidSVG: Keep classes used for SVG decoding
+-keep class com.caverock.androidsvg.** { *; }
+-dontwarn com.caverock.androidsvg.**
+
 # reCAPTCHA
 -keep class com.google.android.gms.recaptcha.** { *; }
 
