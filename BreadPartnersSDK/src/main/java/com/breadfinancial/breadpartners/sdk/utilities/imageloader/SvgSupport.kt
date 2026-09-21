@@ -68,6 +68,15 @@ internal class SvgDecoder : ResourceDecoder<InputStream, SVG> {
 /**
  * Converts a decoded [SVG] resource into a [PictureDrawable] that can be set on
  * an ImageView. The ImageView must use a software layer to render the Picture.
+ *
+ * The produced [PictureDrawable] is sized to the SVG's OWN aspect ratio at the
+ * target height (`documentHeight * viewBox aspect`), so the artwork FILLS the
+ * picture with no internal centering. Combined with `scaleType = FIT_START` on
+ * the ImageView, the logo is left-aligned and fills the full height, with its
+ * width scaled automatically to preserve aspect ratio.
+ *
+ * Without this, AndroidSVG's default `preserveAspectRatio` (xMidYMid) centers
+ * the viewBox inside the full target box, which made the logo appear centered.
  */
 internal class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> {
 
@@ -75,9 +84,18 @@ internal class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> 
         toTranscode: Resource<SVG>, options: Options
     ): Resource<PictureDrawable> {
         val svg = toTranscode.get()
+
+        val height = svg.documentHeight
+        val viewBox = svg.documentViewBox
+
+        if (height > 0f && viewBox != null && viewBox.height() > 0f) {
+            // Aspect-correct width so the artwork fills the picture at full height.
+            val aspect = viewBox.width() / viewBox.height()
+            svg.documentWidth = height * aspect
+        }
+
         val picture = svg.renderToPicture()
-        val drawable = PictureDrawable(picture)
-        return SimpleResource(drawable)
+        return SimpleResource(PictureDrawable(picture))
     }
 }
 
