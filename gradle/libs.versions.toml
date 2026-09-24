@@ -39,7 +39,6 @@ jsoup = { group = "org.jsoup", name = "jsoup", version = "1.16.1" }
 gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version = "4.16.0" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version = "4.16.0" }
-androidsvg = { group = "com.caverock", name = "androidsvg-aar", version = "1.4" }
 recaptcha = { group = "com.google.android.recaptcha", name = "recaptcha", version = "18.8.0" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version = "1.2.0" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version = "2.2.0" }

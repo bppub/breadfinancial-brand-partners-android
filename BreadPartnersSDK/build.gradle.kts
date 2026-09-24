@@ -54,7 +54,6 @@ dependencies {
     api(libs.gson)
     api(libs.glide)
     kapt(libs.glide.compiler)
-    api(libs.androidsvg)
     api(libs.recaptcha)
     api(libs.coordinatorlayout)
     api(libs.constraintlayout)

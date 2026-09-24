@@ -23,9 +23,9 @@ import com.bumptech.glide.request.target.ImageViewTarget
 /**
  * Centralized helper for loading brand imagery into an [ImageView].
  *
- * Supports both raster images (PNG, JPG, WebP, GIF) and vector [SVG] images.
+ * Supports both raster images (PNG, JPG, WebP, GIF) and vector SVG images.
  * The image type is inferred from the URL's file extension: URLs ending in
- * `.svg` are decoded through the AndroidSVG-backed Glide pipeline (registered
+ * `.svg` are decoded through the SDK's built-in Glide SVG pipeline (registered
  * by [SvgModule]) and rendered as a [PictureDrawable], while all other URLs use
  * Glide's default decoders.
  */
