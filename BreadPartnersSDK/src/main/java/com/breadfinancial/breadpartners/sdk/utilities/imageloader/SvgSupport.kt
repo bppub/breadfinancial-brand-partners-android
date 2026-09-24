@@ -12,7 +12,7 @@
 //    - SvgDrawableTranscoder : SVG -> PictureDrawable
 //    - SvgModule             : registers the above two with Glide
 //
-//  © 2025 Bread Financial
+//  © 2026 Bread Financial
 //------------------------------------------------------------------------------
 
 package com.breadfinancial.breadpartners.sdk.utilities.imageloader
@@ -66,17 +66,9 @@ internal class SvgDecoder : ResourceDecoder<InputStream, SVG> {
 }
 
 /**
- * Converts a decoded [SVG] resource into a [PictureDrawable] that can be set on
- * an ImageView. The ImageView must use a software layer to render the Picture.
- *
- * The produced [PictureDrawable] is sized to the SVG's OWN aspect ratio at the
- * target height (`documentHeight * viewBox aspect`), so the artwork FILLS the
- * picture with no internal centering. Combined with `scaleType = FIT_START` on
- * the ImageView, the logo is left-aligned and fills the full height, with its
- * width scaled automatically to preserve aspect ratio.
- *
- * Without this, AndroidSVG's default `preserveAspectRatio` (xMidYMid) centers
- * the viewBox inside the full target box, which made the logo appear centered.
+ * Converts a decoded [SVG] into a [PictureDrawable] sized to the SVG's own
+ * aspect ratio at the target height, so the artwork fills the picture (no
+ * internal centering). Must be rendered on a software layer.
  */
 internal class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> {
 

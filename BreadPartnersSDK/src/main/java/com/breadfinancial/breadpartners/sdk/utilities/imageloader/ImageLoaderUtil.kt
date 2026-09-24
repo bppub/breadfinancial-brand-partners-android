@@ -7,7 +7,7 @@
 //  providing UI components and functionalities to integrate Bread Financial
 //  services into partner applications.
 //
-//  © 2025 Bread Financial
+//  © 2026 Bread Financial
 //------------------------------------------------------------------------------
 
 package com.breadfinancial.breadpartners.sdk.utilities.imageloader
