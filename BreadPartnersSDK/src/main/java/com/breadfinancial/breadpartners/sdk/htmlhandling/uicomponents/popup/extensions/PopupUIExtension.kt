@@ -37,9 +37,8 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.Popu
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupElements
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applySuperscriptSize
-import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnerDefaults
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
-import com.bumptech.glide.Glide
+import com.breadfinancial.breadpartners.sdk.utilities.imageloader.ImageLoaderUtil
 
 /**
  * Replaces every URLSpan inside this TextView with a custom ClickableSpan whose
@@ -107,7 +106,7 @@ fun PopupDialog.setupUI() {
     }
     closeButton.setColorFilter(popupStyle.crossColor)
 
-    Glide.with(this).load(popupModel.brandLogoUrl).into(brandLogo)
+    ImageLoaderUtil.loadImage(this, popupModel.brandLogoUrl, brandLogo)
 
     titleLabel.text = popupModel.overlayTitle
     titleLabel.applyTextStyle(popupStyle.titlePopupTextStyle)
