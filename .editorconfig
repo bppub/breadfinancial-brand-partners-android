@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+indent_size = 4
+indent_style = space
+max_line_length = 120
+
+# Ktlint specific settings
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+ij_kotlin_line_comment_at_first_column = true
+ij_kotlin_line_comment_add_space = false
+ij_kotlin_keep_blank_lines_in_code = 2
+ij_kotlin_keep_blank_lines_in_declarations = 2
+ij_kotlin_keep_first_column_comment = false
+ij_kotlin_packages_to_use_import_on_demand = unset
+ij_kotlin_spaces_around_range = false
+ij_kotlin_wrap_elvis_expressions = 1
