@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  File:          AnalyticsModels.kt
+//  File:          Analytics.kt
 //  Author(s):     Bread Financial
 //  Date:          27 March 2025
 //

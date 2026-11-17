@@ -27,8 +27,7 @@ import com.breadfinancial.breadpartners.sdk.utilities.Constants
  * 1. **Click Placement**: When the user clicks on the placement.
  * 2. **View Placement**: When the user sees or interacts with the placement without clicking.
  */
-class AnalyticsManager  {
-
+class AnalyticsManager {
     private var apiKey: String = ""
 
     fun setApiKey(newApiKey: String) {

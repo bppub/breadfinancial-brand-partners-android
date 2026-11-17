@@ -142,6 +142,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // region Popup Styling
+
         /**
          * Prepares a popup styling configuration object for each style element.
          */
