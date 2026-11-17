@@ -33,11 +33,12 @@ import com.breadfinancial.breadpartnersexample.sdk.databinding.ViewRtpsBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class RTPSView : BottomSheetDialogFragment() {
-
     private lateinit var binding: ViewRtpsBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         binding = ViewRtpsBinding.inflate(inflater, container, false)
         return binding.root
@@ -53,24 +54,28 @@ class RTPSView : BottomSheetDialogFragment() {
         }
     }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         rtpsFlow()
     }
 
-
     fun rtpsFlow() {
         val rtpsData = RTPSData(
-            locationType = BreadPartnersLocationType.CHECKOUT, order = Order(
+            locationType = BreadPartnersLocationType.CHECKOUT,
+            order = Order(
                 totalPrice = CurrencyValue(
-                    currency = "USD", value = 5000
-                )
-            ), mockResponse = BreadPartnersMockOptions.SUCCESS
+                    currency = "USD",
+                    value = 5000,
+                ),
+            ),
+            mockResponse = BreadPartnersMockOptions.SUCCESS,
         )
 
         val placementsConfiguration = PlacementsConfiguration(
-            rtpsData = rtpsData
+            rtpsData = rtpsData,
         )
 
         val merchantConfiguration = MerchantConfiguration(
@@ -88,18 +93,18 @@ class RTPSView : BottomSheetDialogFragment() {
                     country = "USA",
                     locality = "NYC",
                     region = "NY",
-                    postalCode = "11222"
+                    postalCode = "11222",
                 ),
-                shippingAddress = null
+                shippingAddress = null,
             ),
             storeNumber = "8883",
-            env = BreadPartnersEnvironment.STAGE
+            env = BreadPartnersEnvironment.STAGE,
         )
 
         BreadPartnersSDK.getInstance().silentRTPSRequest(
             merchantConfiguration = merchantConfiguration,
             placementsConfiguration = placementsConfiguration,
-            viewContext = requireContext()
+            viewContext = requireContext(),
         ) { event ->
             when (event) {
                 is BreadPartnerEvent.RenderPopupView -> {

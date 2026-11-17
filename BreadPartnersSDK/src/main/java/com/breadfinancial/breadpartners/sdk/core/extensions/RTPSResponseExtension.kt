@@ -26,9 +26,7 @@ import com.breadfinancial.breadpartners.sdk.networking.models.RTPSResponse
  * - Parameter merchantConfiguration: The original merchant configuration.
  * - Returns: An updated MerchantConfiguration with buyer data from the response
  */
-fun RTPSResponse.updateMerchantConfiguration(
-    merchantConfiguration: MerchantConfiguration,
-): MerchantConfiguration {
+fun RTPSResponse.updateMerchantConfiguration(merchantConfiguration: MerchantConfiguration): MerchantConfiguration {
     val updatedConfig = merchantConfiguration
     val buyer = merchantConfiguration.buyer ?: BreadPartnersBuyer()
 

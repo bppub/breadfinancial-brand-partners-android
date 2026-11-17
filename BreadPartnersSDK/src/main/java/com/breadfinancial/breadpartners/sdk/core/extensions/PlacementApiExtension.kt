@@ -45,12 +45,12 @@ fun BreadPartnersSDK.fetchPlacementData(
     cookies: String? = null,
 ) {
     val apiUrl = APIUrl(
-        urlType = APIUrlType.GeneratePlacements
+        urlType = APIUrlType.GeneratePlacements,
     ).url
     val builder = PlacementRequestBuilder(
         integrationKey = integrationKey,
         merchantConfiguration,
-        placementsConfiguration.placementData
+        placementsConfiguration.placementData,
     )
     val placementRequest = builder.build()
 
@@ -58,47 +58,53 @@ fun BreadPartnersSDK.fetchPlacementData(
         urlString = apiUrl,
         method = HTTPMethod.POST,
         body = placementRequest,
-        cookies = cookies
+        cookies = cookies,
     ) { result ->
         when (result) {
             is Result.Success -> {
-                CommonUtils().decodeJSON(result.data.toString(),
+                CommonUtils().decodeJSON(
+                    result.data.toString(),
                     PlacementsResponse::class.java,
                     onSuccess = { placementsResponse ->
                         if (openPlacementExperience) {
                             val popupPlacementHTMLContent =
-                                placementsResponse.placementContent?.firstOrNull { it.metadata?.templateId?.contains("overlay") == true }
-                            try {
-                                HTMLContentParser().extractPopupPlacementModel(
-                                    popupPlacementHTMLContent?.contentData?.htmlContent ?: ""
-                                )?.let { popupPlacementModel ->
-                                    Logger.logPopupPlacementModelDetails(popupPlacementModel)
-                                    val overlayType =
-                                        HTMLContentParser().handleOverlayType(popupPlacementModel.overlayType)
-                                    if (overlayType != null) {
-                                        HTMLContentRenderer(
-                                            integrationKey,
-                                            merchantConfiguration,
-                                            placementsConfiguration,
-                                            brandConfiguration,
-                                            splitTextAndAction,
-                                            callback
-                                        ).createPopupOverlay(
-                                            popupPlacementModel, overlayType
-                                        )
-                                    } else {
-                                        callback(
-                                            BreadPartnerEvent.SdkError(
-                                                error = Exception(Constants.missingPopupPlacementError)
-                                            )
-                                        )
-                                    }
+                                placementsResponse.placementContent?.firstOrNull {
+                                    it.metadata?.templateId?.contains("overlay") ==
+                                        true
                                 }
+                            try {
+                                HTMLContentParser()
+                                    .extractPopupPlacementModel(
+                                        popupPlacementHTMLContent?.contentData?.htmlContent ?: "",
+                                    )?.let { popupPlacementModel ->
+                                        Logger.logPopupPlacementModelDetails(popupPlacementModel)
+                                        val overlayType =
+                                            HTMLContentParser().handleOverlayType(popupPlacementModel.overlayType)
+                                        if (overlayType != null) {
+                                            HTMLContentRenderer(
+                                                integrationKey,
+                                                merchantConfiguration,
+                                                placementsConfiguration,
+                                                brandConfiguration,
+                                                splitTextAndAction,
+                                                callback,
+                                            ).createPopupOverlay(
+                                                popupPlacementModel,
+                                                overlayType,
+                                            )
+                                        } else {
+                                            callback(
+                                                BreadPartnerEvent.SdkError(
+                                                    error = Exception(Constants.missingPopupPlacementError),
+                                                ),
+                                            )
+                                        }
+                                    }
                             } catch (error: Exception) {
                                 callback(
                                     BreadPartnerEvent.SdkError(
-                                        error = Exception(error.message)
-                                    )
+                                        error = Exception(error.message),
+                                    ),
                                 )
                             }
                         } else {
@@ -108,19 +114,21 @@ fun BreadPartnersSDK.fetchPlacementData(
                                 placementsConfiguration,
                                 brandConfiguration,
                                 splitTextAndAction,
-                                callback
+                                callback,
                             ).handleTextPlacement(
-                                placementsResponse, application
+                                placementsResponse,
+                                application,
                             )
                         }
                     },
                     onError = { error ->
                         callback(
                             BreadPartnerEvent.SdkError(
-                                error = Exception(error.message)
-                            )
+                                error = Exception(error.message),
+                            ),
                         )
-                    })
+                    },
+                )
             }
 
             is Result.Failure -> {
@@ -128,7 +136,7 @@ fun BreadPartnersSDK.fetchPlacementData(
                 val errorMessage = result.error.message ?: ""
                 if (errorMessage.startsWith(
                         "Security challenge detected:",
-                        ignoreCase = true
+                        ignoreCase = true,
                     )
                 ) {
                     val htmlContent =
@@ -148,15 +156,15 @@ fun BreadPartnersSDK.fetchPlacementData(
                                 callback,
                                 capturedCookies,
                             )
-                        }
+                        },
                     )
 
                     callback(BreadPartnerEvent.RenderPopupView(dialogFragment = challengeDialog))
                 } else {
                     callback(
                         BreadPartnerEvent.SdkError(
-                            error = Exception(errorMessage)
-                        )
+                            error = Exception(errorMessage),
+                        ),
                     )
                 }
             }

@@ -21,7 +21,8 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
             )
         }
     }
@@ -65,7 +66,7 @@ afterEvaluate {
     publishing {
         publications {
             // Create Maven Publication and name it.
-            register<MavenPublication>("release"){
+            register<MavenPublication>("release") {
                 // Component for release variant.
                 from(components["release"])
                 groupId = "com.github.getbread"

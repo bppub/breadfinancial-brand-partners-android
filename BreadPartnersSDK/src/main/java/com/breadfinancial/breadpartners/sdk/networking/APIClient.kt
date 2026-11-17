@@ -26,19 +26,27 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 sealed class Result<out T> {
-    data class Success<out T>(val data: T) : Result<T>()
-    data class Failure(val error: Throwable) : Result<Nothing>()
+    data class Success<out T>(
+        val data: T,
+    ) : Result<T>()
+
+    data class Failure(
+        val error: Throwable,
+    ) : Result<Nothing>()
 }
 
-enum class HTTPMethod(val value: String) {
-    GET("GET"), POST("POST"), OPTIONS("OPTIONS")
+enum class HTTPMethod(
+    val value: String,
+) {
+    GET("GET"),
+    POST("POST"),
+    OPTIONS("OPTIONS"),
 }
 
 /**
  * A utility class for making HTTP API requests.
  */
 class APIClient {
-
     /**
      * Generic API call function.
      *
@@ -56,7 +64,7 @@ class APIClient {
         body: Any?,
         headers: Map<String, String>? = null,
         cookies: String? = null,
-        completion: (Result<Any>) -> Unit
+        completion: (Result<Any>) -> Unit,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -84,10 +92,12 @@ class APIClient {
                     connection.setRequestProperty(key, value)
                 }
 
-                Logger.logRequestDetails(urlString,
+                Logger.logRequestDetails(
+                    urlString,
                     method.value,
                     finalHeaders,
-                    body?.let { Gson().toJson(it).toByteArray() })
+                    body?.let { Gson().toJson(it).toByteArray() },
+                )
 
                 body?.let {
                     connection.doOutput = true
@@ -107,14 +117,14 @@ class APIClient {
                         ?: "Unknown error"
                 }
 
-                val contentType = connection.contentType ?:
-                    connection.getHeaderField("Content-Type") ?: ""
+                val contentType = connection.contentType
+                    ?: connection.getHeaderField("Content-Type") ?: ""
 
                 Logger.logResponseDetails(
                     urlString,
                     responseCode,
                     connection.headerFields,
-                    responseMessage.toByteArray()
+                    responseMessage.toByteArray(),
                 )
 
                 // Handle response based on status code
@@ -122,7 +132,8 @@ class APIClient {
                     try {
                         // Check if response is a Captcha challenge
                         if (contentType.contains("text/html", ignoreCase = true) ||
-                            responseMessage.contains("_Incapsula_Resource", ignoreCase = true)) {
+                            responseMessage.contains("_Incapsula_Resource", ignoreCase = true)
+                        ) {
                             withContext(Dispatchers.Main) {
                                 completion(Result.Failure(Exception("Security challenge detected: $responseMessage.")))
                             }

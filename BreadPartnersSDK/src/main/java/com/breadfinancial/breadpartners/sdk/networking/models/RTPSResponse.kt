@@ -25,7 +25,7 @@ enum class PrescreenResult {
 
     // Not pre-approved but should/could apply
     MAKE_OFFER,
-    ACKNOWLEDGE
+    ACKNOWLEDGE,
 }
 
 /**
@@ -36,7 +36,7 @@ val prescreenResultMap: Map<String, PrescreenResult> = mapOf(
     "01" to PrescreenResult.APPROVED,
     "10" to PrescreenResult.NO_HIT,
     "11" to PrescreenResult.MAKE_OFFER,
-    "12" to PrescreenResult.ACKNOWLEDGE
+    "12" to PrescreenResult.ACKNOWLEDGE,
 )
 
 /**

@@ -30,7 +30,6 @@ import com.bumptech.glide.request.target.ImageViewTarget
  * Glide's default decoders.
  */
 internal object ImageLoaderUtil {
-
     /**
      * Loads [url] into [imageView]. No-op when [url] is null or blank.
      *
@@ -38,7 +37,11 @@ internal object ImageLoaderUtil {
      * @param url       Remote image URL (PNG/JPG/WebP/GIF or SVG).
      * @param imageView Target view to display the image.
      */
-    fun loadImage(fragment: Fragment, url: String?, imageView: ImageView) {
+    fun loadImage(
+        fragment: Fragment,
+        url: String?,
+        imageView: ImageView,
+    ) {
         if (url.isNullOrBlank()) return
 
         if (isSvgUrl(url)) {
@@ -47,7 +50,8 @@ internal object ImageLoaderUtil {
             // Left-aligned horizontally + vertically centered requires a custom
             // matrix (no single ImageView scaleType does both), applied once the
             // drawable is set.
-            Glide.with(fragment)
+            Glide
+                .with(fragment)
                 .`as`(PictureDrawable::class.java)
                 .load(url)
                 .into(object : ImageViewTarget<PictureDrawable>(imageView) {
@@ -59,7 +63,8 @@ internal object ImageLoaderUtil {
         } else {
             imageView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
             imageView.scaleType = ImageView.ScaleType.FIT_CENTER
-            Glide.with(fragment)
+            Glide
+                .with(fragment)
                 .load(url)
                 .into(imageView)
         }
@@ -80,8 +85,10 @@ internal object ImageLoaderUtil {
         val drawableWidth = drawable.intrinsicWidth.toFloat()
         val drawableHeight = drawable.intrinsicHeight.toFloat()
 
-        if (viewWidth <= 0f || viewHeight <= 0f ||
-            drawableWidth <= 0f || drawableHeight <= 0f
+        if (viewWidth <= 0f ||
+            viewHeight <= 0f ||
+            drawableWidth <= 0f ||
+            drawableHeight <= 0f
         ) {
             // View not laid out yet — retry after it's measured.
             post { applyLeftAlignedVerticalCenter() }
@@ -91,7 +98,7 @@ internal object ImageLoaderUtil {
         scaleType = ImageView.ScaleType.MATRIX
         // Fit within the box while preserving aspect ratio.
         val scale = minOf(viewWidth / drawableWidth, viewHeight / drawableHeight)
-        val dx = paddingLeft.toFloat()                                   // left aligned
+        val dx = paddingLeft.toFloat() // left aligned
         val dy = paddingTop + (viewHeight - drawableHeight * scale) / 2f // vertical center
         imageMatrix = Matrix().apply {
             setScale(scale, scale)
@@ -108,4 +115,3 @@ internal object ImageLoaderUtil {
         return path.endsWith(".svg", ignoreCase = true)
     }
 }
-

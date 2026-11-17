@@ -3,7 +3,7 @@ package com.breadfinancial.breadpartners.sdk.core.models
 data class UnifiedPrequalPathResult(
     val path: String,
     val queryString: String,
-    val queryParams: Map<String, Any?>
+    val queryParams: Map<String, Any?>,
 )
 
 /**
@@ -14,5 +14,5 @@ data class UPQAddressRequest(
     val address2: String? = null,
     val city: String? = null,
     val state: String? = null,
-    val zip: String? = null
+    val zip: String? = null,
 )

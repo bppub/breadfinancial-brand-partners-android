@@ -18,7 +18,6 @@ package com.breadfinancial.breadpartners.sdk.utilities
  * Object containing constant values used throughout the SDK.
  */
 object Constants {
-
     // API constants
     const val headerClientKey = "X-Client-Key"
     const val headerRequestedWithKey = "X-Requested-With"
@@ -61,7 +60,7 @@ object Constants {
         "Your web view will load once the captcha verification is successfully completed. This ensures that all transactions are secure."
 
     fun securityCheckAlertFailedMessage(error: String): String {
-        return "Error: ${error}"
+        return "Error: $error"
     }
 
     const val error = "Error:"

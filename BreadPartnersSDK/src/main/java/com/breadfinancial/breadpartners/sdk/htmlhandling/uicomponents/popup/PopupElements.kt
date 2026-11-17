@@ -69,7 +69,10 @@ fun TextView.applySuperscriptSize() {
             spannable.removeSpan(existing)
         }
         spannable.setSpan(
-            RelativeSizeSpan(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            RelativeSizeSpan(BreadPartnerDefaults.SUPERSCRIPT_TEXT_SCALE),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
     text = spannable
@@ -79,7 +82,6 @@ fun TextView.applySuperscriptSize() {
  * Utility class for creating and managing popup UI elements.
  */
 class PopupElements private constructor() {
-
     companion object {
         val shared: PopupElements by lazy { PopupElements() }
     }
@@ -94,7 +96,7 @@ class PopupElements private constructor() {
         topLeftRadius: Float = 32f,
         topRightRadius: Float = 32f,
         bottomLeftRadius: Float = 32f,
-        bottomRightRadius: Float = 32f
+        bottomRightRadius: Float = 32f,
     ) {
         val borderDrawable = GradientDrawable()
         borderDrawable.shape = GradientDrawable.RECTANGLE
@@ -109,7 +111,7 @@ class PopupElements private constructor() {
             bottomLeftRadius,
             bottomLeftRadius,
             bottomRightRadius,
-            bottomRightRadius
+            bottomRightRadius,
         )
 
         borderDrawable.setColor(backgroundColor)
@@ -124,7 +126,7 @@ class PopupElements private constructor() {
         tag: String,
         value: Spanned,
         context: Context,
-        gravity: Int = Gravity.CENTER
+        gravity: Int = Gravity.CENTER,
     ): TextView? {
         val textView = TextView(context)
         when (tag.lowercase()) {
@@ -155,5 +157,4 @@ class PopupElements private constructor() {
         textView.applySuperscriptSize()
         return textView
     }
-
 }

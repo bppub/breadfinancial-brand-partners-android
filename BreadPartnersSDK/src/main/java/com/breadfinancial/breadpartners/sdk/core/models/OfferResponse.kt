@@ -18,7 +18,8 @@ enum class OfferResponse {
     NO,
     NOT_ME,
     ABANDONED,
-    PRESCREEN_NO;
+    PRESCREEN_NO,
+    ;
 
     companion object {
         fun fromValue(value: String): OfferResponse? {

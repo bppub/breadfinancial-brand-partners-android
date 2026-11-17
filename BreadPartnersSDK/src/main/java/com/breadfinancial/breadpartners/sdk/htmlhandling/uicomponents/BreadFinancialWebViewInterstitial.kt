@@ -44,7 +44,7 @@ import org.json.JSONObject
  */
 internal class BreadFinancialWebViewInterstitial(
     private val context: Context,
-    private val callback: (BreadPartnerEvent) -> Unit?
+    private val callback: (BreadPartnerEvent) -> Unit?,
 ) {
     private var webView: WebView? = null
     private var showNavigationDialog = false
@@ -54,11 +54,14 @@ internal class BreadFinancialWebViewInterstitial(
      */
     @SuppressLint("SetJavaScriptEnabled")
     fun replaceViewWithWebView(
-        parent: ViewGroup, url: String, onPageLoadCompleted: (String) -> Unit
+        parent: ViewGroup,
+        url: String,
+        onPageLoadCompleted: (String) -> Unit,
     ) {
         webView = WebView(context).apply {
             layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
             )
             settings.apply {
                 javaScriptEnabled = true
@@ -72,8 +75,10 @@ internal class BreadFinancialWebViewInterstitial(
 
             Logger.logLoadingURL(url = url)
             webViewClient = object : WebViewClient() {
-
-                override fun onPageFinished(view: WebView?, url: String?) {
+                override fun onPageFinished(
+                    view: WebView?,
+                    url: String?,
+                ) {
                     super.onPageFinished(view, url)
 
                     injectAnchorInterceptorScript(view)
@@ -85,7 +90,9 @@ internal class BreadFinancialWebViewInterstitial(
                 }
 
                 override fun onReceivedError(
-                    view: WebView?, request: WebResourceRequest?, error: WebResourceError?
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?,
                 ) {
                     super.onReceivedError(view, request, error)
                     error?.let {
@@ -98,7 +105,7 @@ internal class BreadFinancialWebViewInterstitial(
                     view: WebView?,
                     url: String?,
                     message: String?,
-                    result: android.webkit.JsResult
+                    result: android.webkit.JsResult,
                 ): Boolean {
                     if (showNavigationDialog) {
                         showNavigationDialog = false
@@ -112,7 +119,7 @@ internal class BreadFinancialWebViewInterstitial(
             addJavascriptInterface(WebAppInterface(this), "Android")
 
             val additionalHeaders = mapOf(
-                Constants.headerPlatformKey to Constants.headerPlatformValue
+                Constants.headerPlatformKey to Constants.headerPlatformValue,
             )
             loadUrl(url, additionalHeaders)
         }
@@ -132,8 +139,9 @@ internal class BreadFinancialWebViewInterstitial(
     /**
      * Interface to handle messages sent from JavaScript running in the WebView.
      */
-    private inner class WebAppInterface(webView: WebView) {
-
+    private inner class WebAppInterface(
+        webView: WebView,
+    ) {
         @JavascriptInterface
         fun onAppRestartClicked(url: String) {
             val uri = Uri.parse(url)
@@ -159,7 +167,11 @@ internal class BreadFinancialWebViewInterstitial(
                         val uri = Uri.parse(url)
                         "${uri.scheme}://${uri.host}"
                     } ?: run {
-                        callback(BreadPartnerEvent.SdkError(error = Exception("openHtmlContent: unable to resolve base URL – WebView URL is null")))
+                        callback(
+                            BreadPartnerEvent.SdkError(
+                                error = Exception("openHtmlContent: unable to resolve base URL – WebView URL is null"),
+                            ),
+                        )
                         return@post
                     }
 
@@ -168,7 +180,7 @@ internal class BreadFinancialWebViewInterstitial(
                         html.replaceFirst(
                             "<head>",
                             "<head><base href=\"$baseUrl/\">",
-                            ignoreCase = true
+                            ignoreCase = true,
                         )
                     } else {
                         html
@@ -183,7 +195,7 @@ internal class BreadFinancialWebViewInterstitial(
                     // Extract title from HTML
                     val titleMatch =
                         Regex("<title[^>]*>([^<]*)</title>", RegexOption.IGNORE_CASE).find(
-                            modifiedHtml
+                            modifiedHtml,
                         )
                     val pageTitle = titleMatch?.groupValues?.get(1) ?: "Disclosure"
 
@@ -191,15 +203,15 @@ internal class BreadFinancialWebViewInterstitial(
                         context.getSystemService(Context.PRINT_SERVICE) as PrintManager
                     val printAdapter =
                         pdfWebView.createPrintDocumentAdapter(pageTitle)
-                    val printAttributes = PrintAttributes.Builder()
+                    val printAttributes = PrintAttributes
+                        .Builder()
                         .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
                         .build()
                     printManager.print(
                         pageTitle,
                         printAdapter,
-                        printAttributes
+                        printAttributes,
                     )
-
                 } catch (e: Exception) {
                     callback(BreadPartnerEvent.SdkError(error = e))
                 }
@@ -297,8 +309,8 @@ internal class BreadFinancialWebViewInterstitial(
                             callback(BreadPartnerEvent.WebViewSuccess(result = payload))
                             callback(
                                 BreadPartnerEvent.ReceiveUnifiedCheckoutApplicationResult(
-                                    result = payload
-                                )
+                                    result = payload,
+                                ),
                             )
                             callback(BreadPartnerEvent.PopupClosed)
                         }
@@ -357,114 +369,116 @@ internal class BreadFinancialWebViewInterstitial(
                 style.textContent = '* { outline: none !important; }';
                 document.head.appendChild(style);
             })();
-            """.trimIndent(), null
+            """.trimIndent(),
+            null,
         )
     }
 
     private fun injectAnchorInterceptorScript(view: WebView?) {
         view?.evaluateJavascript(
             """
-        (function() {
-            // Override window.open to intercept JS-driven navigation and HTML content popups
-            if (!window.__breadWindowOpenOverridden__) {
-                window.__breadWindowOpenOverridden__ = true;
-                window.open = function(url, target, features) {
-                    if (url && url !== '' && url !== 'about:blank') {
-                        window.Android.openExternally(url);
-                        return null;
+            (function() {
+                // Override window.open to intercept JS-driven navigation and HTML content popups
+                if (!window.__breadWindowOpenOverridden__) {
+                    window.__breadWindowOpenOverridden__ = true;
+                    window.open = function(url, target, features) {
+                        if (url && url !== '' && url !== 'about:blank') {
+                            window.Android.openExternally(url);
+                            return null;
+                        }
+                        // about:blank or empty url: the page will call document.write() or
+                        // set innerHTML on the returned window to inject HTML content
+                        // (e.g. a loan agreement). Capture that content and send it to
+                        // Android to open in a browser.
+                        var _content = '';
+                        function sendContent() {
+                            if (_content) {
+                                window.Android.openHtmlContent(_content);
+                                _content = '';
+                            }
+                        }
+                        var fakeBody = {};
+                        Object.defineProperty(fakeBody, 'innerHTML', {
+                            set: function(html) { _content = html; sendContent(); },
+                            get: function() { return _content; }
+                        });
+                        var fakeDoc = {
+                            write: function(html) { _content += html; },
+                            writeln: function(html) { _content += html + '\n'; },
+                            close: function() { sendContent(); },
+                            body: fakeBody
+                        };
+                        return { document: fakeDoc, focus: function() {}, close: function() {} };
+                    };
+                }
+
+                function isVisible(elem) {
+                    return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
+                }        
+                function handleAnchors() {
+                    const anchors = document.querySelectorAll('a[target="_blank"], a[data-open-externally="true"]');
+                    const anchorsHTML = Array.from(anchors).map(a => a.outerHTML);
+                    
+                    if (anchorsHTML.length > 0) {
+                        window.Android.logAnchorTags('AnchorTags:\n' + anchorsHTML.join('\n'));
+                    } else {
+                        window.Android.logAnchorTags('AnchorTags:No anchors found with target="_blank" or data-open-externally="true"');
                     }
-                    // about:blank or empty url: the page will call document.write() or
-                    // set innerHTML on the returned window to inject HTML content
-                    // (e.g. a loan agreement). Capture that content and send it to
-                    // Android to open in a browser.
-                    var _content = '';
-                    function sendContent() {
-                        if (_content) {
-                            window.Android.openHtmlContent(_content);
-                            _content = '';
+
+                    anchors.forEach(a => {
+                        // Prevent attaching multiple listeners
+                        if (!a.__handled__) {
+                            a.__handled__ = true;
+                            a.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                window.Android.openExternally(a.href);
+                            });
+                        }
+                    });
+                }
+
+                function handleRestartButton() {
+                    const btn = document.querySelector('#appRestart');
+                    if (btn && isVisible(btn)) {
+                        if (!btn.__handled__) {
+                            btn.__handled__ = true;
+                            btn.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                if (btn.href) {
+                                    window.Android.onAppRestartClicked(btn.href);
+                                }
+                            });
                         }
                     }
-                    var fakeBody = {};
-                    Object.defineProperty(fakeBody, 'innerHTML', {
-                        set: function(html) { _content = html; sendContent(); },
-                        get: function() { return _content; }
-                    });
-                    var fakeDoc = {
-                        write: function(html) { _content += html; },
-                        writeln: function(html) { _content += html + '\n'; },
-                        close: function() { sendContent(); },
-                        body: fakeBody
-                    };
-                    return { document: fakeDoc, focus: function() {}, close: function() {} };
-                };
-            }
-
-            function isVisible(elem) {
-                return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
-            }        
-            function handleAnchors() {
-                const anchors = document.querySelectorAll('a[target="_blank"], a[data-open-externally="true"]');
-                const anchorsHTML = Array.from(anchors).map(a => a.outerHTML);
-                
-                if (anchorsHTML.length > 0) {
-                    window.Android.logAnchorTags('AnchorTags:\n' + anchorsHTML.join('\n'));
-                } else {
-                    window.Android.logAnchorTags('AnchorTags:No anchors found with target="_blank" or data-open-externally="true"');
                 }
 
-                anchors.forEach(a => {
-                    // Prevent attaching multiple listeners
-                    if (!a.__handled__) {
-                        a.__handled__ = true;
-                        a.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            window.Android.openExternally(a.href);
-                        });
+
+                // Initial run
+                handleAnchors();
+                handleRestartButton();
+                
+                // Watch for DOM changes
+                const observer = new MutationObserver(function(mutations) {
+                    let shouldHandle = false;
+                    for (const mutation of mutations) {
+                        if (mutation.addedNodes.length) {
+                            shouldHandle = true;
+                            break;
+                        }
+                    }
+                    if (shouldHandle) {
+                        handleAnchors();
+                        handleRestartButton();
                     }
                 });
-            }
 
-            function handleRestartButton() {
-                const btn = document.querySelector('#appRestart');
-                if (btn && isVisible(btn)) {
-                    if (!btn.__handled__) {
-                        btn.__handled__ = true;
-                        btn.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            if (btn.href) {
-                                window.Android.onAppRestartClicked(btn.href);
-                            }
-                        });
-                    }
-                }
-            }
-
-
-            // Initial run
-            handleAnchors();
-            handleRestartButton();
-            
-            // Watch for DOM changes
-            const observer = new MutationObserver(function(mutations) {
-                let shouldHandle = false;
-                for (const mutation of mutations) {
-                    if (mutation.addedNodes.length) {
-                        shouldHandle = true;
-                        break;
-                    }
-                }
-                if (shouldHandle) {
-                    handleAnchors();
-                    handleRestartButton();
-                }
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        })();
-        """.trimIndent(), null
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            })();
+            """.trimIndent(),
+            null,
         )
     }
 

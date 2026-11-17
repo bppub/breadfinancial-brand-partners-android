@@ -38,11 +38,12 @@ import com.breadfinancial.breadpartnersexample.sdk.databinding.ViewOpenexperienc
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OpenExperienceView : BottomSheetDialogFragment() {
-
     private lateinit var binding: ViewOpenexperienceBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         binding = ViewOpenexperienceBinding.inflate(inflater, container, false)
         return binding.root
@@ -58,15 +59,15 @@ class OpenExperienceView : BottomSheetDialogFragment() {
         }
     }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         openExperienceFlow()
     }
 
-
     fun openExperienceFlow() {
-
         // MARK:For development purposes
         // These configurations are used to test different types of placement requests.
         // Each placement type corresponds to a specific configuration that includes parameters
@@ -128,16 +129,17 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         givenName = givenName,
                         familyName = familyName,
                         additionalName = additionalName,
-                    ), phone = phone,
+                    ),
+                    phone = phone,
                     address = BreadPartnersAddress(
                         address1 = address1,
                         address2 = address2,
                         locality = locality,
                         postalCode = postalCode,
                         region = region,
-                        country = country
+                        country = country,
                     ),
-                    email = email
+                    email = email,
                 ),
                 fulfillmentType = OrderFulfillmentType.PICKUP,
                 items = listOf(
@@ -149,7 +151,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         unitTax = CurrencyValue(currency = "USD", value = totalTax.div(2)),
                         sku = "SKU-001",
                         fulfillmentType = ItemFulfillmentType.PICKUP,
-                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2))
+                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2)),
                     ),
                     Item(
                         name = "Premium TV Wall Mount",
@@ -159,14 +161,14 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                         unitTax = CurrencyValue(currency = "USD", value = totalTax.div(2)),
                         sku = "SKU-002",
                         fulfillmentType = ItemFulfillmentType.PICKUP,
-                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2))
-                    )
-                )
-            )
+                        shippingCost = CurrencyValue(currency = "USD", value = totalShipping.div(2)),
+                    ),
+                ),
+            ),
         )
 
         val placementsConfiguration = PlacementsConfiguration(
-            placementData = placementData
+            placementData = placementData,
         )
 
         val merchantConfiguration = MerchantConfiguration(
@@ -183,21 +185,21 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                     locality = locality,
                     postalCode = postalCode,
                     region = region,
-                    country = country
+                    country = country,
                 ),
-                shippingAddress = null
+                shippingAddress = null,
             ),
             loyaltyID = loyaltyId,
             storeNumber = "1234567",
             env = env,
             channel = channel,
-            subchannel = subChannel
+            subchannel = subChannel,
         )
 
         BreadPartnersSDK.getInstance().openExperienceForPlacement(
             merchantConfiguration = merchantConfiguration,
             placementsConfiguration = placementsConfiguration,
-            viewContext = requireContext()
+            viewContext = requireContext(),
         ) { event ->
             when (event) {
                 is BreadPartnerEvent.RenderPopupView -> {
@@ -206,7 +208,7 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                 }
 
                 is BreadPartnerEvent.OnSDKEventLog -> {
-                    Log.i("BreadPartnerSDK::", "Event Log:${event}")
+                    Log.i("BreadPartnerSDK::", "Event Log:$event")
                 }
 
                 else -> {
@@ -214,6 +216,5 @@ class OpenExperienceView : BottomSheetDialogFragment() {
                 }
             }
         }
-
     }
 }

@@ -37,9 +37,8 @@ class HTMLContentRenderer(
     var placementsConfiguration: PlacementsConfiguration?,
     var brandConfiguration: BrandConfigResponse?,
     var splitTextAndAction: Boolean = false,
-    val callback: (BreadPartnerEvent) -> Unit?
+    val callback: (BreadPartnerEvent) -> Unit?,
 ) {
-
     var textPlacementModel: TextPlacementModel? = null
     var responseModel: PlacementsResponse? = null
     var thisContext: Context? = null
@@ -48,14 +47,18 @@ class HTMLContentRenderer(
      * Handles rendering of text-based placement using the provided response model.
      */
     fun handleTextPlacement(
-        responseModel: PlacementsResponse, thisContext: Context
+        responseModel: PlacementsResponse,
+        thisContext: Context,
     ) {
         this.responseModel = responseModel
         this.thisContext = thisContext
         val indexOfPlacement = 0
         textPlacementModel = HTMLContentParser().extractTextPlacementModel(
-            htmlContent = responseModel.placementContent?.get(indexOfPlacement)?.contentData?.htmlContent
-                ?: ""
+            htmlContent = responseModel.placementContent
+                ?.get(indexOfPlacement)
+                ?.contentData
+                ?.htmlContent
+                ?: "",
         )
 
         Logger.logTextPlacementModelDetails(textPlacementModel!!)
@@ -72,23 +75,26 @@ class HTMLContentRenderer(
      * Sets up and displays the popup UI with dynamic content and configuration.
      */
     fun handlePopupPlacement(
-        textPlacementModel: TextPlacementModel, responseModel: PlacementsResponse
+        textPlacementModel: TextPlacementModel,
+        responseModel: PlacementsResponse,
     ) {
         val popupPlacementHTMLContent = responseModel.placementContent?.find {
             it.id == textPlacementModel.actionContentId
         }
 
         val popupPlacementModel = HTMLContentParser().extractPopupPlacementModel(
-            popupPlacementHTMLContent?.contentData?.htmlContent ?: ""
+            popupPlacementHTMLContent?.contentData?.htmlContent ?: "",
         ) ?: return showAlert(
-            Constants.nativeSDKAlertTitle(), Constants.popupPlacementParsingError
+            Constants.nativeSDKAlertTitle(),
+            Constants.popupPlacementParsingError,
         )
 
         Logger.logPopupPlacementModelDetails(popupPlacementModel)
 
         val overlayType = HTMLContentParser().handleOverlayType(popupPlacementModel.overlayType)
             ?: return showAlert(
-                Constants.nativeSDKAlertTitle(), Constants.missingPopupPlacementError
+                Constants.nativeSDKAlertTitle(),
+                Constants.missingPopupPlacementError,
             )
         AnalyticsManager().sendClickPlacement(responseModel)
 
@@ -99,7 +105,8 @@ class HTMLContentRenderer(
      * Initializes and displays a popup overlay based on the provided model and type.
      */
     fun createPopupOverlay(
-        popupPlacementModel: PopupPlacementModel, overlayType: PlacementOverlayType
+        popupPlacementModel: PopupPlacementModel,
+        overlayType: PlacementOverlayType,
     ) {
         val popupDialog = PopupDialog(
             integrationKey,
@@ -108,7 +115,7 @@ class HTMLContentRenderer(
             merchantConfiguration,
             placementsConfiguration,
             brandConfiguration,
-            callback
+            callback,
         )
 
         configurePopupPresentation(popupDialog)
@@ -124,7 +131,10 @@ class HTMLContentRenderer(
     /**
      * Displays a simple alert dialog with a title, message, and a default OK button.
      */
-    fun showAlert(title: String, message: String) {
+    fun showAlert(
+        title: String,
+        message: String,
+    ) {
         callback(BreadPartnerEvent.SdkError(error = Exception(message)))
     }
 }

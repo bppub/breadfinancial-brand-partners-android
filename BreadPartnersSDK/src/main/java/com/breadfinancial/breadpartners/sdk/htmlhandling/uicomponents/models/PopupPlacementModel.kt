@@ -29,14 +29,14 @@ data class PopupPlacementModel(
     val bodyHeader: Spanned,
     val primaryActionButtonAttributes: PrimaryActionButtonModel?,
     val dynamicBodyModel: DynamicBodyModel,
-    val disclosure: Spanned
+    val disclosure: Spanned,
 ) {
     data class DynamicBodyModel(
-        val bodyDiv: Map<String, DynamicBodyContent>
+        val bodyDiv: Map<String, DynamicBodyContent>,
     )
 
     data class DynamicBodyContent(
-        val tagValuePairs: Map<String, Spanned>
+        val tagValuePairs: Map<String, Spanned>,
     )
 }
 
@@ -51,15 +51,18 @@ data class PrimaryActionButtonModel(
     val dataActionType: String? = null,
     val dataActionContentId: String? = null,
     val dataLocation: String? = null,
-    val buttonText: String? = null
+    val buttonText: String? = null,
 )
 
 /**
  * Enum representing different types of popup overlays.
  */
-enum class PlacementOverlayType(val value: String) {
+enum class PlacementOverlayType(
+    val value: String,
+) {
     EMBEDDED_OVERLAY("EMBEDDED_OVERLAY"),
-    SINGLE_PRODUCT_OVERLAY("SINGLE_PRODUCT_OVERLAY");
+    SINGLE_PRODUCT_OVERLAY("SINGLE_PRODUCT_OVERLAY"),
+    ;
 
     companion object {
         fun fromValue(value: String): PlacementOverlayType? {

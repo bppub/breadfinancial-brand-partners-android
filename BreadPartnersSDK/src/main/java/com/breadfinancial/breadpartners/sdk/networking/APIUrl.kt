@@ -16,20 +16,35 @@ import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
 
 // Enum to define different types of API URLs
 sealed class APIUrlType {
-    data class RTPSWebURL(val type: String) : APIUrlType()
-    data class BrandStyle(val brandId: String) : APIUrlType()
-    data class BrandConfig(val brandId: String) : APIUrlType()
+    data class RTPSWebURL(
+        val type: String,
+    ) : APIUrlType()
+
+    data class BrandStyle(
+        val brandId: String,
+    ) : APIUrlType()
+
+    data class BrandConfig(
+        val brandId: String,
+    ) : APIUrlType()
+
     data object GeneratePlacements : APIUrlType()
+
     data object ViewPlacement : APIUrlType()
+
     data object ClickPlacement : APIUrlType()
+
     data object PreScreen : APIUrlType()
+
     data object VirtualLookup : APIUrlType()
+
     data object BatchPreScreen : APIUrlType()
 }
 
 // A centralized class for constructing and managing API URLs
-class APIUrl(private val urlType: APIUrlType) {
-
+class APIUrl(
+    private val urlType: APIUrlType,
+) {
     companion object {
         private var currentBreadPartnersEnvironment: BreadPartnersEnvironment = BreadPartnersEnvironment.PROD
 

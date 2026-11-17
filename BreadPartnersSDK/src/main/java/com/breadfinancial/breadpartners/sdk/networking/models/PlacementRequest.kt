@@ -14,7 +14,6 @@
 
 package com.breadfinancial.breadpartners.sdk.networking.models
 
-
 /**
  * Represents a request for fetching placement data based on brand and placement details.
  */
@@ -27,7 +26,8 @@ data class PlacementRequest(
  * Represents an individual placement request with an ID and context.
  */
 data class PlacementRequestBody(
-    val id: String? = null, val context: ContextRequestBody? = null
+    val id: String? = null,
+    val context: ContextRequestBody? = null,
 )
 
 /**
@@ -58,5 +58,5 @@ data class ContextRequestBody(
     val ALLOW_CHECKOUT: Boolean? = null,
     val UPQ_CHECKOUT_PARAMS: String? = null,
     val UPQ_PARAMS: String? = null,
-    val embeddedUrl: String? = null
+    val embeddedUrl: String? = null,
 )

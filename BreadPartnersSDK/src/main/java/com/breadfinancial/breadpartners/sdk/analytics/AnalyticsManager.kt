@@ -27,7 +27,7 @@ import com.breadfinancial.breadpartners.sdk.utilities.Constants
  * 1. **Click Placement**: When the user clicks on the placement.
  * 2. **View Placement**: When the user sees or interacts with the placement without clicking.
  */
-class AnalyticsManager{
+class AnalyticsManager  {
 
     private var apiKey: String = ""
 
@@ -36,29 +36,37 @@ class AnalyticsManager{
     }
 
     // Helper function to send analytics payload
-    private fun sendAnalyticsPayload(apiUrl: String, payload: Analytics.Payload) {
+    private fun sendAnalyticsPayload(
+        apiUrl: String,
+        payload: Analytics.Payload,
+    ) {
         val headers = mapOf(
             Constants.headerAuthorityKey to Constants.headerAuthorityValue,
             Constants.headerAcceptKey to Constants.headerAcceptValue,
             Constants.headerAcceptEncodingKey to Constants.headerAcceptEncodingValue,
             Constants.headerAcceptLanguageKey to Constants.headerAcceptLanguageValue,
             Constants.headerAccessControlRequestHeadersKey to Constants.headerAccessControlRequestHeadersValue,
-            Constants.headerAccessControlRequestMethodKey to Constants.headerAccessControlRequestMethodValue
+            Constants.headerAccessControlRequestMethodKey to Constants.headerAccessControlRequestMethodValue,
         )
         APIClient().request(
-            urlString = apiUrl, method = HTTPMethod.OPTIONS, body = payload, headers = headers
+            urlString = apiUrl,
+            method = HTTPMethod.OPTIONS,
+            body = payload,
+            headers = headers,
         ) {}
     }
 
     // ToDo: Setup analytics payload
     // Helper function to create analytics payload
     private fun createAnalyticsPlacementPayload(
-        name: String, placementResponse: PlacementsResponse
+        name: String,
+        placementResponse: PlacementsResponse,
     ): Analytics.Payload {
         val timestamp = CommonUtils().getCurrentTimestamp()
 
         return Analytics.Payload(
-            name = name, props = Analytics.Props(
+            name = name,
+            props = Analytics.Props(
                 eventProperties = Analytics.EventProperties(
                     placement = Analytics.Placement(
                         id = placementResponse.placements?.first()?.id,
@@ -68,35 +76,48 @@ class AnalyticsManager{
                     placementContent = Analytics.PlacementContent(
                         id = placementResponse.placementContent?.first()?.id,
                         contentType = placementResponse.placementContent?.first()?.contentType,
-                        metadata = placementResponse.placementContent?.first()?.metadata
+                        metadata = placementResponse.placementContent?.first()?.metadata,
                     ),
-                    metadata = mapOf("location" to placementResponse.placements?.first()?.renderContext?.LOCATION),
-                    actionTarget = null
-                ), userProperties = emptyMap()
-            ), context = Analytics.Context(
+                    metadata = mapOf(
+                        "location" to placementResponse.placements
+                            ?.first()
+                            ?.renderContext
+                            ?.LOCATION,
+                    ),
+                    actionTarget = null,
+                ),
+                userProperties = emptyMap(),
+            ),
+            context = Analytics.Context(
                 timestamp = timestamp,
                 apiKey = apiKey,
                 browserCtx = Analytics.BrowserCtx(
                     library = Analytics.Library(
-                        name = "bread-partners-sdk-android", version = "0.0.1"
+                        name = "bread-partners-sdk-android",
+                        version = "0.0.1",
                     ),
                     userAgent = CommonUtils().getUserAgent(),
                     page = Analytics.Page(
                         path = "ToDO:Android Screen Name",
-                        url = "ToDO"
-                    )
+                        url = "ToDO",
+                    ),
                 ),
                 trackingInfo = Analytics.TrackingInfo(
-                    userTrackingId = placementResponse.placements?.first()?.renderContext?.SDK_TID,
-                    sessionTrackingId = "ToDO"
-                )
-            )
+                    userTrackingId = placementResponse.placements
+                        ?.first()
+                        ?.renderContext
+                        ?.SDK_TID,
+                    sessionTrackingId = "ToDO",
+                ),
+            ),
         )
     }
 
     // Centralized function to send placement analytics
     private fun sendPlacementAnalytics(
-        name: String, placementResponse: PlacementsResponse, apiUrlType: APIUrlType
+        name: String,
+        placementResponse: PlacementsResponse,
+        apiUrlType: APIUrlType,
     ) {
         val payload = createAnalyticsPlacementPayload(name, placementResponse)
         val apiUrl = APIUrl(urlType = apiUrlType).url

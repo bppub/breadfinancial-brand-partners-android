@@ -35,8 +35,8 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.Pla
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PopupPlacementModel
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupDialog
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupElements
-import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applySuperscriptSize
+import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.applyTextStyle
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.imageloader.ImageLoaderUtil
 
@@ -54,19 +54,25 @@ private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
 
     urlSpans.forEach { urlSpan ->
         val start = spannable.getSpanStart(urlSpan)
-        val end   = spannable.getSpanEnd(urlSpan)
+        val end = spannable.getSpanEnd(urlSpan)
         val flags = spannable.getSpanFlags(urlSpan)
-        val url   = urlSpan.url
+        val url = urlSpan.url
         spannable.removeSpan(urlSpan)
-        spannable.setSpan(object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                onLinkClicked(url)
-            }
-            override fun updateDrawState(ds: TextPaint) {
-                ds.isUnderlineText = true
-                ds.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            }
-        }, start, end, flags)
+        spannable.setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    onLinkClicked(url)
+                }
+
+                override fun updateDrawState(ds: TextPaint) {
+                    ds.isUnderlineText = true
+                    ds.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                }
+            },
+            start,
+            end,
+            flags,
+        )
     }
 
     text = spannable
@@ -79,7 +85,6 @@ private fun TextView.makeLinksClickable(onLinkClicked: (url: String) -> Unit) {
  * including layout, styling, and content binding.
  */
 fun PopupDialog.setupUI() {
-
     val popupStyle = placementsConfiguration?.popUpStyling!!
     val buttonStyle = popupStyle.actionButtonStyle
 
@@ -121,7 +126,7 @@ fun PopupDialog.setupUI() {
         disclosureLabel.paddingLeft,
         (24 * resources.displayMetrics.density).toInt(),
         disclosureLabel.paddingRight,
-        disclosureLabel.paddingBottom
+        disclosureLabel.paddingBottom,
     )
     if (popupModel.overlayContainerBarHeading.isEmpty()) {
         headerView.visibility = View.GONE
@@ -170,7 +175,10 @@ fun PopupDialog.setupUI() {
         }
         webViewManager.setOnAppRestartListener(this)
         addSectionsToLinearLayout(
-            popupModel, contentStackView, it, popupStyle
+            popupModel,
+            contentStackView,
+            it,
+            popupStyle,
         )
 
         // The ScrollView wraps overlay_view so that scroll would work.
@@ -218,7 +226,7 @@ fun PopupDialog.addSectionsToLinearLayout(
     popupModel: PopupPlacementModel,
     container: LinearLayout,
     context: Context,
-    popupStyle: PopUpStyling
+    popupStyle: PopUpStyling,
 ) {
     val bodyDivModel = popupModel.dynamicBodyModel.bodyDiv
     val tagPriorityList = listOf("h3", "p", "connector")
@@ -230,11 +238,15 @@ fun PopupDialog.addSectionsToLinearLayout(
         tagPriorityList.forEach { tag ->
             val content = tagValuePairs[tag]
             content?.let {
-                PopupElements.shared.createLabelForTag(
-                    popupModel = popupStyle, tag = tag, value = it, context
-                )?.let { label ->
-                    container.addView(label)
-                }
+                PopupElements.shared
+                    .createLabelForTag(
+                        popupModel = popupStyle,
+                        tag = tag,
+                        value = it,
+                        context,
+                    )?.let { label ->
+                        container.addView(label)
+                    }
             }
         }
     }
@@ -244,19 +256,27 @@ fun PopupDialog.addSectionsToLinearLayout(
         val labelValue = footerEntry?.value?.tagValuePairs
         val valueFooter: Spanned? = labelValue?.get("footer")
         if (valueFooter != null) {
-            PopupElements.shared.createLabelForTag(
-                popupModel = popupStyle, tag = "footer", value = valueFooter, context
-            )?.let { label ->
-                container.addView(label)
-            }
-        } else {
-            val firstValue = labelValue?.values?.firstOrNull()
-            firstValue?.let { spannedValue ->
-                PopupElements.shared.createLabelForTag(
-                    popupStyle, tag = "footer", value = spannedValue, context
+            PopupElements.shared
+                .createLabelForTag(
+                    popupModel = popupStyle,
+                    tag = "footer",
+                    value = valueFooter,
+                    context,
                 )?.let { label ->
                     container.addView(label)
                 }
+        } else {
+            val firstValue = labelValue?.values?.firstOrNull()
+            firstValue?.let { spannedValue ->
+                PopupElements.shared
+                    .createLabelForTag(
+                        popupStyle,
+                        tag = "footer",
+                        value = spannedValue,
+                        context,
+                    )?.let { label ->
+                        container.addView(label)
+                    }
             }
         }
     }

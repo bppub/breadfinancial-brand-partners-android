@@ -23,9 +23,8 @@ import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.ta
 class RTPSRequestBuilder(
     private val merchantConfiguration: MerchantConfiguration,
     private val rtpsData: RTPSData,
-    private val reCaptchaToken: String
+    private val reCaptchaToken: String,
 ) {
-
     fun build(): RTPSRequest {
         val buyer = merchantConfiguration.buyer
         if (rtpsData.prescreenId == null) {
@@ -50,7 +49,7 @@ class RTPSRequestBuilder(
                 mobilePhone = buyer?.phone.takeIfNotEmpty(),
                 emailAddress = buyer?.email.takeIfNotEmpty(),
                 alternativePhone = buyer?.alternativePhone.takeIfNotEmpty(),
-                )
+            )
         } else {
             // Validate PreScreenID using virtuallookup
             return RTPSRequest(
@@ -60,9 +59,8 @@ class RTPSRequestBuilder(
                 subchannel = merchantConfiguration.subchannel.takeIfNotEmpty(),
                 mockResponse = rtpsData.mockResponse?.value,
                 overrideConfig = RTPSRequest.OverrideConfig(enhancedPresentment = true),
-                customerAcceptedOffer = rtpsData.customerAcceptedOffer
+                customerAcceptedOffer = rtpsData.customerAcceptedOffer,
             )
         }
-
     }
 }
