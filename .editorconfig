@@ -15,7 +15,3 @@ max_line_length = 120
 ktlint_standard_comment-spacing = disabled
 ktlint_standard_multiline-expression-wrapping = disabled
 ktlint_standard_function-expression-body = disabled
-
-# IntelliJ IDE Kotlin style preferences (ij_* settings control IDE formatter behavior)
-ij_kotlin_allow_trailing_comma = true
-ij_kotlin_line_comment_add_space = false
