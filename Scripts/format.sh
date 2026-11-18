@@ -21,9 +21,4 @@ fi
 
 echo "Running ktlint ($COMMAND mode)..."
 
-if [[ "$COMMAND" == "check" || "$COMMAND" == "--check" ]]; then
-    ktlint --editorconfig=.editorconfig "**/*.kt" "**/*.kts" --reporter=plain
-else
-    ktlint --editorconfig=.editorconfig -F "**/*.kt" "**/*.kts" --reporter=plain
-    echo "✅ Formatting complete!"
-fi
+ktlint --editorconfig=.editorconfig "**/*.kt" "**/*.kts" --reporter=plain

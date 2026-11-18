@@ -25,7 +25,7 @@ jobs:
 
       # Keep these checks first: failures stop the job before build/test work.
       - name: Check Kotlin formatting
-        run: ./Scripts/format.sh --check
+        run: ./Scripts/format.sh
 
       - name: Lint Kotlin
         run: ./Scripts/lint.sh
