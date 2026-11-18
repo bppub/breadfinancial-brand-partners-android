@@ -29,3 +29,6 @@ jobs:
 
       - name: Lint Kotlin
         run: ./Scripts/lint.sh
+
+      - name: Build SDK release
+        run: ./gradlew :BreadPartnersSDK:assembleRelease
