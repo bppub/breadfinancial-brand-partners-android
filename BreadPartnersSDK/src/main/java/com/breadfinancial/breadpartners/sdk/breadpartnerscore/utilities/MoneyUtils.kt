@@ -26,4 +26,3 @@ internal object MoneyUtils {
         return if (moneyValue != null) (moneyValue.toDouble() / 100) else null
     }
 }
-
