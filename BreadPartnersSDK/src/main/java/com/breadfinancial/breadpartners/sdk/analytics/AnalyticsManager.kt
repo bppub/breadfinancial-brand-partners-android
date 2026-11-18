@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.analytics
 
 import com.breadfinancial.breadpartners.sdk.analytics.models.Analytics
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.TimestampUtils
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
 import com.breadfinancial.breadpartners.sdk.networking.APIUrl
 import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
@@ -20,6 +21,7 @@ import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
+import java.util.Date
 
 /**
  * `AnalyticsManager` logs user interactions with placements in the app.
@@ -61,7 +63,7 @@ class AnalyticsManager {
         name: String,
         placementResponse: PlacementsResponse,
     ): Analytics.Payload {
-        val timestamp = CommonUtils().getCurrentTimestamp()
+        val timestamp = TimestampUtils.formattedUTCTimestamp(Date())
 
         return Analytics.Payload(
             name = name,
