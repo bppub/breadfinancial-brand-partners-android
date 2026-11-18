@@ -3,6 +3,10 @@ name: CI
 on:
   pull_request:
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   quality:
     name: Format, lint, and build
@@ -33,6 +37,104 @@ jobs:
       - name: Build SDK release
         run: ./gradlew :BreadPartnersSDK:assembleRelease
 
-      - name: Run SDK unit tests
-        run: ./gradlew :BreadPartnersSDK:testDebugUnitTest
+      - name: Run SDK unit tests with coverage
+        run: ./gradlew :BreadPartnersSDK:testDebugUnitTest :BreadPartnersSDK:createDebugUnitTestCoverageReport
 
+      - name: Publish combined coverage check run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const path = require("node:path");
+
+            const escapeCell = value => String(value ?? "").replace(/\|/g, "\\|");
+            const toNumber = value => Number(value || 0);
+            const reportPath = path.join(
+              process.env.GITHUB_WORKSPACE,
+              "BreadPartnersSDK",
+              "build",
+              "reports",
+              "coverage",
+              "test",
+              "debug",
+              "report.xml"
+            );
+
+            if (!fs.existsSync(reportPath)) {
+              throw new Error(`Coverage report not found: ${reportPath}`);
+            }
+
+            // JaCoCo XML: <package name="a/b"> ... <sourcefile name="X.kt"> ... <counter type="LINE" .../>
+            const xml = fs.readFileSync(reportPath, "utf8");
+            const filesByPath = new Map();
+            const packagePattern = /<package name="([^"]*)">([\s\S]*?)<\/package>/g;
+            const sourceFilePattern = /<sourcefile name="([^"]*)">([\s\S]*?)<\/sourcefile>/g;
+            const linePattern = /<counter type="LINE" missed="(\d+)" covered="(\d+)"\/>/;
+
+            for (const packageMatch of xml.matchAll(packagePattern)) {
+              const packageName = packageMatch[1];
+              for (const fileMatch of packageMatch[2].matchAll(sourceFilePattern)) {
+                const lineCounter = fileMatch[2].match(linePattern);
+                if (!lineCounter) continue;
+
+                const filePath = `${packageName}/${fileMatch[1]}`;
+                const file = filesByPath.get(filePath) || {
+                  name: filePath,
+                  coveredLines: 0,
+                  executableLines: 0
+                };
+                file.coveredLines += toNumber(lineCounter[2]);
+                file.executableLines += toNumber(lineCounter[1]) + toNumber(lineCounter[2]);
+                filesByPath.set(filePath, file);
+              }
+            }
+
+            const files = Array.from(filesByPath.values())
+              .filter(file => file.executableLines > 0)
+              .map(file => ({
+                ...file,
+                lineCoverage: file.coveredLines / file.executableLines
+              }))
+              .sort((left, right) => left.lineCoverage - right.lineCoverage);
+
+            if (files.length === 0) {
+              throw new Error(`No source files found in coverage report: ${reportPath}`);
+            }
+
+            const percent = value => `${(value * 100).toFixed(2)}%`;
+            const coveredLines = files.reduce((total, file) => total + file.coveredLines, 0);
+            const executableLines = files.reduce((total, file) => total + file.executableLines, 0);
+            const lineCoverage = coveredLines / executableLines;
+            const rows = files.map(file =>
+              `| ${escapeCell(file.name)} | ${percent(file.lineCoverage)} | ${file.coveredLines} / ${file.executableLines} |`
+            );
+            const text = [
+              "| Metric | Value |",
+              "| --- | ---: |",
+              `| Line Coverage | **${percent(lineCoverage)}** |`,
+              `| Covered Lines | ${coveredLines} |`,
+              `| Executable Lines | ${executableLines} |`,
+              `| Files in Report | ${files.length} |`,
+              `| Workflow Run | ${context.runId} |`,
+              `| Commit | ${context.sha.slice(0, 7)} |`,
+              "",
+              "### Lowest Coverage Files",
+              "| File | Coverage | Covered / Executable |",
+              "| --- | ---: | ---: |",
+              ...rows,
+              "",
+            ].join("\n");
+
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "Coverage (Combined)",
+              head_sha: context.payload.pull_request.head.sha,
+              status: "completed",
+              conclusion: "success",
+              output: {
+                title: "Combined Coverage",
+                summary: `Line coverage: **${percent(lineCoverage)}**`,
+                text
+              }
+            });
