@@ -14,7 +14,6 @@ package com.breadfinancial.breadpartners.sdk.utilities
 
 import android.graphics.Color
 import android.os.Build
-import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.MoneyUtils
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
