@@ -12,6 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk.networking.requestbuilders
 
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.MoneyUtils
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersBuyer
 import com.breadfinancial.breadpartners.sdk.core.models.INELIGIBLE_ITEM_CATEGORIES
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
@@ -192,7 +193,7 @@ class PlacementRequestBuilder(
                 "storeNumber" to merchantConfiguration?.storeNumber,
                 "loyaltyNumber" to merchantConfiguration?.loyaltyID,
                 "departmentId" to merchantConfiguration?.departmentId,
-                "checkoutAmount" to CommonUtils().fromMoneyToDollars(placementData?.order?.totalPrice?.value),
+                "checkoutAmount" to MoneyUtils.fromMoneyToDollars(placementData?.order?.totalPrice?.value),
                 "location" to placementData?.locationType,
                 "epId" to userTrackingId,
                 "epPlacementId" to placementData?.placementId,
@@ -275,19 +276,19 @@ class PlacementRequestBuilder(
                             "name" to item.name,
                             "category" to item.category,
                             "quantity" to item.quantity,
-                            "unitPriceValue" to CommonUtils().fromMoneyToDollars(item.unitPrice?.value),
-                            "unitTaxValue" to CommonUtils().fromMoneyToDollars(item.unitTax?.value),
+                            "unitPriceValue" to MoneyUtils.fromMoneyToDollars(item.unitPrice?.value),
+                            "unitTaxValue" to MoneyUtils.fromMoneyToDollars(item.unitTax?.value),
                             "sku" to item.sku,
-                            "shippingCostValue" to CommonUtils().fromMoneyToDollars(item.shippingCost?.value),
+                            "shippingCostValue" to MoneyUtils.fromMoneyToDollars(item.shippingCost?.value),
                             "fulfillmentType" to item.fulfillmentType,
                         ),
                     )
                 },
-                "subTotalValue" to CommonUtils().fromMoneyToDollars(order?.subTotal?.value),
-                "totalDiscountsValue" to CommonUtils().fromMoneyToDollars(order?.totalDiscounts?.value),
-                "totalPriceValue" to CommonUtils().fromMoneyToDollars(order?.totalPrice?.value),
-                "totalShippingValue" to CommonUtils().fromMoneyToDollars(order?.totalShipping?.value),
-                "totalTaxValue" to CommonUtils().fromMoneyToDollars(order?.totalTax?.value),
+                "subTotalValue" to MoneyUtils.fromMoneyToDollars(order?.subTotal?.value),
+                "totalDiscountsValue" to MoneyUtils.fromMoneyToDollars(order?.totalDiscounts?.value),
+                "totalPriceValue" to MoneyUtils.fromMoneyToDollars(order?.totalPrice?.value),
+                "totalShippingValue" to MoneyUtils.fromMoneyToDollars(order?.totalShipping?.value),
+                "totalTaxValue" to MoneyUtils.fromMoneyToDollars(order?.totalTax?.value),
                 "fulfillmentType" to order?.fulfillmentType,
                 "pickupInformation" to if (order?.pickupInformation != null) {
                     CommonUtils().assignDefined(
