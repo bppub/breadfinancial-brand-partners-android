@@ -307,12 +307,9 @@ class MainActivity : AppCompatActivity() {
         ) { event ->
             when (event) {
                 is BreadPartnerEvent.RenderTextViewWithLink -> {
-                    /**
-                     * Handles rendering of a text view with a clickable link.
-                     *
-                     * - Modifies the font, text color, and link color for the text view.
-                     * - Adds the text view to the main view and sets up its layout constraints.
-                     */
+                    // Handles rendering of a text view with a clickable link.
+                    // Modifies the font, text color, and link color for the text view.
+                    // Adds the text view to the main view and sets up its layout constraints.
 
                     val textView = binding.textView
                     val spannable = event.spannableText
@@ -329,12 +326,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 is BreadPartnerEvent.RenderSeparateTextAndButton -> {
-                    /**
-                     * Handles rendering of a popup view.
-                     *
-                     * - Modifies the font, text color for the text view, and the button's title color, font, and background.
-                     * - Adds the text view and button to the main view and sets up their layout constraints.
-                     */
+                    // Handles rendering of a popup view.
+                    // Modifies the font, text color for the text view, and the button's title color, font, and background.
+                    // Adds the text view and button to the main view and sets up their layout constraints.
                     event.textView.apply {
                         setTextColor(Color.BLACK)
                         textSize = 24f

@@ -150,7 +150,9 @@ class PopupElements private constructor() {
                 textView.applyTextStyle(popupModel.paragraphPopupTextStyle)
             }
 
-            else -> return null
+            else -> {
+                return null
+            }
         }
         textView.gravity = gravity
         textView.setPadding(0, 10, 0, 10)
