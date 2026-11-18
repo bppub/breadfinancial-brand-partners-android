@@ -28,19 +28,6 @@ import java.net.URL
  */
 class CommonUtils {
     /**
-     * Returns the current timestamp.
-     */
-    fun getCurrentTimestamp(): String {
-        val dateFormatter = java.text.SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-            java.util.Locale.getDefault(),
-        )
-        dateFormatter.timeZone = java.util.TimeZone.getTimeZone("UTC")
-        val currentDate = java.util.Date()
-        return dateFormatter.format(currentDate)
-    }
-
-    /**
      * Safely decodes a JSON string into the specified model class.
      */
     fun <T> decodeJSON(
