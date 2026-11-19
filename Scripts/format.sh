@@ -21,4 +21,17 @@ fi
 
 echo "Running ktlint ($COMMAND mode)..."
 
-ktlint --editorconfig=.editorconfig "**/*.kt" "**/*.kts" --reporter=plain
+case "$COMMAND" in
+    format)
+        ktlint --editorconfig=.editorconfig --format "**/*.kt" "**/*.kts" --reporter=plain
+        ;;
+    --check)
+        ktlint --editorconfig=.editorconfig "**/*.kt" "**/*.kts" --reporter=plain
+        ;;
+    *)
+        echo "Unknown option: $COMMAND"
+        echo "Usage: ./Scripts/format.sh [--check]"
+        exit 2
+        ;;
+esac
+
