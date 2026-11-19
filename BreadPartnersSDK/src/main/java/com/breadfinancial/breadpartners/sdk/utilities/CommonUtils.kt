@@ -233,32 +233,6 @@ class CommonUtils {
         val manufacturer = Build.MANUFACTURER // e.g., "Google"
         return "$manufacturer $deviceModel; $osVersion" // Google Pixel 7; Android 13
     }
-
-    /**
-     * Merges source maps into target map, only including defined and non-empty values.
-     * Supports multiple source maps passed as varargs.
-     * Returns the same type as the target parameter.
-     *
-     * @param T The type of map to work with
-     * @param target The target map to merge into
-     * @param sources One or more source maps to merge from
-     * @return The target map with merged values (same type as input)
-     */
-    fun <T : MutableMap<String, Any?>> assignDefined(
-        target: T,
-        vararg sources: Map<String, Any?>,
-    ): T {
-        for (source in sources) {
-            if (source.isEmpty()) continue
-
-            for ((key, value) in source) {
-                if (value != null && value != "") {
-                    target[key] = value
-                }
-            }
-        }
-        return target
-    }
 }
 
 /**

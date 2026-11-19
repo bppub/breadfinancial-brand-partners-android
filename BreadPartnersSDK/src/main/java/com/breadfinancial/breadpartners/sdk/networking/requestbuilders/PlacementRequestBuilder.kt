@@ -12,6 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk.networking.requestbuilders
 
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.extensions.assignDefined
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.MoneyUtils
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersBuyer
 import com.breadfinancial.breadpartners.sdk.core.models.INELIGIBLE_ITEM_CATEGORIES
@@ -25,7 +26,6 @@ import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
-import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.toQueryString
 import com.google.gson.Gson
 
@@ -145,8 +145,7 @@ class PlacementRequestBuilder(
             mapUnifiedPlacementContextToUPQAddressRequest(merchantConfiguration?.buyer)
 
         // Merge all data using assignDefined
-        return CommonUtils().assignDefined(
-            mutableMapOf<String, Any?>(),
+        return mutableMapOf<String, Any?>().assignDefined(
             commonData,
             mapOf(
                 "order" to newOrder,
@@ -177,8 +176,7 @@ class PlacementRequestBuilder(
         sessionId: String? = null,
         userTrackingId: String? = null,
     ): MutableMap<String, Any?> {
-        return CommonUtils().assignDefined(
-            mutableMapOf<String, Any?>(),
+        return mutableMapOf<String, Any?>().assignDefined(
             mapOf(
                 "firstName" to merchantConfiguration?.buyer?.givenName,
                 "lastName" to merchantConfiguration?.buyer?.familyName,
@@ -265,13 +263,11 @@ class PlacementRequestBuilder(
      * @return Order with mapped fields, or null if order is null
      */
     fun mapUnifiedPlacementOrderToOrder(order: Order?): MutableMap<String, Any?> {
-        return CommonUtils().assignDefined(
-            mutableMapOf<String, Any?>(),
+        return mutableMapOf<String, Any?>().assignDefined(
             mapOf(
                 "bnplEligible" to order?.bnplEligible,
                 "items" to order?.items?.map { item ->
-                    CommonUtils().assignDefined(
-                        mutableMapOf<String, Any?>(),
+                    mutableMapOf<String, Any?>().assignDefined(
                         mapOf(
                             "name" to item.name,
                             "category" to item.category,
@@ -291,19 +287,16 @@ class PlacementRequestBuilder(
                 "totalTaxValue" to MoneyUtils.fromMoneyToDollars(order?.totalTax?.value),
                 "fulfillmentType" to order?.fulfillmentType,
                 "pickupInformation" to if (order?.pickupInformation != null) {
-                    CommonUtils().assignDefined(
-                        mutableMapOf<String, Any?>(),
+                    mutableMapOf<String, Any?>().assignDefined(
                         mapOf(
-                            "name" to CommonUtils().assignDefined(
-                                mutableMapOf<String, Any?>(),
+                            "name" to mutableMapOf<String, Any?>().assignDefined(
                                 mapOf(
                                     "firstName" to order.pickupInformation?.name?.givenName,
                                     "lastName" to order.pickupInformation?.name?.familyName,
                                     "additionalName" to order.pickupInformation?.name?.additionalName,
                                 ),
                             ),
-                            "address" to CommonUtils().assignDefined(
-                                mutableMapOf<String, Any?>(),
+                            "address" to mutableMapOf<String, Any?>().assignDefined(
                                 mapOf(
                                     "address1" to order.pickupInformation?.address?.address1,
                                     "address2" to order.pickupInformation?.address?.address2,
