@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.networking.requestbuilders
 
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.extensions.assignDefined
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.extensions.toQueryString
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.MoneyUtils
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersBuyer
 import com.breadfinancial.breadpartners.sdk.core.models.INELIGIBLE_ITEM_CATEGORIES
@@ -26,7 +27,6 @@ import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
 import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
-import com.breadfinancial.breadpartners.sdk.utilities.toQueryString
 import com.google.gson.Gson
 
 /**
