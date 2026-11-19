@@ -23,12 +23,9 @@ jobs:
           chmod +x ktlint
           sudo mv ktlint /usr/local/bin/
 
-      # Keep these checks first: failures stop the job before build/test work.
-      - name: Check Kotlin formatting
-        run: ./Scripts/format.sh
-
+      # Keep this check first: failures stop the job before build/test work.
       - name: Lint Kotlin
-        run: ./Scripts/lint.sh
+        run: ./Scripts/format.sh --check
 
       - name: Build SDK release
         run: ./gradlew :BreadPartnersSDK:assembleRelease
