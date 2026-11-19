@@ -19,9 +19,7 @@ package com.breadfinancial.breadpartners.sdk.breadpartnerscore.extensions
  * @param sources One or more source maps to merge from
  * @return This map (same instance) with merged values
  */
-internal fun <T : MutableMap<String, Any?>> T.assignDefined(
-    vararg sources: Map<String, Any?>,
-): T {
+internal fun <T : MutableMap<String, Any?>> T.assignDefined(vararg sources: Map<String, Any?>): T {
     for (source in sources) {
         for ((key, value) in source) {
             if (value != null && value != "") {
@@ -31,4 +29,3 @@ internal fun <T : MutableMap<String, Any?>> T.assignDefined(
     }
     return this
 }
-
