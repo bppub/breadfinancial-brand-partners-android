@@ -45,32 +45,31 @@ data class PopUpStyling(
     val backgroundColor: Int = Color.WHITE,
     val titlePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.TITLE_POPUP_TEXT_SIZE,
     ),
     val subTitlePopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = BreadPartnerDefaults.SUBTITLE_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.SUBTITLE_POPUP_TEXT_SIZE,
     ),
     val headerPopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = BreadPartnerDefaults.HEADER_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.HEADER_POPUP_TEXT_SIZE,
     ),
     val headerBgColor: Int = Color.LTGRAY,
     val headingThreePopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = BreadPartnerDefaults.HEADING_THREE_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.HEADING_THREE_POPUP_TEXT_SIZE,
     ),
     val paragraphPopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = BreadPartnerDefaults.PARAGRAPH_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.PARAGRAPH_POPUP_TEXT_SIZE,
     ),
     val connectorPopupTextStyle: PopupTextStyle = PopupTextStyle(
         textColor = Color.BLACK,
-        textSize = BreadPartnerDefaults.CONNECTOR_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.CONNECTOR_POPUP_TEXT_SIZE,
     ),
     val disclosurePopupTextStyle: PopupTextStyle = PopupTextStyle(
-        textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE
+        textSize = BreadPartnerDefaults.DISCLOSURE_POPUP_TEXT_SIZE,
     ),
     var actionButtonStyle: PopupActionButtonStyle = PopupActionButtonStyle(),
 )
-
 
 /**
  * Structure that defines text styling config for popup elements.
@@ -82,7 +81,7 @@ data class PopUpStyling(
 data class PopupTextStyle(
     val font: Typeface? = Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
     val textColor: Int? = BreadPartnerDefaults.GRAY_COLOR,
-    val textSize: Float? = null
+    val textSize: Float? = null,
 )
 
 /**
@@ -100,6 +99,5 @@ data class PopupActionButtonStyle(
     val textColor: Int = Color.WHITE,
     val textSize: Float = 12F,
     val backgroundColor: Int = Color.BLACK,
-    val cornerRadius: Float = BreadPartnerDefaults.ACTION_BUTTON_CORNER_RADIUS
+    val cornerRadius: Float = BreadPartnerDefaults.ACTION_BUTTON_CORNER_RADIUS,
 )
-

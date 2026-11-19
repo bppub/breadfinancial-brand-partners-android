@@ -26,15 +26,14 @@ import java.net.URL
 /**
  * Utility class for handling common operations across the SDK.
  */
-class CommonUtils(
-) {
-
+class CommonUtils {
     /**
      * Returns the current timestamp.
      */
     fun getCurrentTimestamp(): String {
         val dateFormatter = java.text.SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            java.util.Locale.getDefault(),
         )
         dateFormatter.timeZone = java.util.TimeZone.getTimeZone("UTC")
         val currentDate = java.util.Date()
@@ -45,7 +44,10 @@ class CommonUtils(
      * Safely decodes a JSON string into the specified model class.
      */
     fun <T> decodeJSON(
-        jsonString: String, clazz: Class<T>, onSuccess: (T) -> Unit, onError: (Exception) -> Unit
+        jsonString: String,
+        clazz: Class<T>,
+        onSuccess: (T) -> Unit,
+        onError: (Exception) -> Unit,
     ) {
         try {
             val gson = Gson()
@@ -75,10 +77,22 @@ class CommonUtils(
             "urlPath" to rtpsConfig.screenName.takeIfNotEmpty(),
             "firstName" to merchantConfiguration.buyer?.givenName.takeIfNotEmpty(),
             "lastName" to merchantConfiguration.buyer?.familyName.takeIfNotEmpty(),
-            "address1" to merchantConfiguration.buyer?.billingAddress?.address1.takeIfNotEmpty(),
-            "city" to merchantConfiguration.buyer?.billingAddress?.locality.takeIfNotEmpty(),
-            "state" to merchantConfiguration.buyer?.billingAddress?.region.takeIfNotEmpty(),
-            "zip" to merchantConfiguration.buyer?.billingAddress?.postalCode.takeIfNotEmpty(),
+            "address1" to merchantConfiguration.buyer
+                ?.billingAddress
+                ?.address1
+                .takeIfNotEmpty(),
+            "city" to merchantConfiguration.buyer
+                ?.billingAddress
+                ?.locality
+                .takeIfNotEmpty(),
+            "state" to merchantConfiguration.buyer
+                ?.billingAddress
+                ?.region
+                .takeIfNotEmpty(),
+            "zip" to merchantConfiguration.buyer
+                ?.billingAddress
+                ?.postalCode
+                .takeIfNotEmpty(),
             "storeNumber" to merchantConfiguration.storeNumber.takeIfNotEmpty(),
             "mobilePhone" to merchantConfiguration.buyer?.phone.takeIfNotEmpty(),
             "alternativePhone" to merchantConfiguration.buyer?.alternativePhone.takeIfNotEmpty(),
@@ -90,7 +104,9 @@ class CommonUtils(
         return try {
             val urlComponents = URL(APIUrl(urlType = APIUrlType.RTPSWebURL("offer")).url)
             val queryString =
-                queryParams.filterValues { it != null }.map { "${it.key}=${it.value}" }
+                queryParams
+                    .filterValues { it != null }
+                    .map { "${it.key}=${it.value}" }
                     .joinToString("&")
 
             URL("$urlComponents?$queryString")
@@ -98,7 +114,6 @@ class CommonUtils(
             null
         }
     }
-
 
     /**
      * Builds a URL for BPS (Batch Prescreen) Web based on the provided integration and configuration details.
@@ -113,7 +128,6 @@ class CommonUtils(
         merchantConfiguration: MerchantConfiguration,
         placementsConfiguration: PlacementsConfiguration,
     ): URL? {
-
         val mockResponseValue = placementsConfiguration.rtpsData?.mockResponse?.value
 
         // Extract buyer information
@@ -156,8 +170,18 @@ class CommonUtils(
             "loyaltyNumber" to merchantConfiguration.loyaltyID,
             "customerNumber" to null,
             "cartAmount" to order?.subTotal?.value?.toString(),
-            "productAmount" to order?.items?.first()?.unitPrice?.value.toString(),
-            "productAmount" to order?.items?.first()?.unitPrice?.value.toString(),
+            "productAmount" to order
+                ?.items
+                ?.first()
+                ?.unitPrice
+                ?.value
+                .toString(),
+            "productAmount" to order
+                ?.items
+                ?.first()
+                ?.unitPrice
+                ?.value
+                .toString(),
             "checkoutAmount" to order?.totalPrice?.value.toString(),
             "urlPath" to null,
             "location" to location,
@@ -185,13 +209,15 @@ class CommonUtils(
             "shortCode" to null,
             "channelId" to null,
             "applicationSubType" to null,
-            "splitPayment" to null
+            "splitPayment" to null,
         )
 
         return try {
             val urlComponents = URL(APIUrl(urlType = APIUrlType.BatchPreScreen).url)
             val queryString =
-                queryParams.filterValues { it != null }.map { "${it.key}=${it.value}" }
+                queryParams
+                    .filterValues { it != null }
+                    .map { "${it.key}=${it.value}" }
                     .joinToString("&")
 
             URL("$urlComponents?$queryString")
@@ -216,8 +242,8 @@ class CommonUtils(
      */
     fun getUserAgent(): String {
         val osVersion = "Android ${Build.VERSION.RELEASE}" // e.g., "Android 13"
-        val deviceModel = Build.MODEL                    // e.g., "Pixel 7"
-        val manufacturer = Build.MANUFACTURER           // e.g., "Google"
+        val deviceModel = Build.MODEL // e.g., "Pixel 7"
+        val manufacturer = Build.MANUFACTURER // e.g., "Google"
         return "$manufacturer $deviceModel; $osVersion" // Google Pixel 7; Android 13
     }
 
@@ -243,7 +269,7 @@ class CommonUtils(
      */
     fun <T : MutableMap<String, Any?>> assignDefined(
         target: T,
-        vararg sources: Map<String, Any?>
+        vararg sources: Map<String, Any?>,
     ): T {
         for (source in sources) {
             if (source.isEmpty()) continue
@@ -258,13 +284,13 @@ class CommonUtils(
     }
 }
 
-
 /**
  * Extension function to convert map to query string with proper URL encoding.
  * (Already exists in your UnifiedPlacementModels.kt)
  */
 fun Map<String, Any?>.toQueryString(): String {
-    return this.filter { it.value != null }
+    return this
+        .filter { it.value != null }
         .map { (key, value) ->
             val encodedKey = java.net.URLEncoder.encode(key, "UTF-8")
             val encodedValue = when (value) {
@@ -272,6 +298,5 @@ fun Map<String, Any?>.toQueryString(): String {
                 else -> java.net.URLEncoder.encode(value.toString(), "UTF-8")
             }
             "$encodedKey=$encodedValue"
-        }
-        .joinToString("&")
+        }.joinToString("&")
 }

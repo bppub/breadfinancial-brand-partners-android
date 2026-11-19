@@ -25,26 +25,40 @@ import org.jsoup.nodes.Document
  * Parses and processes HTML content for rendering and interaction handling.
  */
 class HTMLContentParser {
-
     /**
      * Extracts a TextPlacementModel from the given HTML content.
      */
     fun extractTextPlacementModel(htmlContent: String): TextPlacementModel {
         val document = Jsoup.parse(htmlContent)
 
-        val actionType = document.select("[data-action-type]").attr("data-action-type")
+        val actionType = document
+            .select("[data-action-type]")
+            .attr("data-action-type")
             .takeIf { it.isNotEmpty() }
-        val actionTarget = document.select("[data-action-target]").attr("data-action-target")
+        val actionTarget = document
+            .select("[data-action-target]")
+            .attr("data-action-target")
             .takeIf { it.isNotEmpty() }
         val actionContentId =
-            document.select("[data-action-content-id]").attr("data-action-content-id")
+            document
+                .select("[data-action-content-id]")
+                .attr("data-action-content-id")
                 .takeIf { it.isNotEmpty() }
-        val contentText = document.select(".epjs-body").first()?.ownText().orEmpty().trim()
+        val contentText = document
+            .select(".epjs-body")
+            .first()
+            ?.ownText()
+            .orEmpty()
+            .trim()
         val actionLink = document.select(".epjs-body-action a").text().takeIf { it.isNotEmpty() }
         val paymentDetailsSup = document.select("sup").text()
         val paymentDetails =
-            document.select(".ep-text-placement").text().replace(actionLink.orEmpty(), "")
-                .replace(paymentDetailsSup, "").trim()
+            document
+                .select(".ep-text-placement")
+                .text()
+                .replace(actionLink.orEmpty(), "")
+                .replace(paymentDetailsSup, "")
+                .trim()
         val htmlContentWithFormatting = document.select(".ep-text-placement").html()
 
         val finalContentText = when {
@@ -60,7 +74,7 @@ class HTMLContentParser {
             contentText = finalContentText,
             actionLink = actionLink,
             actionContentId = actionContentId,
-            htmlContent = htmlContentWithFormatting
+            htmlContent = htmlContentWithFormatting,
         )
     }
 
@@ -72,10 +86,21 @@ class HTMLContentParser {
             val document = Jsoup.parse(htmlContent)
 
             val overlayType =
-                document.select("[data-overlay-metadata]").first()?.attr("data-overlay-type")
+                document
+                    .select("[data-overlay-metadata]")
+                    .first()
+                    ?.attr("data-overlay-type")
                     .orEmpty()
-            val brandLogoUrl = document.select(".brand.logo img").first()?.attr("src").orEmpty()
-            val webViewUrl = document.select("iframe").first()?.attr("src").orEmpty()
+            val brandLogoUrl = document
+                .select(".brand.logo img")
+                .first()
+                ?.attr("src")
+                .orEmpty()
+            val webViewUrl = document
+                .select("iframe")
+                .first()
+                ?.attr("src")
+                .orEmpty()
             val overlayTitle = document.select(".epjs-css-overlay-title").getHtmlAsSpanned()
             val overlaySubtitle = document.select(".epjs-css-overlay-subtitle").getHtmlAsSpanned()
             val overlayContainerBarHeading =
@@ -98,7 +123,7 @@ class HTMLContentParser {
                 bodyHeader = bodyHeader,
                 primaryActionButtonAttributes = primaryActionButtonAttributes,
                 dynamicBodyModel = dynamicBodyModel,
-                disclosure = disclosure
+                disclosure = disclosure,
             )
         } catch (error: Exception) {
             throw error
@@ -117,26 +142,27 @@ class HTMLContentParser {
                 when (child.className()) {
                     "epjs-css-overlay-value-prop" -> {
                         val bodyContent = PopupPlacementModel.DynamicBodyContent(
-                            child.children().associate { it.tagName() to it.getHtmlAsSpanned() })
+                            child.children().associate { it.tagName() to it.getHtmlAsSpanned() },
+                        )
                         mutableBodyDiv["div${sequenceCounter++}"] = bodyContent
                     }
 
                     "epjs-css-overlay-value-prop-connector" -> {
                         val bodyContent = PopupPlacementModel.DynamicBodyContent(
-                            mapOf("connector" to child.getHtmlAsSpanned())
+                            mapOf("connector" to child.getHtmlAsSpanned()),
                         )
                         mutableBodyDiv["div${sequenceCounter++}"] = bodyContent
                     }
 
                     "epjs-css-overlay-body-footer" -> {
                         val bodyContent = PopupPlacementModel.DynamicBodyContent(
-                            child.children().associate { it.tagName() to it.getHtmlAsSpanned() })
+                            child.children().associate { it.tagName() to it.getHtmlAsSpanned() },
+                        )
 
                         mutableBodyDiv["footer${sequenceCounter++}"] = bodyContent
                     }
 
                     else -> {
-
                     }
                 }
             }
@@ -149,18 +175,23 @@ class HTMLContentParser {
      * Extracts attributes for the primary CTA button from the HTML document.
      */
     private fun extractPrimaryCTAButtonAttributes(
-        document: Document, selector: String
+        document: Document,
+        selector: String,
     ): PrimaryActionButtonModel? {
         val button = document.select(selector).first() ?: return null
 
-        return PrimaryActionButtonModel(dataOverlayType = document.select(".epjs-css-modal-footer")
-            .first()?.attr("data-overlay-type"),
+        return PrimaryActionButtonModel(
+            dataOverlayType = document
+                .select(".epjs-css-modal-footer")
+                .first()
+                ?.attr("data-overlay-type"),
             dataContentFetch = button.attr("data-content-fetch").takeIf { it.isNotEmpty() },
             dataActionTarget = button.attr("data-action-target").takeIf { it.isNotEmpty() },
             dataActionType = button.attr("data-action-type").takeIf { it.isNotEmpty() },
             dataActionContentId = button.attr("data-action-content-id").takeIf { it.isNotEmpty() },
             dataLocation = button.attr("data-location").takeIf { it.isNotEmpty() },
-            buttonText = button.select("span").text().takeIf { it.isNotEmpty() })
+            buttonText = button.select("span").text().takeIf { it.isNotEmpty() },
+        )
     }
 
     /**

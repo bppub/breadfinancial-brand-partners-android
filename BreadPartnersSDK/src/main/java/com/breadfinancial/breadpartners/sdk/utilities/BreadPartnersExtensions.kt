@@ -25,17 +25,16 @@ import androidx.appcompat.widget.AppCompatTextView
  * integrating the Bread Partners SDK.
  */
 object BreadPartnersExtensions {
-
     /**
      * Replaces an existing TextView within a ViewGroup
      * with a new TextView, maintaining its layout position.
      */
     fun ViewGroup.replaceTextView(
-        oldTextView: TextView?, newTextView: TextView
+        oldTextView: TextView?,
+        newTextView: TextView,
     ) {
         val index = this.indexOfChild(oldTextView)
         if (index != -1 && oldTextView != null) {
-
             removeViewAt(index)
 
             newTextView.apply {
@@ -49,7 +48,10 @@ object BreadPartnersExtensions {
                         val oldMargins = oldTextView.layoutParams as? ViewGroup.MarginLayoutParams
                         oldMargins?.let {
                             setMargins(
-                                it.leftMargin, it.topMargin, it.rightMargin, it.bottomMargin
+                                it.leftMargin,
+                                it.topMargin,
+                                it.rightMargin,
+                                it.bottomMargin,
                             )
                         }
                     }
@@ -62,11 +64,10 @@ object BreadPartnersExtensions {
                     oldTextView.paddingLeft,
                     oldTextView.paddingTop,
                     oldTextView.paddingRight,
-                    oldTextView.paddingBottom
+                    oldTextView.paddingBottom,
                 )
                 background = oldTextView.background
                 visibility = oldTextView.visibility
-
             }
 
             addView(newTextView, index)
@@ -77,10 +78,12 @@ object BreadPartnersExtensions {
      * Replaces an existing Button within a ViewGroup
      * with a new Button, preserving layout position.
      */
-    fun ViewGroup.replaceButton(oldButton: Button?, newButton: Button) {
+    fun ViewGroup.replaceButton(
+        oldButton: Button?,
+        newButton: Button,
+    ) {
         val index = this.indexOfChild(oldButton)
         if (index != -1 && oldButton != null) {
-
             when (val oldLayoutParams = oldButton.layoutParams) {
                 is LinearLayout.LayoutParams -> {
                     val newLayoutParams = LinearLayout.LayoutParams(oldLayoutParams)
@@ -110,7 +113,7 @@ object BreadPartnersExtensions {
                 newButton.paddingLeft,
                 newButton.paddingTop,
                 newButton.paddingRight,
-                newButton.paddingBottom
+                newButton.paddingBottom,
             )
             addView(newButton, index)
         }
@@ -120,4 +123,3 @@ object BreadPartnersExtensions {
         return this?.trim()?.takeIf { it.isNotEmpty() }
     }
 }
-

@@ -39,12 +39,17 @@ import java.io.InputStream
  * Glide can render vector artwork (`.svg`) in addition to raster formats.
  */
 internal class SvgDecoder : ResourceDecoder<InputStream, SVG> {
-
-    override fun handles(source: InputStream, options: Options): Boolean = true
+    override fun handles(
+        source: InputStream,
+        options: Options,
+    ): Boolean = true
 
     @Throws(IOException::class)
     override fun decode(
-        source: InputStream, width: Int, height: Int, options: Options
+        source: InputStream,
+        width: Int,
+        height: Int,
+        options: Options,
     ): Resource<SVG> {
         return try {
             val svg = SVG.getFromInputStream(source)
@@ -71,9 +76,9 @@ internal class SvgDecoder : ResourceDecoder<InputStream, SVG> {
  * internal centering). Must be rendered on a software layer.
  */
 internal class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> {
-
     override fun transcode(
-        toTranscode: Resource<SVG>, options: Options
+        toTranscode: Resource<SVG>,
+        options: Options,
     ): Resource<PictureDrawable> {
         val svg = toTranscode.get()
 
@@ -97,12 +102,15 @@ internal class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> 
  */
 @GlideModule
 internal class SvgModule : AppGlideModule() {
-
-    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        registry.register(SVG::class.java, PictureDrawable::class.java, SvgDrawableTranscoder())
+    override fun registerComponents(
+        context: Context,
+        glide: Glide,
+        registry: Registry,
+    ) {
+        registry
+            .register(SVG::class.java, PictureDrawable::class.java, SvgDrawableTranscoder())
             .append(InputStream::class.java, SVG::class.java, SvgDecoder())
     }
 
     override fun isManifestParsingEnabled(): Boolean = false
 }
-

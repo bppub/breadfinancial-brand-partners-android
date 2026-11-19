@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName
  * Data model represents brand-specific configuration response.
  */
 data class BrandConfigResponse(
-    val config: Config
+    val config: Config,
 )
 
 /**
@@ -45,11 +45,12 @@ data class Config(
     @SerializedName("rsk_PROD_NATIVE_IOS")
     val rskProdNativeIos: String = "",
     @SerializedName("rsk_PROD_NATIVE_ANDROID")
-    val rskProdNativeAndroid: String = ""
+    val rskProdNativeAndroid: String = "",
 ) {
-    fun getRecaptchaKey(environment: BreadPartnersEnvironment): String = when (environment) {
-        BreadPartnersEnvironment.UAT -> rskUatNativeAndroid
-        BreadPartnersEnvironment.STAGE -> rskStageNativeAndroid
-        BreadPartnersEnvironment.PROD -> rskProdNativeAndroid
-    }
+    fun getRecaptchaKey(environment: BreadPartnersEnvironment): String =
+        when (environment) {
+            BreadPartnersEnvironment.UAT -> rskUatNativeAndroid
+            BreadPartnersEnvironment.STAGE -> rskStageNativeAndroid
+            BreadPartnersEnvironment.PROD -> rskProdNativeAndroid
+        }
 }

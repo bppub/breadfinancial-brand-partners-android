@@ -24,7 +24,8 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentRenderer
 fun HTMLContentRenderer.createPlainTextView(): TextView {
     val textView = TextView(thisContext).apply {
         layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
         )
         setBackgroundColor(Color.TRANSPARENT)
         text = textPlacementModel!!.contentText ?: ""
@@ -36,7 +37,6 @@ fun HTMLContentRenderer.createPlainTextView(): TextView {
  * Creates a Button from the given HTMLContentRenderer
  */
 fun HTMLContentRenderer.createActionButton(): Button {
-
     val normalText = textPlacementModel?.contentText ?: ""
     var clickableText = textPlacementModel?.actionLink ?: ""
 

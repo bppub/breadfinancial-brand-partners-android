@@ -29,4 +29,3 @@ fun Elements.getHtmlAsSpanned(): Spanned =
  * into Android Spanned text using legacy HTML mode.
  */
 fun Element.getHtmlAsSpanned(): Spanned = Html.fromHtml(this.html().trimIndent(), Html.FROM_HTML_MODE_LEGACY)
-

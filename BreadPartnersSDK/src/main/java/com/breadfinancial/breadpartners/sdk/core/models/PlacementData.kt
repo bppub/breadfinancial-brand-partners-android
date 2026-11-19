@@ -27,21 +27,36 @@ data class PlacementData(
     val upqInSessionToken: String? = null,
     val financingBuyerId: String? = null,
     val prequalificationId: String? = null,
-    val prequalCreditLimit: String? = null
+    val prequalCreditLimit: String? = null,
 )
 
 /**
  * Enum representing different placement location types used for configuring
  * where Bread Partners UI elements appear within the host app.
  */
-enum class BreadPartnersLocationType(val value: String) {
-    BAG("bag"), BANNER("banner"), CART("cart"), CATEGORY("category"), CHECKOUT("checkout"), DASHBOARD(
-        "dashboard"
+enum class BreadPartnersLocationType(
+    val value: String,
+) {
+    BAG("bag"),
+    BANNER("banner"),
+    CART("cart"),
+    CATEGORY("category"),
+    CHECKOUT("checkout"),
+    DASHBOARD(
+        "dashboard",
     ),
-    FOOTER("footer"), HOMEPAGE("homepage"), LANDING("landing"), LOYALTY("loyalty"), MOBILE("mobile"), PRODUCT(
-        "product"
+    FOOTER("footer"),
+    HOMEPAGE("homepage"),
+    LANDING("landing"),
+    LOYALTY("loyalty"),
+    MOBILE("mobile"),
+    PRODUCT(
+        "product",
     ),
-    HEADER("header"), SEARCH("search"), MYACCOUNT("myaccount");
+    HEADER("header"),
+    SEARCH("search"),
+    MYACCOUNT("myaccount"),
+    ;
 
     companion object {
         val locationChannelMap: Map<BreadPartnersLocationType, String> = mapOf(
@@ -59,7 +74,7 @@ enum class BreadPartnersLocationType(val value: String) {
             BAG to "2",
             DASHBOARD to "5",
             MYACCOUNT to "5",
-            HEADER to "R"
+            HEADER to "R",
         )
     }
 
@@ -69,8 +84,12 @@ enum class BreadPartnersLocationType(val value: String) {
 /**
  * Enum representing different financial types used for placement configurations.
  */
-enum class BreadPartnersFinancingType(val value: String) {
-    CARD("card"), INSTALLMENTS("installments"), VERSATILE("versatile")
+enum class BreadPartnersFinancingType(
+    val value: String,
+) {
+    CARD("card"),
+    INSTALLMENTS("installments"),
+    VERSATILE("versatile"),
 }
 
 /**
@@ -86,14 +105,15 @@ data class Order(
     var pickupInformation: PickupInformation? = null,
     var fulfillmentType: OrderFulfillmentType? = null,
     var items: List<Item>? = null,
-    var bnplEligible: Boolean? = null
+    var bnplEligible: Boolean? = null,
 )
 
 /**
  * Data model representing currency value information.
  */
 data class CurrencyValue(
-    var currency: String? = null, var value: Long? = null
+    var currency: String? = null,
+    var value: Long? = null,
 )
 
 /**
@@ -103,9 +123,8 @@ data class PickupInformation(
     var name: Name? = null,
     var phone: String? = null,
     var address: BreadPartnersAddress? = null,
-    var email: String? = null
+    var email: String? = null,
 )
-
 
 /**
  * Data model representing pickup information.
@@ -113,7 +132,7 @@ data class PickupInformation(
 data class Name(
     var givenName: String? = null,
     var familyName: String? = null,
-    var additionalName: String? = null
+    var additionalName: String? = null,
 )
 
 /**
@@ -134,33 +153,33 @@ data class Item(
     var shippingDescription: String? = null,
     var shippingTrackingNumber: String? = null,
     var shippingTrackingUrl: String? = null,
-    var fulfillmentType: ItemFulfillmentType? = null
+    var fulfillmentType: ItemFulfillmentType? = null,
 )
 
 /**
  * Enum representing different fulfillment types for orders.
  */
-enum class OrderFulfillmentType(val value: String) {
+enum class OrderFulfillmentType(
+    val value: String,
+) {
     PICKUP("PICKUP"),
     DELIVERY("DELIVERY"),
     MULTIPLE("MULTIPLE"),
-    UNKNOWN("UNKNOWN")
+    UNKNOWN("UNKNOWN"),
 }
 
 /**
  * Enum representing different fulfillment types for Item.
  */
-enum class ItemFulfillmentType(val value: String) {
+enum class ItemFulfillmentType(
+    val value: String,
+) {
     PICKUP("PICKUP"),
     DELIVERY("DELIVERY"),
-    UNKNOWN("UNKNOWN")
+    UNKNOWN("UNKNOWN"),
 }
-
 
 /**
  * Set of ineligible item categories for BNPL
  */
 val INELIGIBLE_ITEM_CATEGORIES = setOf("non-leasable", "nonleasable")
-
-
-

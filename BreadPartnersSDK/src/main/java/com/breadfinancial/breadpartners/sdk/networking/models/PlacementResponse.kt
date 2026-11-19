@@ -19,7 +19,7 @@ package com.breadfinancial.breadpartners.sdk.networking.models
  */
 data class PlacementsResponse(
     val placements: List<PlacementsModel>? = null,
-    val placementContent: List<PlacementContentModel>? = null
+    val placementContent: List<PlacementContentModel>? = null,
 )
 
 /**
@@ -28,14 +28,14 @@ data class PlacementsResponse(
 data class PlacementsModel(
     val id: String? = null,
     val content: PlacementContentReferenceModel? = null,
-    val renderContext: RenderContextModel? = null
+    val renderContext: RenderContextModel? = null,
 )
 
 /**
  * Represents a reference to placement content via ID.
  */
 data class PlacementContentReferenceModel(
-    val contentId: String? = null
+    val contentId: String? = null,
 )
 
 /**
@@ -54,7 +54,7 @@ data class RenderContextModel(
     val PREQUAL_CREDIT_LIMIT: String? = null,
     val ENV: String? = null,
     val ALLOW_CHECKOUT: Boolean? = null,
-    val embeddedUrl: String? = null
+    val embeddedUrl: String? = null,
 )
 
 /**
@@ -64,14 +64,14 @@ data class PlacementContentModel(
     val id: String? = null,
     val contentType: String? = null,
     val contentData: ContentDataModel? = null,
-    val metadata: MetadataModel? = null
+    val metadata: MetadataModel? = null,
 )
 
 /**
  * Contains the HTML content used to render the placement.
  */
 data class ContentDataModel(
-    val htmlContent: String? = null
+    val htmlContent: String? = null,
 )
 
 /**
@@ -81,5 +81,5 @@ data class MetadataModel(
     val placementId: String? = null,
     val productType: String? = null,
     val messageId: String? = null,
-    val templateId: String? = null
+    val templateId: String? = null,
 )

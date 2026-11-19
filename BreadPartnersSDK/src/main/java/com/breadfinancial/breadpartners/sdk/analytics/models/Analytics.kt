@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  File:          AnalyticsModels.kt
+//  File:          Analytics.kt
 //  Author(s):     Bread Financial
 //  Date:          27 March 2025
 //
@@ -26,51 +26,63 @@ data class Analytics(
     val browserCtx: BrowserCtx?,
     val trackingInfo: TrackingInfo?,
     val context: Context?,
-    val payload: Payload?
+    val payload: Payload?,
 ) {
     data class PlacementContent(
-        val id: String?, val contentType: String?, val metadata: MetadataModel?
+        val id: String?,
+        val contentType: String?,
+        val metadata: MetadataModel?,
     )
 
     data class Placement(
-        val id: String?, val placementContentId: String?, val overlayContentId: String?
+        val id: String?,
+        val placementContentId: String?,
+        val overlayContentId: String?,
     )
 
     data class EventProperties(
         val placement: Placement?,
         val placementContent: PlacementContent?,
         val metadata: Map<String, String?>?,
-        val actionTarget: String?
+        val actionTarget: String?,
     )
 
     data class Props(
-        val eventProperties: EventProperties?, val userProperties: Map<String, String>?
+        val eventProperties: EventProperties?,
+        val userProperties: Map<String, String>?,
     )
 
     data class BrowserCtx(
-        val library: Library?, val userAgent: String?, val page: Page?
+        val library: Library?,
+        val userAgent: String?,
+        val page: Page?,
     )
 
     data class Library(
-        val name: String?, val version: String?
+        val name: String?,
+        val version: String?,
     )
 
     data class Page(
-        val path: String?, val url: String?
+        val path: String?,
+        val url: String?,
     )
 
     data class TrackingInfo(
-        val userTrackingId: String?, val sessionTrackingId: String?
+        val userTrackingId: String?,
+        val sessionTrackingId: String?,
     )
 
     data class Context(
         val timestamp: String?,
         val apiKey: String?,
         val browserCtx: BrowserCtx?,
-        val trackingInfo: TrackingInfo?
+        val trackingInfo: TrackingInfo?,
     )
 
     data class Payload(
-        val name: String?, val props: Props?, val context: Context?
+        val name: String?,
+        val props: Props?,
+        val context: Context?,
     )
 }

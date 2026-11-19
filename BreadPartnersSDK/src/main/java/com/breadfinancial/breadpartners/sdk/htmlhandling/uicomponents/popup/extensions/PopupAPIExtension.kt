@@ -34,9 +34,10 @@ import kotlinx.coroutines.launch
  * Fetches placement data after the popup is displayed.
  */
 fun PopupDialog.fetchWebViewPlacement() {
-
     val builder = PlacementRequestBuilder(
-        integrationKey, merchantConfiguration, placementsConfiguration?.placementData
+        integrationKey,
+        merchantConfiguration,
+        placementsConfiguration?.placementData,
     )
     val placementRequest = builder.build()
 
@@ -44,9 +45,10 @@ fun PopupDialog.fetchWebViewPlacement() {
         placements = listOf(
             PlacementRequestBody(
                 id = popupModel.primaryActionButtonAttributes?.dataContentFetch,
-                context = placementRequest.placements?.firstOrNull()?.context
-            )
-        ), brandId = integrationKey
+                context = placementRequest.placements?.firstOrNull()?.context,
+            ),
+        ),
+        brandId = integrationKey,
     )
 
     fetchData(request)
@@ -57,33 +59,38 @@ fun PopupDialog.fetchWebViewPlacement() {
  */
 fun PopupDialog.fetchData(requestBody: PlacementRequest) {
     val apiUrl = APIUrl(
-        urlType = APIUrlType.GeneratePlacements
+        urlType = APIUrlType.GeneratePlacements,
     ).url
     CoroutineScope(Dispatchers.Main).launch {
         APIClient().request(
-            urlString = apiUrl, body = requestBody, method = HTTPMethod.POST
+            urlString = apiUrl,
+            body = requestBody,
+            method = HTTPMethod.POST,
         ) { result ->
             when (result) {
                 is Result.Success -> {
-                    CommonUtils().decodeJSON(result.data.toString(),
+                    CommonUtils().decodeJSON(
+                        result.data.toString(),
                         PlacementsResponse::class.java,
                         onSuccess = { placementsResponse ->
                             val popupPlacementHTMLContent =
                                 placementsResponse.placementContent?.firstOrNull()
                             try {
-                                HTMLContentParser().extractPopupPlacementModel(
-                                    popupPlacementHTMLContent?.contentData?.htmlContent ?: ""
-                                )?.let { popupPlacementModel ->
-                                    Logger.logPopupPlacementModelDetails(popupPlacementModel)
-                                    webViewPlacementModel = popupPlacementModel
-                                }
+                                HTMLContentParser()
+                                    .extractPopupPlacementModel(
+                                        popupPlacementHTMLContent?.contentData?.htmlContent ?: "",
+                                    )?.let { popupPlacementModel ->
+                                        Logger.logPopupPlacementModelDetails(popupPlacementModel)
+                                        webViewPlacementModel = popupPlacementModel
+                                    }
                             } catch (error: Exception) {
                                 callback(BreadPartnerEvent.SdkError(error = Exception(error.message)))
                             }
                         },
                         onError = { error ->
                             callback(BreadPartnerEvent.SdkError(error = Exception(error.message)))
-                        })
+                        },
+                    )
                 }
 
                 is Result.Failure -> {

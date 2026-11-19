@@ -22,20 +22,23 @@ data class TextPlacementModel(
     val contentText: String?,
     val actionLink: String?,
     val actionContentId: String?,
-    val htmlContent: String?
+    val htmlContent: String?,
 )
 
 /**
  * Enum representing the types of actions triggered when
  * interacting with linked text elements.
  */
-enum class PlacementActionType(val value: String) {
+enum class PlacementActionType(
+    val value: String,
+) {
     SHOW_OVERLAY("SHOW_OVERLAY"),
     REDIRECT("REDIRECT"),
     BREAD_APPLY("BREAD_APPLY"),
     REDIRECT_INTERNAL("REDIRECT_INTERNAL"),
     VERSATILE_ECO("VERSATILE_ECO"),
-    NO_ACTION("NO_ACTION");
+    NO_ACTION("NO_ACTION"),
+    ;
 
     companion object {
         fun fromValue(value: String): PlacementActionType? {

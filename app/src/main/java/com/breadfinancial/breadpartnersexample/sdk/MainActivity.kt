@@ -55,7 +55,6 @@ import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.re
 import com.breadfinancial.breadpartnersexample.sdk.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +66,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Reusable Alert
-    private fun showYesNoAlert(context: Context, onResult: (Boolean) -> Unit) {
+    private fun showYesNoAlert(
+        context: Context,
+        onResult: (Boolean) -> Unit,
+    ) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you authenticated?")
 
@@ -84,9 +86,11 @@ class MainActivity : AppCompatActivity() {
         val alertDialog = builder.create()
         alertDialog.show()
 
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        alertDialog
+            .getButton(AlertDialog.BUTTON_POSITIVE)
             ?.setTextColor(Color.parseColor("#d50132"))
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        alertDialog
+            .getButton(AlertDialog.BUTTON_NEGATIVE)
             ?.setTextColor(Color.parseColor("#d50132"))
     }
 
@@ -133,10 +137,12 @@ class MainActivity : AppCompatActivity() {
         val xlargeTextSize = style["xlargeTextSize"] as? Int ?: 20
 
         val customFont = ResourcesCompat.getFont(
-            this, this.resources.getIdentifier(fontFamily, "font", this.packageName)
+            this,
+            this.resources.getIdentifier(fontFamily, "font", this.packageName),
         )
 
         // region Popup Styling
+
         /**
          * Prepares a popup styling configuration object for each style element.
          */
@@ -147,48 +153,70 @@ class MainActivity : AppCompatActivity() {
             borderColor = Color.parseColor(boxColor),
             titlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.BOLD
-                ), textColor = Color.parseColor(darkColor), textSize = xlargeTextSize.toFloat()
+                    fontFamily,
+                    Typeface.BOLD,
+                ),
+                textColor = Color.parseColor(darkColor),
+                textSize = xlargeTextSize.toFloat(),
             ),
             subTitlePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.NORMAL
-                ), textColor = Color.parseColor(lightColor), textSize = mediumTextSize.toFloat()
+                    fontFamily,
+                    Typeface.NORMAL,
+                ),
+                textColor = Color.parseColor(lightColor),
+                textSize = mediumTextSize.toFloat(),
             ),
             headerPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.BOLD
-                ), textColor = Color.parseColor(darkColor), textSize = mediumTextSize.toFloat()
+                    fontFamily,
+                    Typeface.BOLD,
+                ),
+                textColor = Color.parseColor(darkColor),
+                textSize = mediumTextSize.toFloat(),
             ),
             headerBgColor = Color.parseColor(boxColor),
             headingThreePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.BOLD
-                ), textColor = Color.parseColor(primaryColor), textSize = largeTextSize.toFloat()
+                    fontFamily,
+                    Typeface.BOLD,
+                ),
+                textColor = Color.parseColor(primaryColor),
+                textSize = largeTextSize.toFloat(),
             ),
             paragraphPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.NORMAL
-                ), textColor = Color.parseColor(lightColor), textSize = smallTextSize.toFloat()
+                    fontFamily,
+                    Typeface.NORMAL,
+                ),
+                textColor = Color.parseColor(lightColor),
+                textSize = smallTextSize.toFloat(),
             ),
             connectorPopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.BOLD
-                ), textColor = Color.parseColor(darkColor), textSize = largeTextSize.toFloat()
+                    fontFamily,
+                    Typeface.BOLD,
+                ),
+                textColor = Color.parseColor(darkColor),
+                textSize = largeTextSize.toFloat(),
             ),
             disclosurePopupTextStyle = PopupTextStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.NORMAL
-                ), textColor = Color.parseColor(lightColor), textSize = smallTextSize.toFloat()
+                    fontFamily,
+                    Typeface.NORMAL,
+                ),
+                textColor = Color.parseColor(lightColor),
+                textSize = smallTextSize.toFloat(),
             ),
             actionButtonStyle = PopupActionButtonStyle(
                 font = Typeface.create(
-                    fontFamily, Typeface.NORMAL
+                    fontFamily,
+                    Typeface.NORMAL,
                 ),
                 textColor = Color.WHITE,
                 backgroundColor = Color.parseColor(primaryColor),
-                cornerRadius = 30.0F
-            )
+                cornerRadius = 30.0F,
+            ),
         )
         // endregion
 
@@ -204,7 +232,7 @@ class MainActivity : AppCompatActivity() {
             environment = env ?: BreadPartnersEnvironment.STAGE,
             enableLog = true,
             integrationKey = brandId ?: "",
-            application = application
+            application = application,
         )
         /**
          * Configuration for defining placement options in BreadPartners.
@@ -225,21 +253,26 @@ class MainActivity : AppCompatActivity() {
                 discountCode = "string",
                 pickupInformation = PickupInformation(
                     name = Name(
-                        givenName = "John", familyName = "Doe"
-                    ), phone = "+14539842345", address = BreadPartnersAddress(
+                        givenName = "John",
+                        familyName = "Doe",
+                    ),
+                    phone = "+14539842345",
+                    address = BreadPartnersAddress(
                         address1 = "156 5th Avenue",
                         locality = "New York",
                         postalCode = "10019",
                         region = "US-NY",
-                        country = "US"
-                    ), email = "john.doe@gmail.com"
+                        country = "US",
+                    ),
+                    email = "john.doe@gmail.com",
                 ),
-                items = emptyList()
-            )
+                items = emptyList(),
+            ),
         )
 
         val placementsConfiguration = PlacementsConfiguration(
-            placementData = placementData, popUpStyling = popUpStyling
+            placementData = placementData,
+            popUpStyling = popUpStyling,
         )
 
         val merchantConfiguration = MerchantConfiguration(
@@ -256,31 +289,27 @@ class MainActivity : AppCompatActivity() {
                     country = "USA",
                     locality = "NYC",
                     region = "NY",
-                    postalCode = "11222"
+                    postalCode = "11222",
                 ),
-                shippingAddress = null
+                shippingAddress = null,
             ),
             loyaltyID = loyaltyId,
             env = env ?: BreadPartnersEnvironment.STAGE,
             channel = channel,
-            subchannel = subChannel
+            subchannel = subChannel,
         )
 
         BreadPartnersSDK.getInstance().registerPlacements(
             merchantConfiguration = merchantConfiguration,
             placementsConfiguration = placementsConfiguration,
             viewContext = this,
-            splitTextAndAction = false
+            splitTextAndAction = false,
         ) { event ->
             when (event) {
                 is BreadPartnerEvent.RenderTextViewWithLink -> {
-
-                    /**
-                     * Handles rendering of a text view with a clickable link.
-                     *
-                     * - Modifies the font, text color, and link color for the text view.
-                     * - Adds the text view to the main view and sets up its layout constraints.
-                     */
+                    // Handles rendering of a text view with a clickable link.
+                    // Modifies the font, text color, and link color for the text view.
+                    // Adds the text view to the main view and sets up its layout constraints.
 
                     val textView = binding.textView
                     val spannable = event.spannableText
@@ -296,15 +325,10 @@ class MainActivity : AppCompatActivity() {
                     textView.movementMethod = LinkMovementMethod.getInstance()
                 }
 
-
                 is BreadPartnerEvent.RenderSeparateTextAndButton -> {
-
-                    /**
-                     * Handles rendering of a popup view.
-                     *
-                     * - Modifies the font, text color for the text view, and the button's title color, font, and background.
-                     * - Adds the text view and button to the main view and sets up their layout constraints.
-                     */
+                    // Handles rendering of a popup view.
+                    // Modifies the font, text color for the text view, and the button's title color, font, and background.
+                    // Adds the text view and button to the main view and sets up their layout constraints.
                     event.textView.apply {
                         setTextColor(Color.BLACK)
                         textSize = 24f
@@ -341,11 +365,9 @@ class MainActivity : AppCompatActivity() {
                     val parent = binding.textView.parent as ViewGroup
                     parent.replaceTextView(binding.textView, event.textView)
                     parent.replaceButton(binding.actionButton, event.button)
-
                 }
 
                 is BreadPartnerEvent.RenderPopupView -> {
-
                     /**
                      * Handles rendering of a popup view.
                      *
@@ -375,7 +397,7 @@ class MainActivity : AppCompatActivity() {
         spannable: Spannable,
         primaryColor: String,
         textView: TextView,
-        customFont: Typeface?
+        customFont: Typeface?,
     ) {
         val clickableSpans =
             spannable.getSpans(0, spannable.length, ClickableSpan::class.java)
@@ -389,31 +411,28 @@ class MainActivity : AppCompatActivity() {
                 ForegroundColorSpan(Color.BLACK),
                 0,
                 normalTextEndIndex,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             setSpan(
                 AbsoluteSizeSpan(17, true),
                 0,
                 normalTextEndIndex,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
 
             setSpan(
                 ForegroundColorSpan(Color.parseColor(primaryColor)),
                 normalTextEndIndex,
                 spannable.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
 
             setSpan(
                 AbsoluteSizeSpan(17, true),
                 normalTextEndIndex,
                 spannable.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
         }
     }
 }
-
-
-

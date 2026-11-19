@@ -18,8 +18,10 @@ package com.breadfinancial.breadpartners.sdk.core.models
  * @property STAGE Use this environment for testing and development.
  * @property PROD **Default** Use this environment for production.
  */
-enum class BreadPartnersEnvironment(val value: String) {
+enum class BreadPartnersEnvironment(
+    val value: String,
+) {
     STAGE("STAGE"),
     PROD("PROD"),
-    UAT("UAT")
+    UAT("UAT"),
 }

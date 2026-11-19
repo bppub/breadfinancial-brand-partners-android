@@ -40,14 +40,15 @@ data class MerchantConfiguration(
     var paymentMode: PaymentMode? = null,
     var providerConfig: Map<String, Any>? = null,
     var skipVerification: Boolean? = null,
-    var custom: Map<String, Any>? = null
+    var custom: Map<String, Any>? = null,
 ) {
     init {
         if (storeNumber.isEmpty()) storeNumber = "8883"
     }
 
     enum class PaymentMode {
-        FULL, SPLIT
+        FULL,
+        SPLIT,
     }
 }
 
@@ -60,7 +61,7 @@ data class BreadPartnersBuyer(
     var phone: String? = null,
     var alternativePhone: String? = null,
     var billingAddress: BreadPartnersAddress? = null,
-    var shippingAddress: BreadPartnersAddress? = null
+    var shippingAddress: BreadPartnersAddress? = null,
 )
 
 data class BreadPartnersAddress(
@@ -69,5 +70,5 @@ data class BreadPartnersAddress(
     var country: String? = null,
     var locality: String? = null,
     var region: String? = null,
-    var postalCode: String? = null
+    var postalCode: String? = null,
 )

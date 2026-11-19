@@ -33,7 +33,7 @@ import com.breadfinancial.breadpartners.sdk.utilities.Logger
 class ChallengeDialog(
     private val htmlContent: String,
     private val baseUrl: String,
-    private val onComplete: (cookies: String) -> Unit
+    private val onComplete: (cookies: String) -> Unit,
 ) : DialogFragment() {
     private val handler = Handler(Looper.getMainLooper())
 
@@ -41,20 +41,23 @@ class ChallengeDialog(
         super.onStart()
         dialog?.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
         )
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.dialog_challenge, container, false)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -80,15 +83,15 @@ class ChallengeDialog(
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
-                request: WebResourceRequest?
+                request: WebResourceRequest?,
             ): Boolean {
                 // After initial page load, prevent all navigation attempts
                 // Check if this navigation is due to captcha completion
-                    handler.postDelayed({
-                        checkForCompletionNow()
-                    }, 500)
+                handler.postDelayed({
+                    checkForCompletionNow()
+                }, 500)
 
-                    return true // Block navigation
+                return true // Block navigation
             }
         }
 
@@ -98,7 +101,7 @@ class ChallengeDialog(
             htmlContent,
             "text/html",
             "UTF-8",
-            null
+            null,
         )
     }
 
@@ -107,13 +110,11 @@ class ChallengeDialog(
         val currentCookies = cookieManager.getCookie(baseUrl) ?: ""
 
         if (currentCookies.isNotEmpty()) {
-
             // Give a small delay for any final cookies to settle
             handler.postDelayed({
                 completeCaptcha()
             }, 500)
-        }
-        else {
+        } else {
             Logger.printLog("No cookies available - cannot complete")
         }
     }

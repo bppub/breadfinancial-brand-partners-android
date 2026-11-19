@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets
  * Class responsible for logging information for debugging and tracking purposes.
  */
 object Logger {
-
     private var isLoggingEnabled: Boolean = true
 
     var loggingEnabled: Boolean
@@ -37,7 +36,6 @@ object Logger {
             field = value
         }
 
-
     private fun generateDashLine(length: Int): String {
         return "-".repeat(length)
     }
@@ -46,11 +44,14 @@ object Logger {
         if (!isLoggingEnabled) return
         callback?.invoke(BreadPartnerEvent.OnSDKEventLog(message))
         System.out.write(message.toByteArray())
-        System.out.write("\n".toByteArray())  // Adding a newline after the log
+        System.out.write("\n".toByteArray()) // Adding a newline after the log
     }
 
     fun logRequestDetails(
-        url: String, method: String, headers: Map<String, String>?, body: ByteArray?
+        url: String,
+        method: String,
+        headers: Map<String, String>?,
+        body: ByteArray?,
     ) {
         if (!isLoggingEnabled) return
 
@@ -77,7 +78,10 @@ object Logger {
     }
 
     fun logResponseDetails(
-        url: String, statusCode: Int, headers: Map<String, List<String>>, body: ByteArray?
+        url: String,
+        statusCode: Int,
+        headers: Map<String, List<String>>,
+        body: ByteArray?,
     ) {
         if (!isLoggingEnabled) return
 
@@ -142,9 +146,9 @@ object Logger {
             val logOutput = StringBuilder(
                 "\n${generateDashLine(20)} Dynamic Body Model Details ${
                     generateDashLine(
-                        20
+                        20,
                     )
-                }\n"
+                }\n",
             )
             model.dynamicBodyModel.bodyDiv.forEach { (key, bodyContent) ->
                 logOutput.append("  Body Div Key [$key]:\n")
@@ -190,4 +194,3 @@ object Logger {
         Log.i("", "${generateDashLine(60)}\n")
     }
 }
-

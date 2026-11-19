@@ -74,7 +74,7 @@ class BreadPartnersSDK private constructor() {
         environment: BreadPartnersEnvironment = BreadPartnersEnvironment.PROD,
         integrationKey: String,
         enableLog: Boolean = false,
-        application: Application
+        application: Application,
     ) {
         APIUrl.setEnvironment(environment)
         this.integrationKey = integrationKey
@@ -90,14 +90,17 @@ class BreadPartnersSDK private constructor() {
      */
     private fun fetchBrandConfig() {
         val apiUrl = APIUrl(
-            urlType = APIUrlType.BrandConfig(integrationKey)
+            urlType = APIUrlType.BrandConfig(integrationKey),
         ).url
         APIClient().request(
-            urlString = apiUrl, method = HTTPMethod.GET, body = null
+            urlString = apiUrl,
+            method = HTTPMethod.GET,
+            body = null,
         ) { result ->
             when (result) {
                 is Result.Success -> {
-                    CommonUtils().decodeJSON(result.data.toString(),
+                    CommonUtils().decodeJSON(
+                        result.data.toString(),
                         BrandConfigResponse::class.java,
                         onSuccess = { response ->
                             brandConfiguration = response
@@ -106,7 +109,8 @@ class BreadPartnersSDK private constructor() {
                         onError = { error ->
                             Log.i("", "")
                             brandConfigDeferred.complete(Unit)
-                        })
+                        },
+                    )
                 }
 
                 is Result.Failure -> {
@@ -121,8 +125,8 @@ class BreadPartnersSDK private constructor() {
         if (!isInitialized) {
             callback(
                 BreadPartnerEvent.SdkError(
-                    Exception("SDK not initialized. Call setup() first.")
-                )
+                    Exception("SDK not initialized. Call setup() first."),
+                ),
             )
             return false
         }
@@ -143,7 +147,7 @@ class BreadPartnersSDK private constructor() {
         placementsConfiguration: PlacementsConfiguration,
         viewContext: Context,
         splitTextAndAction: Boolean = false,
-        callback: (BreadPartnerEvent) -> Unit
+        callback: (BreadPartnerEvent) -> Unit,
     ) {
         if (!checkInitialized(callback)) return
         Logger.callback = callback
@@ -158,7 +162,7 @@ class BreadPartnersSDK private constructor() {
                 viewContext,
                 splitTextAndAction,
                 false,
-                callback
+                callback,
             )
         }
     }
@@ -179,7 +183,7 @@ class BreadPartnersSDK private constructor() {
         merchantConfiguration: MerchantConfiguration,
         placementsConfiguration: PlacementsConfiguration,
         viewContext: Context,
-        callback: (BreadPartnerEvent) -> Unit
+        callback: (BreadPartnerEvent) -> Unit,
     ) {
         if (!checkInitialized(callback)) return
         Logger.callback = callback
@@ -192,7 +196,10 @@ class BreadPartnersSDK private constructor() {
                     BreadPartnerDefaults.shared.createPopUpStyling(viewContext)
             }
             rtpsCall(
-                merchantConfiguration, placementsConfiguration, viewContext, callback
+                merchantConfiguration,
+                placementsConfiguration,
+                viewContext,
+                callback,
             )
         }
     }
@@ -209,7 +216,7 @@ class BreadPartnersSDK private constructor() {
         merchantConfiguration: MerchantConfiguration,
         placementsConfiguration: PlacementsConfiguration,
         viewContext: Context,
-        callback: (BreadPartnerEvent) -> Unit
+        callback: (BreadPartnerEvent) -> Unit,
     ) {
         if (!checkInitialized(callback)) return
         Logger.callback = callback
@@ -224,7 +231,7 @@ class BreadPartnersSDK private constructor() {
                 viewContext,
                 splitTextAndAction = false,
                 openPlacementExperience = true,
-                callback = callback
+                callback = callback,
             )
         }
     }

@@ -27,14 +27,16 @@ data class RTPSData(
     var customerAcceptedOffer: Boolean? = null,
     var channel: String? = null,
     var subChannel: String? = null,
-    var mockResponse: BreadPartnersMockOptions? = null
+    var mockResponse: BreadPartnersMockOptions? = null,
 )
 
 /**
  * Enum representing mock options used to simulate RTPs call behavior
  * for testing and development purposes within the SDK.
  */
-enum class BreadPartnersMockOptions(val value: String) {
+enum class BreadPartnersMockOptions(
+    val value: String,
+) {
     NO_MOCK(""),
     SUCCESS("success"),
     NO_HIT("noHit"),
@@ -43,5 +45,5 @@ enum class BreadPartnersMockOptions(val value: String) {
     EXISTING_ACCOUNT("existingAccount"),
     EXISTING_OFFER("existingOffer"),
     NEW_OFFER("newOffer"),
-    ERROR("error")
+    ERROR("error"),
 }

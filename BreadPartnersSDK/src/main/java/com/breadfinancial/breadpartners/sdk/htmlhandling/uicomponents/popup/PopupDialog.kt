@@ -51,9 +51,9 @@ class PopupDialog(
     internal var merchantConfiguration: MerchantConfiguration?,
     internal var placementsConfiguration: PlacementsConfiguration?,
     internal var brandConfiguration: BrandConfigResponse?,
-    internal val callback: (BreadPartnerEvent) -> Unit?
-) : DialogFragment(), BreadFinancialWebViewInterstitial.WebViewRestartButtonListener {
-
+    internal val callback: (BreadPartnerEvent) -> Unit?,
+) : DialogFragment(),
+    BreadFinancialWebViewInterstitial.WebViewRestartButtonListener {
     internal lateinit var popupView: View
     internal lateinit var closeButton: ImageView
     internal lateinit var brandLogo: ImageView
@@ -73,10 +73,13 @@ class PopupDialog(
     internal lateinit var webViewManager: BreadFinancialWebViewInterstitial
     internal lateinit var loader: LoaderIndicator
     internal lateinit var webViewPlacementModel: PopupPlacementModel
+
     internal fun isWebViewPlacementModelInitialized() = ::webViewPlacementModel.isInitialized
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         popupView = inflater.inflate(R.layout.popup_dialog, container, false)
 
@@ -102,7 +105,7 @@ class PopupDialog(
 
         dialog?.window?.setLayout(
             (requireContext().resources.displayMetrics.widthPixels * 0.9).toInt(),
-            (requireContext().resources.displayMetrics.heightPixels * 0.9).toInt()
+            (requireContext().resources.displayMetrics.heightPixels * 0.9).toInt(),
         )
 
         if (popupModel.location == "RTPS-Approval") {
@@ -120,7 +123,8 @@ class PopupDialog(
         overlayEmbeddedView.visibility = View.VISIBLE
         val placeholder = popupView.findViewById<FrameLayout>(R.id.overlay_embedded_view)
         webViewManager.replaceViewWithWebView(
-            placeholder, popupPlacementModel.webViewUrl
+            placeholder,
+            popupPlacementModel.webViewUrl,
         ) {
             loader.visibility = View.GONE
         }
@@ -137,7 +141,8 @@ class PopupDialog(
 
         Handler(Looper.getMainLooper()).post {
             webViewManager.replaceViewWithWebView(
-                placeholder, url
+                placeholder,
+                url,
             ) {
                 loader.visibility = View.GONE
             }

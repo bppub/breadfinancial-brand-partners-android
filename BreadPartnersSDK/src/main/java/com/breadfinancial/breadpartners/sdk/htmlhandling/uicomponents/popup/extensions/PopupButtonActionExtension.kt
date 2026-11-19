@@ -37,8 +37,8 @@ fun PopupDialog.onActionButtonTapped() {
     } else {
         callback(
             BreadPartnerEvent.SdkError(
-                error = Exception(Constants.somethingWentWrong)
-            )
+                error = Exception(Constants.somethingWentWrong),
+            ),
         )
     }
 }

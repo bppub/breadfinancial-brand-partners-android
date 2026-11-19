@@ -42,6 +42,6 @@ data class RTPSRequest(
     }
 
     data class OverrideConfig(
-        val enhancedPresentment: Boolean? = null
+        val enhancedPresentment: Boolean? = null,
     )
 }

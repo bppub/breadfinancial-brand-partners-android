@@ -49,18 +49,16 @@ import kotlinx.coroutines.launch
  * Performs a bot behavior check using the Recaptcha v3 SDK
  * to protect against malicious attacks.
  */
-private suspend fun BreadPartnersSDK.executeSecurityCheck(
-    merchantConfiguration: MerchantConfiguration,
-): String {
+private suspend fun BreadPartnersSDK.executeSecurityCheck(merchantConfiguration: MerchantConfiguration): String {
     var reCaptchaToken = ""
 
     val siteKey = brandConfiguration?.config?.getRecaptchaKey(
-        merchantConfiguration.env ?: BreadPartnersEnvironment.PROD
+        merchantConfiguration.env ?: BreadPartnersEnvironment.PROD,
     )
     RecaptchaManager.init(Logger).executeReCaptcha(
         context = application,
         siteKey = siteKey ?: "",
-        action = RecaptchaAction.custom(customAction = "checkout")
+        action = RecaptchaAction.custom(customAction = "checkout"),
     ) { result ->
         result.onSuccess {
             reCaptchaToken = it
@@ -114,21 +112,25 @@ internal fun BreadPartnersSDK.rtpsCall(
         val postalCode = billingAddress?.postalCode
 
         // Check if firstname, lastname, and complete address are provided
-        if (givenName.isNullOrEmpty() || familyName.isNullOrEmpty() ||
-            address1.isNullOrEmpty() || country.isNullOrEmpty() ||
-            locality.isNullOrEmpty() || region.isNullOrEmpty() ||
+        if (givenName.isNullOrEmpty() ||
+            familyName.isNullOrEmpty() ||
+            address1.isNullOrEmpty() ||
+            country.isNullOrEmpty() ||
+            locality.isNullOrEmpty() ||
+            region.isNullOrEmpty() ||
             postalCode.isNullOrEmpty()
         ) {
-            Logger.printLog("buyer details or billing address details are missing for pre-screen API call. Please ensure all required fields are provided.")
+            Logger.printLog(
+                "buyer details or billing address details are missing for pre-screen API call. Please ensure all required fields are provided.",
+            )
 
             return callback(
                 BreadPartnerEvent.SdkError(
                     error = Exception(
-                        prescreenRequiredFieldsError
-                    )
-                )
+                        prescreenRequiredFieldsError,
+                    ),
+                ),
             )
-
         }
     }
 
@@ -139,7 +141,7 @@ internal fun BreadPartnersSDK.rtpsCall(
                 executeSecurityCheck(merchantConfiguration = merchantConfiguration)
             } catch (e: Exception) {
                 callback(
-                    BreadPartnerEvent.SdkError(error = e)
+                    BreadPartnerEvent.SdkError(error = e),
                 )
                 return@launch
             }
@@ -147,26 +149,25 @@ internal fun BreadPartnersSDK.rtpsCall(
             ""
         }
 
-
         val apiUrl = APIUrl(
-            urlType = if (isPrescreen) APIUrlType.PreScreen else APIUrlType.VirtualLookup
+            urlType = if (isPrescreen) APIUrlType.PreScreen else APIUrlType.VirtualLookup,
         ).url
         val rtpsRequestBuilder = RTPSRequestBuilder(
             merchantConfiguration,
             placementsConfiguration.rtpsData!!,
-            reCaptchaToken = reCaptchaToken
+            reCaptchaToken = reCaptchaToken,
         )
         val rtpsRequest = rtpsRequestBuilder.build()
         val headers = mapOf(
             Constants.headerClientKey to integrationKey,
-            Constants.headerRequestedWithKey to Constants.headerRequestedWithValue
+            Constants.headerRequestedWithKey to Constants.headerRequestedWithValue,
         )
         APIClient().request(
             urlString = apiUrl,
             method = HTTPMethod.POST,
             body = rtpsRequest,
             headers = headers,
-            cookies = cookies
+            cookies = cookies,
         ) { result ->
             when (result) {
                 is Result.Success -> {
@@ -187,15 +188,18 @@ internal fun BreadPartnersSDK.rtpsCall(
                             // if the result is not "approved"(in case of regular prescreen call) and not "account found" (in case of lookup call)
                             // or prescreenId is null (in case user is approved, but already has an account),
                             // we simply return without taking any further action.
-                            if ((prescreenResult != PrescreenResult.APPROVED && prescreenResult != PrescreenResult.ACCOUNT_FOUND)
-                                || placementsConfiguration.rtpsData.prescreenId == null
+                            if ((
+                                    prescreenResult != PrescreenResult.APPROVED &&
+                                        prescreenResult != PrescreenResult.ACCOUNT_FOUND
+                                ) ||
+                                placementsConfiguration.rtpsData.prescreenId == null
                             ) {
                                 callback(
                                     BreadPartnerEvent.SdkError(
                                         error = Exception(
-                                            "Error: PreScreen Result $prescreenResult"
-                                        )
-                                    )
+                                            "Error: PreScreen Result $prescreenResult",
+                                        ),
+                                    ),
                                 )
                             } else {
                                 fetchRTPSData(
@@ -209,10 +213,11 @@ internal fun BreadPartnersSDK.rtpsCall(
                         onError = { error ->
                             callback(
                                 BreadPartnerEvent.SdkError(
-                                    error = Exception(error.message)
-                                )
+                                    error = Exception(error.message),
+                                ),
                             )
-                        })
+                        },
+                    )
                 }
 
                 is Result.Failure -> {
@@ -220,7 +225,7 @@ internal fun BreadPartnersSDK.rtpsCall(
                     val errorMessage = result.error.message ?: ""
                     if (errorMessage.startsWith(
                             "Security challenge detected:",
-                            ignoreCase = true
+                            ignoreCase = true,
                         )
                     ) {
                         val htmlContent =
@@ -238,22 +243,21 @@ internal fun BreadPartnersSDK.rtpsCall(
                                     callback,
                                     capturedCookies,
                                 )
-                            }
+                            },
                         )
 
                         callback(BreadPartnerEvent.RenderPopupView(dialogFragment = challengeDialog))
                     } else {
                         callback(
                             BreadPartnerEvent.SdkError(
-                                error = Exception(errorMessage)
-                            )
+                                error = Exception(errorMessage),
+                            ),
                         )
                     }
                 }
             }
         }
     }
-
 }
 
 /**
@@ -264,22 +268,24 @@ fun BreadPartnersSDK.fetchRTPSData(
     merchantConfiguration: MerchantConfiguration,
     placementsConfiguration: PlacementsConfiguration,
     viewContext: Context,
-    callback: (BreadPartnerEvent) -> Unit
+    callback: (BreadPartnerEvent) -> Unit,
 ) {
     val apiUrl = APIUrl(urlType = APIUrlType.GeneratePlacements).url
 
     val webUrl: String? = if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
-        CommonUtils().buildBpsWebURL(
-            integrationKey = integrationKey,
-            merchantConfiguration = merchantConfiguration,
-            placementsConfiguration,
-        )?.toString()
+        CommonUtils()
+            .buildBpsWebURL(
+                integrationKey = integrationKey,
+                merchantConfiguration = merchantConfiguration,
+                placementsConfiguration,
+            )?.toString()
     } else {
-        CommonUtils().buildRTPSWebURL(
-            integrationKey = integrationKey,
-            merchantConfiguration = merchantConfiguration,
-            rtpsConfig = placementsConfiguration.rtpsData!!,
-        )?.toString()
+        CommonUtils()
+            .buildRTPSWebURL(
+                integrationKey = integrationKey,
+                merchantConfiguration = merchantConfiguration,
+                rtpsConfig = placementsConfiguration.rtpsData!!,
+            )?.toString()
     }
 
     val placementRequest = PlacementRequest(
@@ -288,15 +294,17 @@ fun BreadPartnersSDK.fetchRTPSData(
                 context = ContextRequestBody(
                     ENV = merchantConfiguration.env?.value.takeIfNotEmpty(),
                     LOCATION = "RTPS-Approval",
-                    embeddedUrl = webUrl
-                )
-            )
+                    embeddedUrl = webUrl,
+                ),
+            ),
         ),
-        brandId = integrationKey
+        brandId = integrationKey,
     )
 
     APIClient().request(
-        urlString = apiUrl, method = HTTPMethod.POST, body = placementRequest
+        urlString = apiUrl,
+        method = HTTPMethod.POST,
+        body = placementRequest,
     ) { result ->
         when (result) {
             is Result.Success -> {
@@ -306,15 +314,15 @@ fun BreadPartnersSDK.fetchRTPSData(
                         placementsConfiguration,
                         viewContext,
                         callback,
-                        result.data
+                        result.data,
                     )
                 } catch (error: Exception) {
                     callback(
                         BreadPartnerEvent.SdkError(
                             error = Exception(
-                                error.message
-                            )
-                        )
+                                error.message,
+                            ),
+                        ),
                     )
                 }
             }
@@ -323,9 +331,9 @@ fun BreadPartnersSDK.fetchRTPSData(
                 callback(
                     BreadPartnerEvent.SdkError(
                         error = Exception(
-                            Constants.generatePlacementAPIError(message = "${result.error}")
-                        )
-                    )
+                            Constants.generatePlacementAPIError(message = "${result.error}"),
+                        ),
+                    ),
                 )
             }
         }
@@ -341,7 +349,7 @@ fun BreadPartnersSDK.handleRTPSResponse(
     placementsConfiguration: PlacementsConfiguration,
     viewContext: Context,
     callback: (BreadPartnerEvent) -> Unit,
-    response: Any
+    response: Any,
 ) {
     CommonUtils().decodeJSON(
         response.toString(),
@@ -356,13 +364,17 @@ fun BreadPartnersSDK.handleRTPSResponse(
             val popupPlacementModel = HTMLContentParser().extractPopupPlacementModel(htmlContent)
                 ?: return@decodeJSON callback(
                     BreadPartnerEvent.SdkError(
-                        error = Exception(Constants.popupPlacementParsingError)
-                    )
+                        error = Exception(Constants.popupPlacementParsingError),
+                    ),
                 )
 
             // Update location from render context
             val location =
-                placementsResponse.placements?.first()?.renderContext?.LOCATION.toString()
+                placementsResponse.placements
+                    ?.first()
+                    ?.renderContext
+                    ?.LOCATION
+                    .toString()
             val updatedModel = popupPlacementModel.copy(location = location)
 
             // Determine overlay type
@@ -375,19 +387,20 @@ fun BreadPartnersSDK.handleRTPSResponse(
                 placementsConfiguration,
                 brandConfiguration,
                 false,
-                callback
+                callback,
             ).createPopupOverlay(
                 popupPlacementModel = updatedModel,
-                overlayType = overlayType
+                overlayType = overlayType,
             )
         },
         onError = { error ->
             callback(
                 BreadPartnerEvent.SdkError(
                     error = Exception(
-                        error.message
-                    )
-                )
+                        error.message,
+                    ),
+                ),
             )
-        })
+        },
+    )
 }

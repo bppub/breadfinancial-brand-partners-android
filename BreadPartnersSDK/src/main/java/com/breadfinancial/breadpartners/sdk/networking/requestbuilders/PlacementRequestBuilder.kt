@@ -75,18 +75,18 @@ class PlacementRequestBuilder(
 
             val upqPathData = pathForUnifiedPrequalCheckout(
                 initialData = upqCheckoutData,
-                clientKey = brandId
+                clientKey = brandId,
             ).queryString
 
             context.copy(UPQ_CHECKOUT_PARAMS = upqPathData)
         } else {
             val upqData = mapUnifiedPlacementContextToUPQCommonData(
                 placementData = placementData,
-                merchantConfiguration = merchantConfiguration
+                merchantConfiguration = merchantConfiguration,
             )
             val upqPathData = pathForUnifiedPrequal(
                 initialData = upqData,
-                clientKey = brandId
+                clientKey = brandId,
             ).queryString
 
             context.copy(UPQ_PARAMS = upqPathData)
@@ -94,7 +94,7 @@ class PlacementRequestBuilder(
 
         val placement = PlacementRequestBody(
             context = context,
-            id = placementData?.placementId.takeIfNotEmpty()
+            id = placementData?.placementId.takeIfNotEmpty(),
         )
 
         placements.add(placement)
@@ -106,7 +106,6 @@ class PlacementRequestBuilder(
             placements = placements,
         )
     }
-
 
     /**
      * Maps placement and merchant data to UPQ checkout data.
@@ -127,14 +126,13 @@ class PlacementRequestBuilder(
         userTrackingId: String? = null,
         financingLocationId: String? = null,
         callCenter: String? = null,
-
-        ): MutableMap<String, Any?> {
+    ): MutableMap<String, Any?> {
         // Map common data from placement and setup configs
         val commonData = mapUnifiedPlacementContextToUPQCommonData(
             placementData = placementData,
             merchantConfiguration = merchantConfiguration,
             sessionId = sessionTrackingId,
-            userTrackingId = userTrackingId
+            userTrackingId = userTrackingId,
         )
 
         // Map order and check BNPL eligibility
@@ -157,8 +155,8 @@ class PlacementRequestBuilder(
                 "financingBuyerId" to placementData?.financingBuyerId,
                 "financingLocationId" to financingLocationId,
                 "callCenter" to callCenter,
-                "inSessionToken" to placementData?.upqInSessionToken
-            )
+                "inSessionToken" to placementData?.upqInSessionToken,
+            ),
         )
     }
 
@@ -176,7 +174,7 @@ class PlacementRequestBuilder(
         placementData: PlacementData? = null,
         merchantConfiguration: MerchantConfiguration? = null,
         sessionId: String? = null,
-        userTrackingId: String? = null
+        userTrackingId: String? = null,
     ): MutableMap<String, Any?> {
         return CommonUtils().assignDefined(
             mutableMapOf<String, Any?>(),
@@ -210,8 +208,8 @@ class PlacementRequestBuilder(
                 "overrideKey" to merchantConfiguration?.overrideKey,
                 "cardChoiceCode" to merchantConfiguration?.cardChoiceCode,
                 "associateId" to merchantConfiguration?.clerkId,
-                "splitPayment" to if (merchantConfiguration?.paymentMode == PaymentMode.SPLIT) true else null
-            )
+                "splitPayment" to if (merchantConfiguration?.paymentMode == PaymentMode.SPLIT) true else null,
+            ),
         )
     }
 
@@ -229,7 +227,7 @@ class PlacementRequestBuilder(
     ): UnifiedPrequalPathResult {
         val queryParams = mutableMapOf<String, Any?>(
             "embedded" to true,
-            "clientKey" to clientKey
+            "clientKey" to clientKey,
         )
 
         // Merge initial data
@@ -238,7 +236,7 @@ class PlacementRequestBuilder(
         return UnifiedPrequalPathResult(
             path = "/unified/offer-intro",
             queryString = queryParams.toQueryString(),
-            queryParams = queryParams
+            queryParams = queryParams,
         )
     }
 
@@ -255,10 +253,9 @@ class PlacementRequestBuilder(
             address2 = buyer.shippingAddress?.address2,
             city = buyer.shippingAddress?.locality,
             state = buyer.shippingAddress?.region,
-            zip = buyer.shippingAddress?.postalCode
+            zip = buyer.shippingAddress?.postalCode,
         )
     }
-
 
     /**
      * Maps unified placement order to order.
@@ -282,8 +279,8 @@ class PlacementRequestBuilder(
                             "unitTaxValue" to CommonUtils().fromMoneyToDollars(item.unitTax?.value),
                             "sku" to item.sku,
                             "shippingCostValue" to CommonUtils().fromMoneyToDollars(item.shippingCost?.value),
-                            "fulfillmentType" to item.fulfillmentType
-                        )
+                            "fulfillmentType" to item.fulfillmentType,
+                        ),
                     )
                 },
                 "subTotalValue" to CommonUtils().fromMoneyToDollars(order?.subTotal?.value),
@@ -301,8 +298,8 @@ class PlacementRequestBuilder(
                                 mapOf(
                                     "firstName" to order.pickupInformation?.name?.givenName,
                                     "lastName" to order.pickupInformation?.name?.familyName,
-                                    "additionalName" to order.pickupInformation?.name?.additionalName
-                                )
+                                    "additionalName" to order.pickupInformation?.name?.additionalName,
+                                ),
                             ),
                             "address" to CommonUtils().assignDefined(
                                 mutableMapOf<String, Any?>(),
@@ -311,17 +308,17 @@ class PlacementRequestBuilder(
                                     "address2" to order.pickupInformation?.address?.address2,
                                     "city" to order.pickupInformation?.address?.locality,
                                     "state" to order.pickupInformation?.address?.region,
-                                    "zip" to order.pickupInformation?.address?.postalCode
-                                )
+                                    "zip" to order.pickupInformation?.address?.postalCode,
+                                ),
                             ),
                             "mobilePhone" to order.pickupInformation?.phone,
-                            "emailAddress" to order.pickupInformation?.email
-                        )
+                            "emailAddress" to order.pickupInformation?.email,
+                        ),
                     )
                 } else {
                     null
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -339,7 +336,7 @@ class PlacementRequestBuilder(
     ): UnifiedPrequalPathResult {
         val queryParams = mutableMapOf<String, Any?>(
             "embedded" to true,
-            "clientKey" to clientKey
+            "clientKey" to clientKey,
         )
         // Merge initial data
         queryParams.putAll(initialData)
@@ -357,11 +354,10 @@ class PlacementRequestBuilder(
             finalParams["shippingAddress"] = Gson().toJson(shippingAddress)
         }
 
-
         return UnifiedPrequalPathResult(
             path = "/unified/checkout",
             queryString = finalParams.toQueryString(),
-            queryParams = queryParams
+            queryParams = queryParams,
         )
     }
 
@@ -386,5 +382,3 @@ class PlacementRequestBuilder(
         }
     }
 }
-
-
