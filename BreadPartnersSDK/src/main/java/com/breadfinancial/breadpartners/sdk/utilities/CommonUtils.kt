@@ -13,7 +13,6 @@
 package com.breadfinancial.breadpartners.sdk.utilities
 
 import android.graphics.Color
-import android.os.Build
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
@@ -222,15 +221,5 @@ class CommonUtils {
         val g = (Color.green(color) * factor).toInt()
         val b = (Color.blue(color) * factor).toInt()
         return Color.rgb(r, g, b)
-    }
-
-    /**
-     * Generates a simplified User-Agent string based on the device's manufacturer, model, and OS version.
-     */
-    fun getUserAgent(): String {
-        val osVersion = "Android ${Build.VERSION.RELEASE}" // e.g., "Android 13"
-        val deviceModel = Build.MODEL // e.g., "Pixel 7"
-        val manufacturer = Build.MANUFACTURER // e.g., "Google"
-        return "$manufacturer $deviceModel; $osVersion" // Google Pixel 7; Android 13
     }
 }
