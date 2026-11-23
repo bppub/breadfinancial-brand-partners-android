@@ -37,6 +37,21 @@ jobs:
       - name: Run SDK unit tests with coverage
         run: ./gradlew :BreadPartnersSDK:testDebugUnitTest :BreadPartnersSDK:createDebugUnitTestCoverageReport
 
+      # Hardware acceleration for the Android emulator.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run SDK instrumented tests with coverage
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          script: ./gradlew :BreadPartnersSDK:connectedDebugAndroidTest :BreadPartnersSDK:createDebugAndroidTestCoverageReport
+
       - name: Publish combined coverage check run
         uses: actions/github-script@v8
         with:
@@ -57,45 +72,51 @@ jobs:
               "report.xml"
             );
 
-            if (!fs.existsSync(reportPath)) {
-              throw new Error(`Coverage report not found: ${reportPath}`);
-            }
-
-            // JaCoCo XML: <package name="a/b"> ... <sourcefile name="X.kt"> ... <counter type="LINE" .../>
-            const xml = fs.readFileSync(reportPath, "utf8");
-            const filesByPath = new Map();
-            const packagePattern = /<package name="([^"]*)">([\s\S]*?)<\/package>/g;
-            const sourceFilePattern = /<sourcefile name="([^"]*)">([\s\S]*?)<\/sourcefile>/g;
-            const linePattern = /<counter type="LINE" missed="(\d+)" covered="(\d+)"\/>/;
-
-            for (const packageMatch of xml.matchAll(packagePattern)) {
-              const packageName = packageMatch[1];
-              for (const fileMatch of packageMatch[2].matchAll(sourceFilePattern)) {
-                const lineCounter = fileMatch[2].match(linePattern);
-                if (!lineCounter) continue;
-
-                const filePath = `${packageName}/${fileMatch[1]}`;
-                const file = filesByPath.get(filePath) || {
-                  name: filePath,
-                  coveredLines: 0,
-                  executableLines: 0
-                };
-                file.coveredLines += toNumber(lineCounter[2]);
-                file.executableLines += toNumber(lineCounter[1]) + toNumber(lineCounter[2]);
-                filesByPath.set(filePath, file);
+            for (const reportPath of reportPaths) {
+              if (!fs.existsSync(reportPath)) {
+                throw new Error(`Coverage report not found: ${reportPath}`);
               }
             }
 
-            const files = Array.from(filesByPath.values())
+            // JaCoCo XML: <package name="a/b"> ... <sourcefile name="X.kt"> ... <line nr="1" mi="0" ci="2" .../>
+            // A line counts as covered if it was covered by either the unit or the instrumented run.
+            const linesByFile = new Map();
+            const packagePattern = /<package name="([^"]*)">([\s\S]*?)<\/package>/g;
+            const sourceFilePattern = /<sourcefile name="([^"]*)">([\s\S]*?)<\/sourcefile>/g;
+            const linePattern = /<line nr="(\d+)" mi="(\d+)" ci="(\d+)"/g;
+
+            for (const reportPath of reportPaths) {
+              const xml = fs.readFileSync(reportPath, "utf8");
+              for (const packageMatch of xml.matchAll(packagePattern)) {
+                const packageName = packageMatch[1];
+                for (const fileMatch of packageMatch[2].matchAll(sourceFilePattern)) {
+                  const filePath = `${packageName}/${fileMatch[1]}`;
+                  const lines = linesByFile.get(filePath) || new Map();
+                  for (const lineMatch of fileMatch[2].matchAll(linePattern)) {
+                    const lineNumber = Number(lineMatch[1]);
+                    const covered = Number(lineMatch[3]) > 0;
+                    lines.set(lineNumber, (lines.get(lineNumber) || false) || covered);
+                  }
+                  linesByFile.set(filePath, lines);
+                }
+              }
+            }
+
+            const files = Array.from(linesByFile.entries())
+              .map(([name, lines]) => {
+                const coveredLines = Array.from(lines.values()).filter(Boolean).length;
+                return {
+                  name,
+                  coveredLines,
+                  executableLines: lines.size,
+                  lineCoverage: lines.size === 0 ? 0 : coveredLines / lines.size
+                };
+              })
               .filter(file => file.executableLines > 0)
-              .map(file => ({
-                ...file,
-                lineCoverage: file.coveredLines / file.executableLines
-              }))
               .sort((left, right) => left.lineCoverage - right.lineCoverage);
 
             if (files.length === 0) {
-              throw new Error(`No source files found in coverage report: ${reportPath}`);
+              throw new Error(`No source files found in coverage reports: ${reportPaths.join(", ")}`);
             }
 
             const percent = value => `${(value * 100).toFixed(2)}%`;
@@ -131,7 +152,7 @@ jobs:
               conclusion: "success",
               output: {
                 title: "Combined Coverage",
-                summary: `Line coverage: **${percent(lineCoverage)}**`,
+                summary: `Line coverage (unit + instrumented tests): **${percent(lineCoverage)}**`,
                 text
               }
             });
