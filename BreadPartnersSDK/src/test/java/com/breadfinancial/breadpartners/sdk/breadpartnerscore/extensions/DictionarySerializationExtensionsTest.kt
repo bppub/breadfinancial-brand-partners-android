@@ -40,31 +40,26 @@ class DictionarySerializationExtensionsTest {
     }
 
     @Test
-    fun toQueryStringSerializesSupportedValues() {
+    fun toQueryStringSerializesAndEncodesValues() {
         val values = mapOf<String, Any?>(
             "string" to "value",
             "falsey" to false,
             "truthy" to true,
             "number" to 5,
-            "missing" to null,
+            "first name" to "Ada & Co",
         )
 
-        val query = values.toQueryString().split("&").associate {
-            val (key, value) = it.split("=", limit = 2)
-            key to value
-        }
-
         assertEquals(
-            mapOf("string" to "value", "falsey" to "false", "truthy" to "true", "number" to "5"),
-            query,
+            "string=value&falsey=false&truthy=true&number=5&first+name=Ada+%26+Co",
+            values.toQueryString(),
         )
     }
 
     @Test
-    fun toQueryStringEncodesKeysAndValues() {
-        val values = mapOf<String, Any?>("first name" to "Ada & Co")
+    fun toQueryStringSkipsNullValues() {
+        val values = mapOf<String, Any?>("missing" to null, "present" to "value")
 
-        assertEquals("first+name=Ada+%26+Co", values.toQueryString())
+        assertEquals("present=value", values.toQueryString())
     }
 
     @Test
