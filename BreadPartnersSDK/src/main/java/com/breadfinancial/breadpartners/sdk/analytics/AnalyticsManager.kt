@@ -13,13 +13,13 @@
 package com.breadfinancial.breadpartners.sdk.analytics
 
 import com.breadfinancial.breadpartners.sdk.analytics.models.Analytics
+import com.breadfinancial.breadpartners.sdk.breadpartners.infrastructure.device.DeviceInformationProvider
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.TimestampUtils
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
 import com.breadfinancial.breadpartners.sdk.networking.APIUrl
 import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
-import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
 import java.util.Date
 
@@ -97,7 +97,7 @@ class AnalyticsManager {
                         name = "bread-partners-sdk-android",
                         version = "0.0.1",
                     ),
-                    userAgent = CommonUtils().getUserAgent(),
+                    userAgent = DeviceInformationProvider.userAgent,
                     page = Analytics.Page(
                         path = "ToDO:Android Screen Name",
                         url = "ToDO",

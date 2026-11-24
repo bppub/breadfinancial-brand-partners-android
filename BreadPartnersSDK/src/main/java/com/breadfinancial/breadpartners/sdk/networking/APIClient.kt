@@ -12,7 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk.networking
 
-import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
+import com.breadfinancial.breadpartners.sdk.breadpartners.infrastructure.device.DeviceInformationProvider
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import com.google.gson.Gson
@@ -75,7 +75,7 @@ class APIClient {
 
                 val genericHeader = mapOf(
                     Constants.headerContentType to Constants.headerContentTypeValue,
-                    Constants.headerUserAgentKey to CommonUtils().getUserAgent(),
+                    Constants.headerUserAgentKey to DeviceInformationProvider.userAgent,
                     Constants.headerOriginKey to Constants.headerOriginValue,
                     Constants.headerPlatformKey to Constants.headerPlatformValue,
                 )
