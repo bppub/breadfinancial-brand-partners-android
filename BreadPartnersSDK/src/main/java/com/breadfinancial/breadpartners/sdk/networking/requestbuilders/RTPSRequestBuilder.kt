@@ -12,10 +12,10 @@
 
 package com.breadfinancial.breadpartners.sdk.networking.requestbuilders
 
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.takeIfNotEmpty
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
 import com.breadfinancial.breadpartners.sdk.networking.models.RTPSRequest
-import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
 
 /**
  * Builder class to create a RTPSRequest for RTPS flow.

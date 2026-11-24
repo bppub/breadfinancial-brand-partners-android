@@ -118,8 +118,4 @@ object BreadPartnersExtensions {
             addView(newButton, index)
         }
     }
-
-    fun String?.takeIfNotEmpty(): String? {
-        return this?.trim()?.takeIf { it.isNotEmpty() }
-    }
 }

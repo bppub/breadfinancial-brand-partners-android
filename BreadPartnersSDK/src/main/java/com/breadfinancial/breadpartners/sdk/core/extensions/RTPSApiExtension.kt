@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.core.extensions
 
 import android.content.Context
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.takeIfNotEmpty
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
@@ -36,7 +37,6 @@ import com.breadfinancial.breadpartners.sdk.networking.models.RTPSResponse
 import com.breadfinancial.breadpartners.sdk.networking.models.getPrescreenResult
 import com.breadfinancial.breadpartners.sdk.networking.requestbuilders.RTPSRequestBuilder
 import com.breadfinancial.breadpartners.sdk.security.RecaptchaManager
-import com.breadfinancial.breadpartners.sdk.utilities.BreadPartnersExtensions.takeIfNotEmpty
 import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
 import com.breadfinancial.breadpartners.sdk.utilities.Constants.prescreenRequiredFieldsError
