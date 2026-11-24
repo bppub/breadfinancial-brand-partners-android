@@ -31,4 +31,3 @@ internal fun <T> decodeJSON(
         onError(error)
     }
 }
-
