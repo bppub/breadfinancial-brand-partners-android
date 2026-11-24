@@ -89,4 +89,3 @@ class JSONUtilitiesTest {
         assertNull(decoded?.count)
     }
 }
-

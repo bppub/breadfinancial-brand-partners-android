@@ -25,7 +25,6 @@ import java.net.URL
  * Utility class for handling common operations across the SDK.
  */
 class CommonUtils {
-
     /**
      * Constructs the full RTPS Web URL with required query parameters.
      */
