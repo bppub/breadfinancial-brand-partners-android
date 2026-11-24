@@ -19,30 +19,12 @@ import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
 import com.breadfinancial.breadpartners.sdk.networking.APIUrl
 import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
-import com.google.gson.Gson
 import java.net.URL
 
 /**
  * Utility class for handling common operations across the SDK.
  */
 class CommonUtils {
-    /**
-     * Safely decodes a JSON string into the specified model class.
-     */
-    fun <T> decodeJSON(
-        jsonString: String,
-        clazz: Class<T>,
-        onSuccess: (T) -> Unit,
-        onError: (Exception) -> Unit,
-    ) {
-        try {
-            val gson = Gson()
-            val result = gson.fromJson(jsonString, clazz)
-            onSuccess(result)
-        } catch (error: Exception) {
-            onError(error)
-        }
-    }
 
     /**
      * Constructs the full RTPS Web URL with required query parameters.
