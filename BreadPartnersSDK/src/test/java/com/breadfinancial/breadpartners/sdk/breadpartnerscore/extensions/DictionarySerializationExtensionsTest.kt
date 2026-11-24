@@ -38,4 +38,43 @@ class DictionarySerializationExtensionsTest {
         assertEquals(5, values["number"])
         assertEquals(true, values["boolean"])
     }
+
+    @Test
+    fun toQueryStringSerializesAndEncodesValues() {
+        val values = mapOf<String, Any?>(
+            "string" to "value",
+            "falsey" to false,
+            "truthy" to true,
+            "number" to 5,
+            "first name" to "Ada & Co",
+        )
+
+        assertEquals(
+            "string=value&falsey=false&truthy=true&number=5&first+name=Ada+%26+Co",
+            values.toQueryString(),
+        )
+    }
+
+    @Test
+    fun toQueryStringSkipsNullValues() {
+        val values = mapOf<String, Any?>("missing" to null, "present" to "value")
+
+        assertEquals("present=value", values.toQueryString())
+    }
+
+    @Test
+    fun toQueryStringDescribesUnsupportedValue() {
+        val values = mapOf<String, Any?>(
+            "custom" to object {
+                override fun toString() = "custom value"
+            },
+        )
+
+        assertEquals("custom=custom+value", values.toQueryString())
+    }
+
+    @Test
+    fun toQueryStringOfEmptyMapIsEmpty() {
+        assertEquals("", emptyMap<String, Any?>().toQueryString())
+    }
 }
