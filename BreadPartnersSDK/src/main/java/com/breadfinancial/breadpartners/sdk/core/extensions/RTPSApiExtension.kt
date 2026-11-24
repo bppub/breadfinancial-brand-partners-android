@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.core.extensions
 
 import android.content.Context
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.takeIfNotEmpty
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
@@ -171,7 +172,7 @@ internal fun BreadPartnersSDK.rtpsCall(
         ) { result ->
             when (result) {
                 is Result.Success -> {
-                    CommonUtils().decodeJSON(
+                    decodeJSON(
                         result.data.toString(),
                         RTPSResponse::class.java,
                         onSuccess = { rtpsResponse ->
@@ -351,7 +352,7 @@ fun BreadPartnersSDK.handleRTPSResponse(
     callback: (BreadPartnerEvent) -> Unit,
     response: Any,
 ) {
-    CommonUtils().decodeJSON(
+    decodeJSON(
         response.toString(),
         PlacementsResponse::class.java,
         onSuccess = { placementsResponse ->

@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.core.extensions
 
 import android.content.Context
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
@@ -27,7 +28,6 @@ import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.Result
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
 import com.breadfinancial.breadpartners.sdk.networking.requestbuilders.PlacementRequestBuilder
-import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 
@@ -62,7 +62,7 @@ fun BreadPartnersSDK.fetchPlacementData(
     ) { result ->
         when (result) {
             is Result.Success -> {
-                CommonUtils().decodeJSON(
+                decodeJSON(
                     result.data.toString(),
                     PlacementsResponse::class.java,
                     onSuccess = { placementsResponse ->

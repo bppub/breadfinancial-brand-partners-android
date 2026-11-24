@@ -12,6 +12,7 @@
 
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions
 
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupDialog
@@ -24,7 +25,6 @@ import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequestBody
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
 import com.breadfinancial.breadpartners.sdk.networking.requestbuilders.PlacementRequestBuilder
-import com.breadfinancial.breadpartners.sdk.utilities.CommonUtils
 import com.breadfinancial.breadpartners.sdk.utilities.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +69,7 @@ fun PopupDialog.fetchData(requestBody: PlacementRequest) {
         ) { result ->
             when (result) {
                 is Result.Success -> {
-                    CommonUtils().decodeJSON(
+                    decodeJSON(
                         result.data.toString(),
                         PlacementsResponse::class.java,
                         onSuccess = { placementsResponse ->
