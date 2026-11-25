@@ -13,12 +13,12 @@
 package com.breadfinancial.breadpartners.sdk.utilities
 
 import android.graphics.Color
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.takeIfNotEmpty
+import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.RTPSData
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import java.net.URL
 
 /**
@@ -69,7 +69,7 @@ class CommonUtils {
         )
 
         return try {
-            val urlComponents = URL(APIUrl(urlType = APIUrlType.RTPSWebURL("offer")).url)
+            val urlComponents = BreadPartnersSDK.getInstance().endpointProvider.url(APIEndpoint.RtpsWebUrl("offer"))
             val queryString =
                 queryParams
                     .filterValues { it != null }
@@ -180,7 +180,7 @@ class CommonUtils {
         )
 
         return try {
-            val urlComponents = URL(APIUrl(urlType = APIUrlType.BatchPreScreen).url)
+            val urlComponents = BreadPartnersSDK.getInstance().endpointProvider.url(APIEndpoint.BpsWebUrl)
             val queryString =
                 queryParams
                     .filterValues { it != null }

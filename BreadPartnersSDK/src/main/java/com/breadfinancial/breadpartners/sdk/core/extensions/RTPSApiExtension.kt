@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.core.extensions
 
 import android.content.Context
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.takeIfNotEmpty
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
@@ -25,8 +26,6 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentRenderer
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.models.PlacementOverlayType
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.Result
 import com.breadfinancial.breadpartners.sdk.networking.models.ContextRequestBody
@@ -150,9 +149,9 @@ internal fun BreadPartnersSDK.rtpsCall(
             ""
         }
 
-        val apiUrl = APIUrl(
-            urlType = if (isPrescreen) APIUrlType.PreScreen else APIUrlType.VirtualLookup,
-        ).url
+        val apiUrl = endpointProvider.url(
+            if (isPrescreen) APIEndpoint.Prescreen else APIEndpoint.VirtualLookup,
+        ).toString()
         val rtpsRequestBuilder = RTPSRequestBuilder(
             merchantConfiguration,
             placementsConfiguration.rtpsData!!,
@@ -271,7 +270,7 @@ fun BreadPartnersSDK.fetchRTPSData(
     viewContext: Context,
     callback: (BreadPartnerEvent) -> Unit,
 ) {
-    val apiUrl = APIUrl(urlType = APIUrlType.GeneratePlacements).url
+    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements).toString()
 
     val webUrl: String? = if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
         CommonUtils()

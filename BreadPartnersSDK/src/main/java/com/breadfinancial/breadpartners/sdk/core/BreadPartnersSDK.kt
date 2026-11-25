@@ -16,6 +16,9 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpointProviding
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.LiveAPIEndpointProvider
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.core.extensions.fetchPlacementData
 import com.breadfinancial.breadpartners.sdk.core.extensions.rtpsCall
@@ -24,8 +27,6 @@ import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
 import com.breadfinancial.breadpartners.sdk.core.models.MerchantConfiguration
 import com.breadfinancial.breadpartners.sdk.core.models.PlacementsConfiguration
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.Result
 import com.breadfinancial.breadpartners.sdk.networking.models.BrandConfigResponse
@@ -57,6 +58,8 @@ class BreadPartnersSDK private constructor() {
     internal lateinit var application: Application
     internal var brandConfiguration: BrandConfigResponse? = null
     internal var sdkEnvironment: BreadPartnersEnvironment = BreadPartnersEnvironment.STAGE
+    internal var endpointProvider: APIEndpointProviding =
+        LiveAPIEndpointProvider(BreadPartnersEnvironment.PROD)
     internal var enableLog: Boolean = false
     private val brandConfigDeferred = CompletableDeferred<Unit>()
     private var isInitialized = false
@@ -76,10 +79,10 @@ class BreadPartnersSDK private constructor() {
         enableLog: Boolean = false,
         application: Application,
     ) {
-        APIUrl.setEnvironment(environment)
         this.integrationKey = integrationKey
         this.application = application
         this.sdkEnvironment = environment
+        this.endpointProvider = LiveAPIEndpointProvider(environment)
         this.enableLog = enableLog
         this.isInitialized = true
         fetchBrandConfig()
@@ -89,9 +92,7 @@ class BreadPartnersSDK private constructor() {
      * Retrieves brand-specific configurations, such as the Recaptcha key.
      */
     private fun fetchBrandConfig() {
-        val apiUrl = APIUrl(
-            urlType = APIUrlType.BrandConfig(integrationKey),
-        ).url
+        val apiUrl = endpointProvider.url(APIEndpoint.BrandConfig(integrationKey)).toString()
         APIClient().request(
             urlString = apiUrl,
             method = HTTPMethod.GET,

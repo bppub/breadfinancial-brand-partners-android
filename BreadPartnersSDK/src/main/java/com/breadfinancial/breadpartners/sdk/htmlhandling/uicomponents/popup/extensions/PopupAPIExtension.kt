@@ -12,13 +12,13 @@
 
 package com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.extensions
 
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
+import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
 import com.breadfinancial.breadpartners.sdk.htmlhandling.uicomponents.popup.PopupDialog
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.Result
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementRequest
@@ -58,9 +58,9 @@ fun PopupDialog.fetchWebViewPlacement() {
  * Fetches placement data based on the provided request body.
  */
 fun PopupDialog.fetchData(requestBody: PlacementRequest) {
-    val apiUrl = APIUrl(
-        urlType = APIUrlType.GeneratePlacements,
-    ).url
+    val apiUrl = BreadPartnersSDK.getInstance().endpointProvider
+        .url(APIEndpoint.GeneratePlacements)
+        .toString()
     CoroutineScope(Dispatchers.Main).launch {
         APIClient().request(
             urlString = apiUrl,
