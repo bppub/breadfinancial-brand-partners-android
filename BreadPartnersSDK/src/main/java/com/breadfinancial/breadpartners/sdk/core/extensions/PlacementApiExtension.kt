@@ -13,6 +13,7 @@
 package com.breadfinancial.breadpartners.sdk.core.extensions
 
 import android.content.Context
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.decodeJSON
 import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnerEvent
@@ -22,8 +23,6 @@ import com.breadfinancial.breadpartners.sdk.htmlhandling.ChallengeDialog
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentParser
 import com.breadfinancial.breadpartners.sdk.htmlhandling.HTMLContentRenderer
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.Result
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
@@ -44,9 +43,7 @@ fun BreadPartnersSDK.fetchPlacementData(
     callback: (BreadPartnerEvent) -> Unit,
     cookies: String? = null,
 ) {
-    val apiUrl = APIUrl(
-        urlType = APIUrlType.GeneratePlacements,
-    ).url
+    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements)
     val builder = PlacementRequestBuilder(
         integrationKey = integrationKey,
         merchantConfiguration,
@@ -55,7 +52,7 @@ fun BreadPartnersSDK.fetchPlacementData(
     val placementRequest = builder.build()
 
     APIClient().request(
-        urlString = apiUrl,
+        url = apiUrl,
         method = HTTPMethod.POST,
         body = placementRequest,
         cookies = cookies,
@@ -144,7 +141,7 @@ fun BreadPartnersSDK.fetchPlacementData(
 
                     val challengeDialog = ChallengeDialog(
                         htmlContent = htmlContent,
-                        baseUrl = apiUrl.substringBefore("/api"),
+                        baseUrl = apiUrl.toString().substringBefore("/api"),
                         onComplete = { capturedCookies ->
                             // Retry the API call after challenge completion with captured cookies
                             fetchPlacementData(

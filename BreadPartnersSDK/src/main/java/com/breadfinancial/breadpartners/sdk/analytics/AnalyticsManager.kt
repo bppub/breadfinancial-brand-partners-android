@@ -14,13 +14,14 @@ package com.breadfinancial.breadpartners.sdk.analytics
 
 import com.breadfinancial.breadpartners.sdk.analytics.models.Analytics
 import com.breadfinancial.breadpartners.sdk.breadpartners.infrastructure.device.DeviceInformationProvider
+import com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint.APIEndpoint
 import com.breadfinancial.breadpartners.sdk.breadpartnerscore.utilities.TimestampUtils
+import com.breadfinancial.breadpartners.sdk.core.BreadPartnersSDK
 import com.breadfinancial.breadpartners.sdk.networking.APIClient
-import com.breadfinancial.breadpartners.sdk.networking.APIUrl
-import com.breadfinancial.breadpartners.sdk.networking.APIUrlType
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
+import java.net.URL
 import java.util.Date
 
 /**
@@ -38,7 +39,7 @@ class AnalyticsManager {
 
     // Helper function to send analytics payload
     private fun sendAnalyticsPayload(
-        apiUrl: String,
+        apiUrl: URL,
         payload: Analytics.Payload,
     ) {
         val headers = mapOf(
@@ -50,7 +51,7 @@ class AnalyticsManager {
             Constants.headerAccessControlRequestMethodKey to Constants.headerAccessControlRequestMethodValue,
         )
         APIClient().request(
-            urlString = apiUrl,
+            url = apiUrl,
             method = HTTPMethod.OPTIONS,
             body = payload,
             headers = headers,
@@ -118,20 +119,20 @@ class AnalyticsManager {
     private fun sendPlacementAnalytics(
         name: String,
         placementResponse: PlacementsResponse,
-        apiUrlType: APIUrlType,
+        apiEndpoint: APIEndpoint,
     ) {
         val payload = createAnalyticsPlacementPayload(name, placementResponse)
-        val apiUrl = APIUrl(urlType = apiUrlType).url
+        val apiUrl = BreadPartnersSDK.getInstance().endpointProvider.url(apiEndpoint)
         sendAnalyticsPayload(apiUrl, payload)
     }
 
     // Public function to send view placement analytics
     fun sendViewPlacement(placementResponse: PlacementsResponse) {
-        sendPlacementAnalytics("view-placement", placementResponse, APIUrlType.ViewPlacement)
+        sendPlacementAnalytics("view-placement", placementResponse, APIEndpoint.ViewPlacement)
     }
 
     // Public function to send click placement analytics
     fun sendClickPlacement(placementResponse: PlacementsResponse) {
-        sendPlacementAnalytics("click-placement", placementResponse, APIUrlType.ClickPlacement)
+        sendPlacementAnalytics("click-placement", placementResponse, APIEndpoint.ClickPlacement)
     }
 }

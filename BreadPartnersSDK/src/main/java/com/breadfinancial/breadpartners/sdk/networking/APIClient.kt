@@ -51,7 +51,7 @@ class APIClient {
      * Generic API call function.
      *
      * - Parameters:
-     *   - urlString: The URL endpoint as a string.
+     *   - url: The URL endpoint.
      *   - method: HTTP method (e.g., "GET", "POST").
      *   - body: Optional request body, can be a map (`Map<String, Any>`) or a model that implements `Serializable`.
      *   - headers: Optional headers body, can be a map (`Map<String, Any>`) or null.
@@ -59,7 +59,7 @@ class APIClient {
      *   - completion: A lambda to handle the result, returning success with response or failure with error.
      */
     fun request(
-        urlString: String,
+        url: URL,
         method: HTTPMethod,
         body: Any?,
         headers: Map<String, String>? = null,
@@ -68,8 +68,7 @@ class APIClient {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Create URL and open connection
-                val url = URL(urlString)
+                // Open connection
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = method.value
 
@@ -93,7 +92,7 @@ class APIClient {
                 }
 
                 Logger.logRequestDetails(
-                    urlString,
+                    url.toString(),
                     method.value,
                     finalHeaders,
                     body?.let { Gson().toJson(it).toByteArray() },
@@ -121,7 +120,7 @@ class APIClient {
                     ?: connection.getHeaderField("Content-Type") ?: ""
 
                 Logger.logResponseDetails(
-                    urlString,
+                    url.toString(),
                     responseCode,
                     connection.headerFields,
                     responseMessage.toByteArray(),
