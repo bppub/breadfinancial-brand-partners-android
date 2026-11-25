@@ -59,7 +59,7 @@ class BreadPartnersSDK private constructor() {
     internal var brandConfiguration: BrandConfigResponse? = null
     internal var sdkEnvironment: BreadPartnersEnvironment = BreadPartnersEnvironment.STAGE
     internal var endpointProvider: APIEndpointProviding =
-        LiveAPIEndpointProvider(BreadPartnersEnvironment.PROD)
+        LiveAPIEndpointProvider(BreadPartnersEnvironment.STAGE)
     internal var enableLog: Boolean = false
     private val brandConfigDeferred = CompletableDeferred<Unit>()
     private var isInitialized = false
