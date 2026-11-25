@@ -58,7 +58,9 @@ fun PopupDialog.fetchWebViewPlacement() {
  * Fetches placement data based on the provided request body.
  */
 fun PopupDialog.fetchData(requestBody: PlacementRequest) {
-    val apiUrl = BreadPartnersSDK.getInstance().endpointProvider
+    val apiUrl = BreadPartnersSDK
+        .getInstance()
+        .endpointProvider
         .url(APIEndpoint.GeneratePlacements)
     CoroutineScope(Dispatchers.Main).launch {
         APIClient().request(

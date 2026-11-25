@@ -141,7 +141,7 @@ fun BreadPartnersSDK.fetchPlacementData(
 
                     val challengeDialog = ChallengeDialog(
                         htmlContent = htmlContent,
-                            baseUrl = apiUrl.toString().substringBefore("/api"),
+                        baseUrl = apiUrl.toString().substringBefore("/api"),
                         onComplete = { capturedCookies ->
                             // Retry the API call after challenge completion with captured cookies
                             fetchPlacementData(
