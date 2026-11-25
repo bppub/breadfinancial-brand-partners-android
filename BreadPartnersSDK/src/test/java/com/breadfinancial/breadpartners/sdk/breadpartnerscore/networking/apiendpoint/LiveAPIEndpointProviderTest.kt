@@ -13,11 +13,11 @@
 package com.breadfinancial.breadpartners.sdk.breadpartnerscore.networking.apiendpoint
 
 import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
-import java.net.MalformedURLException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import java.net.MalformedURLException
 
 class LiveAPIEndpointProviderTest {
     @Test
@@ -59,4 +59,3 @@ class LiveAPIEndpointProviderTest {
         }
     }
 }
-

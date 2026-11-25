@@ -18,14 +18,28 @@ import com.breadfinancial.breadpartners.sdk.core.models.BreadPartnersEnvironment
  * Describes every API endpoint the SDK talks to and builds its full URL.
  */
 internal sealed class APIEndpoint {
-    data class RtpsWebUrl(val type: String) : APIEndpoint()
+    data class RtpsWebUrl(
+        val type: String,
+    ) : APIEndpoint()
+
     data object BpsWebUrl : APIEndpoint()
-    data class BrandStyle(val brandId: String) : APIEndpoint()
-    data class BrandConfig(val brandId: String) : APIEndpoint()
+
+    data class BrandStyle(
+        val brandId: String,
+    ) : APIEndpoint()
+
+    data class BrandConfig(
+        val brandId: String,
+    ) : APIEndpoint()
+
     data object GeneratePlacements : APIEndpoint()
+
     data object ViewPlacement : APIEndpoint()
+
     data object ClickPlacement : APIEndpoint()
+
     data object Prescreen : APIEndpoint()
+
     data object VirtualLookup : APIEndpoint()
 
     /**
@@ -55,4 +69,3 @@ internal sealed class APIEndpoint {
         }
     }
 }
-

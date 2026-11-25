@@ -23,4 +23,3 @@ import java.net.URL
 internal interface APIEndpointProviding {
     fun url(endpoint: APIEndpoint): URL
 }
-
