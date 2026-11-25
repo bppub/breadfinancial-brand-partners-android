@@ -151,7 +151,7 @@ internal fun BreadPartnersSDK.rtpsCall(
 
         val apiUrl = endpointProvider.url(
             if (isPrescreen) APIEndpoint.Prescreen else APIEndpoint.VirtualLookup,
-        ).toString()
+        )
         val rtpsRequestBuilder = RTPSRequestBuilder(
             merchantConfiguration,
             placementsConfiguration.rtpsData!!,
@@ -163,7 +163,7 @@ internal fun BreadPartnersSDK.rtpsCall(
             Constants.headerRequestedWithKey to Constants.headerRequestedWithValue,
         )
         APIClient().request(
-            urlString = apiUrl,
+            url = apiUrl,
             method = HTTPMethod.POST,
             body = rtpsRequest,
             headers = headers,
@@ -233,7 +233,7 @@ internal fun BreadPartnersSDK.rtpsCall(
 
                         val challengeDialog = ChallengeDialog(
                             htmlContent = htmlContent,
-                            baseUrl = apiUrl.substringBefore("/api"),
+                            baseUrl = apiUrl.toString().substringBefore("/api"),
                             onComplete = { capturedCookies ->
                                 // Retry the API call after challenge completion with captured cookies
                                 rtpsCall(
@@ -270,7 +270,7 @@ fun BreadPartnersSDK.fetchRTPSData(
     viewContext: Context,
     callback: (BreadPartnerEvent) -> Unit,
 ) {
-    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements).toString()
+    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements)
 
     val webUrl: String? = if (placementsConfiguration.rtpsData?.customerAcceptedOffer == true) {
         CommonUtils()
@@ -302,7 +302,7 @@ fun BreadPartnersSDK.fetchRTPSData(
     )
 
     APIClient().request(
-        urlString = apiUrl,
+        url = apiUrl,
         method = HTTPMethod.POST,
         body = placementRequest,
     ) { result ->

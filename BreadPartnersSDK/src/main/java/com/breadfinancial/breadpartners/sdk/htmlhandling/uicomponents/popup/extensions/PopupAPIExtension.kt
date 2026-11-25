@@ -60,10 +60,9 @@ fun PopupDialog.fetchWebViewPlacement() {
 fun PopupDialog.fetchData(requestBody: PlacementRequest) {
     val apiUrl = BreadPartnersSDK.getInstance().endpointProvider
         .url(APIEndpoint.GeneratePlacements)
-        .toString()
     CoroutineScope(Dispatchers.Main).launch {
         APIClient().request(
-            urlString = apiUrl,
+            url = apiUrl,
             body = requestBody,
             method = HTTPMethod.POST,
         ) { result ->

@@ -92,9 +92,9 @@ class BreadPartnersSDK private constructor() {
      * Retrieves brand-specific configurations, such as the Recaptcha key.
      */
     private fun fetchBrandConfig() {
-        val apiUrl = endpointProvider.url(APIEndpoint.BrandConfig(integrationKey)).toString()
+        val apiUrl = endpointProvider.url(APIEndpoint.BrandConfig(integrationKey))
         APIClient().request(
-            urlString = apiUrl,
+            url = apiUrl,
             method = HTTPMethod.GET,
             body = null,
         ) { result ->

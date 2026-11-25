@@ -43,7 +43,7 @@ fun BreadPartnersSDK.fetchPlacementData(
     callback: (BreadPartnerEvent) -> Unit,
     cookies: String? = null,
 ) {
-    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements).toString()
+    val apiUrl = endpointProvider.url(APIEndpoint.GeneratePlacements)
     val builder = PlacementRequestBuilder(
         integrationKey = integrationKey,
         merchantConfiguration,
@@ -52,7 +52,7 @@ fun BreadPartnersSDK.fetchPlacementData(
     val placementRequest = builder.build()
 
     APIClient().request(
-        urlString = apiUrl,
+        url = apiUrl,
         method = HTTPMethod.POST,
         body = placementRequest,
         cookies = cookies,
@@ -141,7 +141,7 @@ fun BreadPartnersSDK.fetchPlacementData(
 
                     val challengeDialog = ChallengeDialog(
                         htmlContent = htmlContent,
-                        baseUrl = apiUrl.substringBefore("/api"),
+                            baseUrl = apiUrl.toString().substringBefore("/api"),
                         onComplete = { capturedCookies ->
                             // Retry the API call after challenge completion with captured cookies
                             fetchPlacementData(

@@ -21,6 +21,7 @@ import com.breadfinancial.breadpartners.sdk.networking.APIClient
 import com.breadfinancial.breadpartners.sdk.networking.HTTPMethod
 import com.breadfinancial.breadpartners.sdk.networking.models.PlacementsResponse
 import com.breadfinancial.breadpartners.sdk.utilities.Constants
+import java.net.URL
 import java.util.Date
 
 /**
@@ -38,7 +39,7 @@ class AnalyticsManager {
 
     // Helper function to send analytics payload
     private fun sendAnalyticsPayload(
-        apiUrl: String,
+        apiUrl: URL,
         payload: Analytics.Payload,
     ) {
         val headers = mapOf(
@@ -50,7 +51,7 @@ class AnalyticsManager {
             Constants.headerAccessControlRequestMethodKey to Constants.headerAccessControlRequestMethodValue,
         )
         APIClient().request(
-            urlString = apiUrl,
+            url = apiUrl,
             method = HTTPMethod.OPTIONS,
             body = payload,
             headers = headers,
@@ -121,7 +122,7 @@ class AnalyticsManager {
         apiEndpoint: APIEndpoint,
     ) {
         val payload = createAnalyticsPlacementPayload(name, placementResponse)
-        val apiUrl = BreadPartnersSDK.getInstance().endpointProvider.url(apiEndpoint).toString()
+        val apiUrl = BreadPartnersSDK.getInstance().endpointProvider.url(apiEndpoint)
         sendAnalyticsPayload(apiUrl, payload)
     }
 
